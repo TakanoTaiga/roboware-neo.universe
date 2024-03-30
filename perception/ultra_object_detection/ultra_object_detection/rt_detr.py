@@ -1,4 +1,4 @@
-from typing import List, Dict
+from motpy import Detection, MultiObjectTracker
 
 from ultralytics import RTDETR
 from ultralytics.engine.results import Results
@@ -34,7 +34,7 @@ class rt_detr_node(Node):
         
         self.get_logger().info('start ultra_obejct_detection package rt_detr node')
                 
-    def publish_image_markers(self, bbox_msg: BoundingBoxes, header):
+    def publish_image_markers(self, bbox_msg: BoundingBoxes):
         markers_msg = ImageAnnotations()
         for i, box in enumerate(bbox_msg.bounding_boxes):
             marker = PointsAnnotation()
@@ -56,7 +56,7 @@ class rt_detr_node(Node):
             label = TextAnnotation()
             label.timestamp = bbox_msg.header.stamp
             label.position = Point2(x=float(box.xmin), y=float(box.ymin))
-            label.text = box.class_id
+            label.text = box.class_id + "(" + str(box.id )+ ")"
             label.font_size = 30.0
             label.text_color = foxgloveColor(r=1.0, g=1.0, b=1.0, a=1.0)
             label.background_color = foxgloveColor(r=0.905, g=0.298, b=0.235, a=1.0)
@@ -85,14 +85,16 @@ class rt_detr_node(Node):
             msg.class_id_int = int(box_data.cls)
             msg.class_id = self.model.names[int(box_data.cls)]
             msg.probability = float(box_data.conf)
-
+            
+            msg.id = int(box_data.id) if box_data.id is not None else 0
             bbox_array_msg.bounding_boxes.append(msg)
 
         return bbox_array_msg
 
 
     def listener_callback(self, msg):
-        results = self.model.predict(self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8'), conf=0.7, half=True)
+        cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        results = self.model.track(cv_image, verbose=False, persist=True, tracker="bytetrack.yaml", conf=0.7, half=True)
         if len(results) > 0 and results[0].boxes:
             results: Results = results[0].cpu()
             bbox_msg = self.parse_boxes(results)
@@ -104,7 +106,7 @@ class rt_detr_node(Node):
             imgMsg = self.bridge.cv2_to_imgmsg(annotated_frame, "bgr8")
             self.publisher_debug_image.publish(imgMsg)
             
-            self.publish_image_markers(bbox_msg, msg.header)
+            self.publish_image_markers(bbox_msg)
         else:
             self.publisher_result.publish(BoundingBoxes())
             self.publisher_debug_image.publish(msg)
