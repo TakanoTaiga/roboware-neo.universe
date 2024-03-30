@@ -92,18 +92,25 @@ class rt_detr_node(Node):
 
 
     def listener_callback(self, msg):
-        results = self.model.predict(self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8'),conf=0.7,half=True)
-        results: Results = results[0].cpu()
-        bbox_msg = self.parse_boxes(results)
-        bbox_msg.image_header = msg.header
-        self.publisher_result.publish(bbox_msg)
-        
-        # for debug
-        annotated_frame = results[0].plot()
-        imgMsg = self.bridge.cv2_to_imgmsg(annotated_frame, "bgr8")
-        self.publisher_debug_image.publish(imgMsg)
-        
-        self.publish_image_markers(bbox_msg, msg.header)
+        results = self.model.predict(self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8'), conf=0.7, half=True)
+        if len(results) > 0 and results[0].boxes:
+            results: Results = results[0].cpu()
+            bbox_msg = self.parse_boxes(results)
+            bbox_msg.image_header = msg.header
+            self.publisher_result.publish(bbox_msg)
+            
+            # for debug
+            annotated_frame = results.plot()
+            imgMsg = self.bridge.cv2_to_imgmsg(annotated_frame, "bgr8")
+            self.publisher_debug_image.publish(imgMsg)
+            
+            self.publish_image_markers(bbox_msg, msg.header)
+        else:
+            self.publisher_result.publish(BoundingBoxes())
+            self.publisher_debug_image.publish(msg)
+            self.publisher_image_markers.publish(ImageAnnotations())
+            
+
 
 def main(args=None):
     rclpy.init(args=args)
