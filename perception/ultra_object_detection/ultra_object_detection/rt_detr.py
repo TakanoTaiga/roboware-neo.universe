@@ -12,6 +12,9 @@ import cv_bridge
 from bboxes_ex_msgs.msg import BoundingBox
 from bboxes_ex_msgs.msg import BoundingBoxes
 
+from foxglove_msgs.msg import ImageAnnotations, PointsAnnotation, TextAnnotation
+from foxglove_msgs.msg import Point2 , Color as foxgloveColor
+
 class rt_detr_node(Node):
     def __init__(self):
         super().__init__('rt_detr_node')
@@ -24,9 +27,43 @@ class rt_detr_node(Node):
         
         self.publisher_result = self.create_publisher(BoundingBoxes, 'object_detect/result', 0)
         self.publisher_debug_image = self.create_publisher(rosimg, 'object_detect/debug/image', 0)
+        self.publisher_image_markers = self.create_publisher(ImageAnnotations, 'object_detect/debug/image_markers', 0)
+
 
         self.subscription
         self.bridge = cv_bridge.CvBridge()
+        
+        print('start ultra_obejct_detection package rt_detr node')
+        
+    def publish_image_markers(self, bbox_msg: BoundingBoxes, header):
+        markers_msg = ImageAnnotations()
+        for i, box in enumerate(bbox_msg.bounding_boxes):
+            marker = PointsAnnotation()
+            marker.timestamp = bbox_msg.header.stamp
+            marker.type = 2
+            marker.points = [
+                Point2(x=float(box.xmin), y=float(box.ymin)),  # 左上
+                Point2(x=float(box.xmax), y=float(box.ymin)),  # 右上
+                Point2(x=float(box.xmax), y=float(box.ymax)),  # 右下
+                Point2(x=float(box.xmin), y=float(box.ymax)),  # 左下
+                Point2(x=float(box.xmin), y=float(box.ymin))   # 最初の点に戻る
+            ]
+            marker.thickness = 2.0
+            marker.outline_color = foxgloveColor(r=0.905, g=0.298, b=0.235, a=1.0)
+            marker.fill_color = foxgloveColor(r=0.0, g=0.0, b=0.0, a=0.0)
+            
+            markers_msg.points.append(marker)
+            
+            label = TextAnnotation()
+            label.timestamp = bbox_msg.header.stamp
+            label.position = Point2(x=float(box.xmin), y=float(box.ymin))
+            label.text = box.class_id
+            label.font_size = 30.0
+            label.text_color = foxgloveColor(r=1.0, g=1.0, b=1.0, a=1.0)
+            label.background_color = foxgloveColor(r=0.905, g=0.298, b=0.235, a=1.0)
+            markers_msg.texts.append(label)
+
+        self.publisher_image_markers.publish(markers_msg)
         
     def parse_boxes(self, results: Results) -> BoundingBoxes:
         bbox_array_msg = BoundingBoxes()
@@ -66,9 +103,10 @@ class rt_detr_node(Node):
         annotated_frame = results[0].plot()
         imgMsg = self.bridge.cv2_to_imgmsg(annotated_frame, "bgr8")
         self.publisher_debug_image.publish(imgMsg)
+        
+        self.publish_image_markers(bbox_msg, msg.header)
 
 def main(args=None):
-    print('start ultra_obejct_detection package rt_detr node')
     rclpy.init(args=args)
     minimal_subscriber = rt_detr_node()
     rclpy.spin(minimal_subscriber)

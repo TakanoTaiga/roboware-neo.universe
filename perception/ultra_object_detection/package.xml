@@ -8,6 +8,7 @@
   <license>Apatch-2.0</license>
 
   <depend>bboxes_ex_msgs</depend>
+  <depend>foxglove_msgs</depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
