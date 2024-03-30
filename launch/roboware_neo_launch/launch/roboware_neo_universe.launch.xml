@@ -1,0 +1,8 @@
+<launch>
+    <!-- Sensing -->
+    <include file="$(find-pkg-share roboware_neo_launch)/launch/sensing.launch.xml"/>
+    <!-- Perception -->
+    <include file="$(find-pkg-share roboware_neo_launch)/launch/perception.launch.xml"/>
+    <!-- Visualize -->
+    <node pkg="foxglove_bridge" exec="foxglove_bridge" ></node>
+</launch>

@@ -1,0 +1,9 @@
+<launch>    
+    <!-- Object Detection RT-DETR -->
+    <node pkg="ultra_object_detection" exec="rt_detr" >
+        <remap from="input/raw_image" to="/sensing/realsense/color/image_raw"/>
+        <remap from="output/result" to="/perception/rt_detr/result"/>
+        <remap from="debug/image" to="/perception/debug/rt_detr/image"/>
+        <remap from="debug/image_markers" to="/perception/debug/rt_detr/image_markers"/>
+    </node>
+</launch>

@@ -22,19 +22,18 @@ class rt_detr_node(Node):
         
         self.subscription = self.create_subscription(
             rosimg,
-            '/camera/color/image_raw',
+            'input/raw_image',
             self.listener_callback,0)
         
-        self.publisher_result = self.create_publisher(BoundingBoxes, 'object_detect/result', 0)
-        self.publisher_debug_image = self.create_publisher(rosimg, 'object_detect/debug/image', 0)
-        self.publisher_image_markers = self.create_publisher(ImageAnnotations, 'object_detect/debug/image_markers', 0)
-
+        self.publisher_result = self.create_publisher(BoundingBoxes, 'output/result', 0)
+        self.publisher_debug_image = self.create_publisher(rosimg, 'debug/image', 0)
+        self.publisher_image_markers = self.create_publisher(ImageAnnotations, 'debug/image_markers', 0)
 
         self.subscription
         self.bridge = cv_bridge.CvBridge()
         
-        print('start ultra_obejct_detection package rt_detr node')
-        
+        self.get_logger().info('start ultra_obejct_detection package rt_detr node')
+                
     def publish_image_markers(self, bbox_msg: BoundingBoxes, header):
         markers_msg = ImageAnnotations()
         for i, box in enumerate(bbox_msg.bounding_boxes):

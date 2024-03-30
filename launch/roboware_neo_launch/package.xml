@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>roboware_neo_launch</name>
+  <version>0.1.0</version>
+  <description>The roboware_neo_launch package</description>
+
+  <maintainer email="ttttghghnb554z@outlook.jp">Taiga takano</maintainer>
+  <license>Apache License 2.0</license>
+
+  <buildtool_depend>ament_cmake_auto</buildtool_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
