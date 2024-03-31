@@ -1,6 +1,0 @@
-<launch>    
-    <!-- RealSense -->
-    <node pkg="realsense2_camera" exec="realsense2_camera_node" name="realsense" namespace="/sensing/realsense">
-        
-    </node>
-</launch>
