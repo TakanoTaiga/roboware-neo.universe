@@ -12,7 +12,7 @@ from bboxes_ex_msgs.msg import BoundingBoxes
 class rt_detr_node(Node):
     def __init__(self):
         super().__init__('rt_detr_node')
-        self.model = RTDETR('rtdetr-l.pt')
+        self.model = RTDETR('/home/taiga/rtdetr-l.pt')
         
         self.subscription = self.create_subscription(
             rosimg,
