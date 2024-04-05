@@ -51,15 +51,18 @@ namespace tailoc_ros2
             return;
         }
 
-        size_t minSize = std::min(sensor_points.size(), before_points.size());
-        sensor_points.resize(minSize);
-        before_points.resize(minSize);
 
-        ndt_cpp::mat3x3 trans_mat;
+        ndt_cpp::mat3x3 trans_mat{
+            1.0, 0.0, 0.0,
+            0.0, 1.0, 0.0,
+            0.0, 0.0, 1.0
+        };
         const auto covs = ndt_cpp::compute_ndt_points(before_points);
         ndt_cpp::ndt_scan_matching(trans_mat, sensor_points, before_points, covs);
+        odom.x += trans_mat.c;
+        odom.y += trans_mat.f;
 
-        RCLCPP_INFO(get_logger(), "%f,%f", trans_mat.c,trans_mat.f);
+        RCLCPP_INFO(get_logger(), "%f,%f", odom.x, odom.y);
 
         before_points.clear();
         for(const auto& point : sensor_points){

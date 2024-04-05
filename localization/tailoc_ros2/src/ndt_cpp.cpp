@@ -340,8 +340,8 @@ void ndt_scan_matching(mat3x3& trans_mat, const std::vector<point2>& source_poin
         const point3 delta = solve3x3(H_Mat,b_Point);
         trans_mat = multiplyMatrices3x3x2(trans_mat, expmap(delta));
 
-        if(multtiplyPowPoint3(delta) < 1e-2){
-            std::cout << "END NDT. ITER: " << iter << std::endl;
+        if(multtiplyPowPoint3(delta) < 1e-4){
+            // std::cout << "END NDT. ITER: " << iter << std::endl;
             break;
         }
     }

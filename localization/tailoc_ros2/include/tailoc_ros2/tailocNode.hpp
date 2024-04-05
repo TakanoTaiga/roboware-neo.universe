@@ -31,6 +31,8 @@ namespace tailoc_ros2
     private:
         rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr sub_laser_scan_;
         void subscriber_callback(const sensor_msgs::msg::LaserScan msg);
+
+        ndt_cpp::point2 odom;
     };
 } // namespace tailoc_ros2
 
