@@ -22,7 +22,7 @@ namespace tailoc_ros2
     {   
         // Publisher and Subscriber
         sub_laser_scan_ = create_subscription<sensor_msgs::msg::LaserScan>(
-            "/scan", 0, std::bind(&tailocNode::subscriber_callback, this, std::placeholders::_1));
+            "input/scan", 0, std::bind(&tailocNode::subscriber_callback, this, std::placeholders::_1));
 
         pub_current_pose_ = create_publisher<geometry_msgs::msg::PoseStamped>(
             "output/current_pose", 0);

@@ -1,0 +1,11 @@
+<launch>    
+    <arg name="tailoc_param_path" default="$(find-pkg-share roboware_neo_launch)/config/tailoc.param.yaml"/>
+
+    <!-- Localization scan to odom -->
+    <node pkg="tailoc_ros2" exec="tailoc_ros2_node" >
+        <remap from="input/scan" to="/sensing/laser_scan"/>
+        <remap from="output/current_pose" to="/localization/tailoc_ros2/current_pose"/>
+        <remap from="output/path" to="/localization/tailoc_ros2/path"/>
+        <param from="$(var tailoc_param_path)"/>
+    </node>
+</launch>

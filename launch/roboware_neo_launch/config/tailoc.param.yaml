@@ -1,0 +1,7 @@
+/**:
+  ros__parameters:
+    enable_debug: true
+    ndt_max_iteration: 10
+    ndt_precision: 1e-5
+    ndt_matching_step: 10
+    ndt_sample_num_point: 10
