@@ -12,14 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <sstream> 
-#include <cmath>
-#include <algorithm>
-#include <numeric>
-
 #include "tailoc_ros2/ndt_cpp.hpp"
 
 namespace ndt_cpp
@@ -278,7 +270,7 @@ std::vector<mat2x2> compute_ndt_points(const ndtParam& param, std::vector<point2
     return covs;
 }
 
-void ndt_scan_matching(const ndtParam& param, mat3x3& trans_mat, const std::vector<point2>& source_points, const std::vector<point2>& target_points, const std::vector<mat2x2>& target_covs){
+void ndt_scan_matching(const ndtParam& param, const rclcpp::Logger& logger, mat3x3& trans_mat, const std::vector<point2>& source_points, const std::vector<point2>& target_points, const std::vector<mat2x2>& target_covs){
     const double max_distance2 = 1.0f * 1.0f;
     
     const size_t target_points_size = target_points.size();
@@ -349,9 +341,20 @@ void ndt_scan_matching(const ndtParam& param, mat3x3& trans_mat, const std::vect
         trans_mat = multiplyMatrices3x3x2(trans_mat, expmap(delta));
 
         if(multtiplyPowPoint3(delta) < param.ndt_precision){
-            // std::cout << "END NDT. ITER: " << iter << std::endl;
-            break;
+            if(param.enable_debug){
+                RCLCPP_INFO_STREAM(logger, 
+                    "END NDT. ITER: " << iter << 
+                    " dx: " << trans_mat.c << 
+                    " dy: " << trans_mat.f << 
+                    " dz: " << atan(trans_mat.d / trans_mat.a) * 57.295779 << "°"
+                );
+            }
+            
+            return;
         }
+    }
+    if(param.enable_debug){
+        RCLCPP_WARN_STREAM(logger,"INACCURATE ODOMETRY");
     }
 }
 }

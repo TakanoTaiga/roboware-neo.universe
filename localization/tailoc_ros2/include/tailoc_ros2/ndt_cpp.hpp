@@ -15,7 +15,15 @@
 #ifndef NDT_CPP_NODE_HPP_
 #define NDT_CPP_NODE_HPP_
 
+#include <iostream>
+#include <fstream>
 #include <vector>
+#include <sstream> 
+#include <cmath>
+#include <algorithm>
+#include <numeric>
+
+#include <rclcpp/rclcpp.hpp>
 
 namespace ndt_cpp
 {
@@ -54,6 +62,7 @@ namespace ndt_cpp
   
     void ndt_scan_matching(
         const ndtParam& param, 
+        const rclcpp::Logger& logger,
         mat3x3& trans_mat, 
         const std::vector<point2>& source_points, 
         const std::vector<point2>& target_points, 

@@ -39,9 +39,13 @@ namespace tailoc_ros2
         ndt_param.ndt_precision = declare_parameter<double>("ndt_precision" , 1e-5);
         ndt_param.ndt_matching_step = declare_parameter<int>("ndt_matching_step" , 10);
         ndt_param.ndt_sample_num_point = declare_parameter<int>("ndt_sample_num_point" , 10);
+
+        RCLCPP_INFO_STREAM(get_logger(),  "Initialize Task Done");
     }
 
     void tailocNode::subscriber_callback(const sensor_msgs::msg::LaserScan msg){
+        auto start_time = std::chrono::high_resolution_clock::now();
+
         static std::vector<ndt_cpp::point2> before_points;
 
         std::vector<ndt_cpp::point2> sensor_points;
@@ -68,6 +72,7 @@ namespace tailoc_ros2
 
         ndt_cpp::ndt_scan_matching(
             ndt_param,
+            get_logger(),
             trans_mat,
             sensor_points,
             before_points,
@@ -118,6 +123,14 @@ namespace tailoc_ros2
         path.poses.push_back(pose);
         pub_path_->publish(path);
 
+        auto end_time = std::chrono::high_resolution_clock::now(); 
+        double latency_ms = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count() / 1e6;
+
+        if(ndt_param.enable_debug){
+            RCLCPP_INFO_STREAM(get_logger(), 
+                "latency " << latency_ms << "ms"
+            );
+        }
     }
 }
 
