@@ -14,6 +14,7 @@
 
 #include "tailoc_ros2/tailocNode.hpp"
 #include "tailoc_ros2/ndt_cpp.hpp"
+#include "tailoc_ros2/tailoc_util.hpp"
 
 namespace tailoc_ros2
 {
@@ -49,77 +50,43 @@ namespace tailoc_ros2
         static std::vector<ndt_cpp::point2> before_points;
 
         std::vector<ndt_cpp::point2> sensor_points;
-        for(size_t i=0; i < msg.ranges.size(); ++i) {
-            ndt_cpp::point2 lp;
-            double th = msg.angle_min + msg.angle_increment * i;
-            double r = msg.ranges[i];
-            if (msg.range_min < r && r < msg.range_max) {
-                lp.x = r * cos(th); lp.y = r * sin(th);
-                sensor_points.push_back(lp);
-            }
-        }
-
+        tailoc_util::laserscan_to_ndtcpp_point2(msg, sensor_points);
+        
         if(before_points.size() < 10){
-            for(const auto& point : sensor_points){
-                before_points.push_back(point);
-            }
+            std::copy(sensor_points.begin(), sensor_points.end(), std::back_inserter(before_points));
             return;
         }
 
-        auto trans_mat = ndt_cpp::makeTransformationMatrix(0.0, 0.0, 0.0);
+        auto delta_trans_mat = ndt_cpp::makeTransformationMatrix(0.0, 0.0, 0.0);
 
         const auto covs = ndt_cpp::compute_ndt_points(ndt_param, before_points);
 
         ndt_cpp::ndt_scan_matching(
             ndt_param,
             get_logger(),
-            trans_mat,
+            delta_trans_mat,
             sensor_points,
             before_points,
             covs
         );
 
-        odom.x += trans_mat.c;
-        odom.y += trans_mat.f;
-        odom.z += atan(trans_mat.d / trans_mat.a);
+        odom.x += delta_trans_mat.c;
+        odom.y += delta_trans_mat.f;
+        odom.z += atan(delta_trans_mat.d / delta_trans_mat.a);
 
         before_points.clear();
-        for(const auto& point : sensor_points){
-            before_points.push_back(point);
-        }
+        std::copy(sensor_points.begin(), sensor_points.end(), std::back_inserter(before_points));
 
-        geometry_msgs::msg::TransformStamped t;
-        t.header.stamp = get_clock()->now();
-        t.header.frame_id = "map";
-        t.child_frame_id = "base_link";
+        const auto stamp = get_clock()->now();
 
-        t.transform.translation.x = odom.x;
-        t.transform.translation.y = odom.y;
-        t.transform.translation.z = 0.0;
-
-        tf2::Quaternion q;
-        q.setRPY(0, 0, odom.z);
-        t.transform.rotation.x = q.x();
-        t.transform.rotation.y = q.y();
-        t.transform.rotation.z = q.z();
-        t.transform.rotation.w = q.w();
-
-        tf_broadcaster_->sendTransform(t);
-
-        geometry_msgs::msg::PoseStamped pose;
-        pose.header = t.header;
-
-        pose.pose.position.x = odom.x;
-        pose.pose.position.y = odom.y;
-        pose.pose.position.z = 0.0;
-
-        pose.pose.orientation.x = q.x();
-        pose.pose.orientation.y = q.y();
-        pose.pose.orientation.z = q.z();
-        pose.pose.orientation.w = q.w();
+        tf_broadcaster_->sendTransform(
+            tailoc_util::point3_to_tf_stamp(odom, stamp));
+  
+        const auto pose = tailoc_util::point3_to_pose_stamp(odom, stamp);
         pub_current_pose_->publish(pose);
 
-        path.header = t.header;
+        path.header.stamp = stamp;
+        path.header.frame_id = "base_link";
         path.poses.push_back(pose);
         pub_path_->publish(path);
 
