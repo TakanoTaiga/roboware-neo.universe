@@ -12,12 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <memory>
-#include <vector>
-
-#include <rclcpp/rclcpp.hpp>
-#include <sensor_msgs/msg/laser_scan.hpp>
-
 #include "tailoc_ros2/tailocNode.hpp"
 #include "tailoc_ros2/ndt_cpp.hpp"
 
@@ -28,6 +22,15 @@ namespace tailoc_ros2
     {   
         sub_laser_scan_ = create_subscription<sensor_msgs::msg::LaserScan>(
             "/scan", 0, std::bind(&tailocNode::subscriber_callback, this, std::placeholders::_1));
+
+        pub_current_pose_ = create_publisher<geometry_msgs::msg::PoseStamped>(
+            "/current_pose", 0);
+
+        pub_path_ = create_publisher<nav_msgs::msg::Path>(
+            "/path", 0);
+
+        tf_broadcaster_ =
+            std::make_unique<tf2_ros::TransformBroadcaster>(*this);
     }
 
     void tailocNode::subscriber_callback(const sensor_msgs::msg::LaserScan msg){
@@ -51,7 +54,6 @@ namespace tailoc_ros2
             return;
         }
 
-
         ndt_cpp::mat3x3 trans_mat{
             1.0, 0.0, 0.0,
             0.0, 1.0, 0.0,
@@ -61,13 +63,50 @@ namespace tailoc_ros2
         ndt_cpp::ndt_scan_matching(trans_mat, sensor_points, before_points, covs);
         odom.x += trans_mat.c;
         odom.y += trans_mat.f;
-
-        RCLCPP_INFO(get_logger(), "%f,%f", odom.x, odom.y);
+        odom.z += atan(trans_mat.d / trans_mat.a);
+        
+        RCLCPP_INFO(get_logger(), "%f,%f,%f", odom.x, odom.y, odom.z * 57.295);
 
         before_points.clear();
         for(const auto& point : sensor_points){
             before_points.push_back(point);
         }
+
+        geometry_msgs::msg::TransformStamped t;
+        t.header.stamp = get_clock()->now();
+        t.header.frame_id = "odom";
+        t.child_frame_id = msg.header.frame_id;
+
+        t.transform.translation.x = odom.x;
+        t.transform.translation.y = odom.y;
+        t.transform.translation.z = 0.0;
+
+        tf2::Quaternion q;
+        q.setRPY(0, 0, odom.z);
+        t.transform.rotation.x = q.x();
+        t.transform.rotation.y = q.y();
+        t.transform.rotation.z = q.z();
+        t.transform.rotation.w = q.w();
+
+        tf_broadcaster_->sendTransform(t);
+
+        geometry_msgs::msg::PoseStamped pose;
+        pose.header = t.header;
+
+        pose.pose.position.x = odom.x;
+        pose.pose.position.y = odom.y;
+        pose.pose.position.z = 0.0;
+
+        pose.pose.orientation.x = q.x();
+        pose.pose.orientation.y = q.y();
+        pose.pose.orientation.z = q.z();
+        pose.pose.orientation.w = q.w();
+        pub_current_pose_->publish(pose);
+
+        path.header = t.header;
+        path.poses.push_back(pose);
+        pub_path_->publish(path);
+
     }
 }
 
