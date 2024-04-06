@@ -17,6 +17,7 @@
 
 #include <vector>
 #include <memory>
+#include <chrono>
 
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/laser_scan.hpp>
@@ -45,6 +46,8 @@ namespace tailoc_ros2
 
         ndt_cpp::point3 odom;
         nav_msgs::msg::Path path;
+
+        ndt_cpp::ndtParam ndt_param;
     };
 } // namespace tailoc_ros2
 

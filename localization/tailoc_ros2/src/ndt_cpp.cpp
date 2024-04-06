@@ -25,6 +25,15 @@
 namespace ndt_cpp
 {
 
+mat3x3 makeTransformationMatrix(const double& tx, const double& ty, const double& rad){
+    mat3x3 mat = {
+        cos(rad), sin(rad) * -1.0, tx,
+        sin(rad), cos(rad)       , ty,
+        0.0, 0.0, 1.0
+    };
+    return mat;
+}
+
 mat3x3 multiplyMatrices3x3x2(const mat3x3& mat1, const mat3x3& mat2) {
     mat3x3 result;
     result.a = mat1.a * mat2.a + mat1.b * mat2.d + mat1.c * mat2.g;
@@ -238,13 +247,13 @@ mat2x2 compute_covariance(const std::vector<point2>& points, const point2& mean)
     return cov;
 }
 
-std::vector<mat2x2> compute_ndt_points(std::vector<point2>& points){
-    auto N = 10;
+std::vector<mat2x2> compute_ndt_points(const ndtParam& param, std::vector<point2>& points){
+    // auto N = 10;
     
     const auto point_size = points.size();
 
     std::vector<std::pair<double, size_t>> distances(point_size);
-    std::vector<point2> compute_points(N);
+    std::vector<point2> compute_points(param.ndt_sample_num_point);
 
     std::vector<mat2x2> covs;
 
@@ -254,8 +263,8 @@ std::vector<mat2x2> compute_ndt_points(std::vector<point2>& points){
             auto dy = points[i].y - point.y;
             distances[i] = { dx * dx + dy * dy, i };
         }
-        std::nth_element(distances.begin(), distances.begin() + N, distances.end());
-        for (size_t i = 0; i < N; i++){
+        std::nth_element(distances.begin(), distances.begin() + param.ndt_sample_num_point, distances.end());
+        for (size_t i = 0; i < param.ndt_sample_num_point; i++){
             compute_points[i] = points[distances[i].second];
         }
 
@@ -269,15 +278,14 @@ std::vector<mat2x2> compute_ndt_points(std::vector<point2>& points){
     return covs;
 }
 
-void ndt_scan_matching(mat3x3& trans_mat, const std::vector<point2>& source_points, const std::vector<point2>& target_points, const std::vector<mat2x2>& target_covs){
-    const size_t max_iter_num = 20;
+void ndt_scan_matching(const ndtParam& param, mat3x3& trans_mat, const std::vector<point2>& source_points, const std::vector<point2>& target_points, const std::vector<mat2x2>& target_covs){
     const double max_distance2 = 1.0f * 1.0f;
     
     const size_t target_points_size = target_points.size();
     const size_t source_points_size = source_points.size();
     std::vector<std::pair<double, size_t>> distances(target_points_size);
 
-    for(size_t iter = 0; iter < max_iter_num; iter++){
+    for(size_t iter = 0; iter < param.ndt_max_iteration; iter++){
         mat3x3 H_Mat {
             0.0f, 0.0f, 0.0f, 
             0.0f, 0.0f, 0.0f, 
@@ -288,7 +296,7 @@ void ndt_scan_matching(mat3x3& trans_mat, const std::vector<point2>& source_poin
             0.0f, 0.0f, 0.0f
         };
 
-        for(auto point_iter = 0; point_iter < source_points_size; point_iter += 10){
+        for(auto point_iter = 0; point_iter < source_points_size; point_iter += param.ndt_matching_step){
             point2 query_point = transformPointCopy(trans_mat, source_points[point_iter]);
             for(auto i = 0; i < target_points_size; i++){
                 auto dx = target_points[i].x - query_point.x;
@@ -340,8 +348,8 @@ void ndt_scan_matching(mat3x3& trans_mat, const std::vector<point2>& source_poin
         const point3 delta = solve3x3(H_Mat,b_Point);
         trans_mat = multiplyMatrices3x3x2(trans_mat, expmap(delta));
 
-        if(multtiplyPowPoint3(delta) < 1e-5){
-            std::cout << "END NDT. ITER: " << iter << std::endl;
+        if(multtiplyPowPoint3(delta) < param.ndt_precision){
+            // std::cout << "END NDT. ITER: " << iter << std::endl;
             break;
         }
     }

@@ -20,27 +20,47 @@
 namespace ndt_cpp
 {
 
-struct point2{
-    double x, y;
-};
+    struct point2{
+        double x, y;
+    };
 
-struct point3{
-    double x, y, z;
-};
+    struct point3{
+        double x, y, z;
+    };
 
-struct mat2x2{
-    double a, b;
-    double c, d;
-};
+    struct mat2x2{
+        double a, b;
+        double c, d;
+    };
 
-struct mat3x3{
-    double a, b, c;
-    double d, e, f;
-    double g, h, i;
-};
+    struct mat3x3{
+        double a, b, c;
+        double d, e, f;
+        double g, h, i;
+    };
 
-std::vector<mat2x2> compute_ndt_points(std::vector<point2>& points);
-void ndt_scan_matching(mat3x3& trans_mat, const std::vector<point2>& source_points, const std::vector<point2>& target_points, const std::vector<mat2x2>& target_covs);
+    struct ndtParam{
+        bool   enable_debug;
+        int    ndt_max_iteration;
+        double ndt_precision;
+        int    ndt_matching_step;
+        int    ndt_sample_num_point;
+        double ndt_initial_pose_x;
+        double ndt_initial_pose_y;
+        double ndt_initial_pose_rad;
+    };
+
+    std::vector<mat2x2> compute_ndt_points(const ndtParam& param, std::vector<point2>& points);
+  
+    void ndt_scan_matching(
+        const ndtParam& param, 
+        mat3x3& trans_mat, 
+        const std::vector<point2>& source_points, 
+        const std::vector<point2>& target_points, 
+        const std::vector<mat2x2>& target_covs
+    );
+
+    mat3x3 makeTransformationMatrix(const double& tx, const double& ty, const double& rad);
 
 }
 

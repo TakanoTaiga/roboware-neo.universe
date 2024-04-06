@@ -20,17 +20,28 @@ namespace tailoc_ros2
     tailocNode::tailocNode(const rclcpp::NodeOptions &node_option)
         : rclcpp::Node("tailoc_node", node_option)
     {   
+        // Publisher and Subscriber
         sub_laser_scan_ = create_subscription<sensor_msgs::msg::LaserScan>(
             "/scan", 0, std::bind(&tailocNode::subscriber_callback, this, std::placeholders::_1));
 
         pub_current_pose_ = create_publisher<geometry_msgs::msg::PoseStamped>(
-            "/current_pose", 0);
+            "output/current_pose", 0);
 
         pub_path_ = create_publisher<nav_msgs::msg::Path>(
-            "/path", 0);
+            "output/path", 0);
 
         tf_broadcaster_ =
             std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+
+        // Parameter
+        ndt_param.enable_debug = declare_parameter<bool>("enable_debug" , false);
+        ndt_param.ndt_max_iteration = declare_parameter<int>("ndt_max_iteration" , 10);
+        ndt_param.ndt_precision = declare_parameter<double>("ndt_precision" , 1e-5);
+        ndt_param.ndt_matching_step = declare_parameter<int>("ndt_matching_step" , 10);
+        ndt_param.ndt_sample_num_point = declare_parameter<int>("ndt_sample_num_point" , 10);
+        ndt_param.ndt_initial_pose_x = declare_parameter<double>("ndt_initial_pose_x" , 0.0);
+        ndt_param.ndt_initial_pose_y = declare_parameter<double>("ndt_initial_pose_y" , 0.0);
+        ndt_param.ndt_initial_pose_rad = declare_parameter<double>("ndt_initial_pose_rad" , 0.0);
     }
 
     void tailocNode::subscriber_callback(const sensor_msgs::msg::LaserScan msg){
@@ -54,18 +65,25 @@ namespace tailoc_ros2
             return;
         }
 
-        ndt_cpp::mat3x3 trans_mat{
-            1.0, 0.0, 0.0,
-            0.0, 1.0, 0.0,
-            0.0, 0.0, 1.0
-        };
-        const auto covs = ndt_cpp::compute_ndt_points(before_points);
-        ndt_cpp::ndt_scan_matching(trans_mat, sensor_points, before_points, covs);
+        auto trans_mat = ndt_cpp::makeTransformationMatrix(
+            ndt_param.ndt_initial_pose_x,
+            ndt_param.ndt_initial_pose_y,
+            ndt_param.ndt_initial_pose_rad
+        );
+
+        const auto covs = ndt_cpp::compute_ndt_points(ndt_param, before_points);
+
+        ndt_cpp::ndt_scan_matching(
+            ndt_param,
+            trans_mat,
+            sensor_points,
+            before_points,
+            covs
+        );
+
         odom.x += trans_mat.c;
         odom.y += trans_mat.f;
         odom.z += atan(trans_mat.d / trans_mat.a);
-        
-        RCLCPP_INFO(get_logger(), "%f,%f,%f", odom.x, odom.y, odom.z * 57.295);
 
         before_points.clear();
         for(const auto& point : sensor_points){
@@ -74,8 +92,8 @@ namespace tailoc_ros2
 
         geometry_msgs::msg::TransformStamped t;
         t.header.stamp = get_clock()->now();
-        t.header.frame_id = "odom";
-        t.child_frame_id = msg.header.frame_id;
+        t.header.frame_id = "map";
+        t.child_frame_id = "base_link";
 
         t.transform.translation.x = odom.x;
         t.transform.translation.y = odom.y;
