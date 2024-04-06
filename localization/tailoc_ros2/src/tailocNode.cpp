@@ -39,9 +39,6 @@ namespace tailoc_ros2
         ndt_param.ndt_precision = declare_parameter<double>("ndt_precision" , 1e-5);
         ndt_param.ndt_matching_step = declare_parameter<int>("ndt_matching_step" , 10);
         ndt_param.ndt_sample_num_point = declare_parameter<int>("ndt_sample_num_point" , 10);
-        ndt_param.ndt_initial_pose_x = declare_parameter<double>("ndt_initial_pose_x" , 0.0);
-        ndt_param.ndt_initial_pose_y = declare_parameter<double>("ndt_initial_pose_y" , 0.0);
-        ndt_param.ndt_initial_pose_rad = declare_parameter<double>("ndt_initial_pose_rad" , 0.0);
     }
 
     void tailocNode::subscriber_callback(const sensor_msgs::msg::LaserScan msg){
@@ -65,11 +62,7 @@ namespace tailoc_ros2
             return;
         }
 
-        auto trans_mat = ndt_cpp::makeTransformationMatrix(
-            ndt_param.ndt_initial_pose_x,
-            ndt_param.ndt_initial_pose_y,
-            ndt_param.ndt_initial_pose_rad
-        );
+        auto trans_mat = ndt_cpp::makeTransformationMatrix(0.0, 0.0, 0.0);
 
         const auto covs = ndt_cpp::compute_ndt_points(ndt_param, before_points);
 
