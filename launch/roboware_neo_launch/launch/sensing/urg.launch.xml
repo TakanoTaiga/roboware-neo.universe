@@ -1,0 +1,10 @@
+<launch>    
+    <!-- urg -->
+    <node pkg="urg_node" exec="urg_node_driver" >
+        <remap from="scan" to="/sensing/laser_scan"/>
+        <param name="serial_port" value="/dev/ttyACM0"/>
+    </node>
+
+    <node pkg="tf2_ros" exec="static_transform_publisher" name="base_link_to_laser" args="0 0 0 0 0 0 1 base_link laser" />
+
+</launch>
