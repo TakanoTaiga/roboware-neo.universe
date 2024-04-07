@@ -46,6 +46,7 @@ namespace tailoc_ros2
 
         ndt_cpp::point3 odom;
         nav_msgs::msg::Path path;
+        std::vector<ndt_cpp::point2> map_points;
 
         ndt_cpp::ndtParam ndt_param;
     };

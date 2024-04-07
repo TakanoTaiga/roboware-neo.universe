@@ -58,19 +58,20 @@ namespace ndt_cpp
         double ndt_initial_pose_rad;
     };
 
-    std::vector<mat2x2> compute_ndt_points(const ndtParam& param, std::vector<point2>& points);
+    std::vector<std::pair<mat2x2, point2>> compute_ndt_points(const ndtParam& param, const std::vector<point2>& points);
   
     void ndt_scan_matching(
         const ndtParam& param, 
         const rclcpp::Logger& logger,
         mat3x3& trans_mat, 
         const std::vector<point2>& source_points, 
-        const std::vector<point2>& target_points, 
-        const std::vector<mat2x2>& target_covs
+        const std::vector<std::pair<ndt_cpp::mat2x2, ndt_cpp::point2>>& targets,
+        std::vector<point2>& map_points
     );
 
     mat3x3 makeTransformationMatrix(const double& tx, const double& ty, const double& rad);
-
+    void modfiyMapFillter(std::vector<point2>& map_points, const std::vector<point2>& sensor_points, const mat3x3 trans_mat);
+    void transformPointsZeroCopy(const mat3x3& mat, std::vector<point2>& points);
 }
 
 

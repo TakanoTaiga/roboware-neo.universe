@@ -63,7 +63,7 @@ namespace tailoc_util
     ){
         geometry_msgs::msg::PoseStamped pose;
         pose.header.stamp = stamp;
-        pose.header.frame_id = "base_link";
+        pose.header.frame_id = "map";
 
         pose.pose.position.x = odom.x;
         pose.pose.position.y = odom.y;

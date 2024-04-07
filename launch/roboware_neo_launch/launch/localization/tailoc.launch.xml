@@ -8,4 +8,6 @@
         <remap from="output/path" to="/localization/tailoc_ros2/path"/>
         <param from="$(var tailoc_param_path)"/>
     </node>
+
+    <node pkg="tf2_ros" exec="static_transform_publisher" name="base_link_to_velodyne" args="0 0 0 0 0 0 1 base_link velodyne" />
 </launch>

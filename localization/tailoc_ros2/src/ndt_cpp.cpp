@@ -26,6 +26,17 @@ namespace ndt_cpp
         return mat;
     }
 
+    void transformPointsZeroCopy(const mat3x3& mat, std::vector<point2>& points) {
+        point2 transformedPoint;
+
+        for (auto& point : points) {
+            transformedPoint.x = mat.a * point.x + mat.b * point.y + mat.c;
+            transformedPoint.y = mat.d * point.x + mat.e * point.y + mat.f;
+            point.x = transformedPoint.x;
+            point.y = transformedPoint.y;
+        }
+    }
+
     mat3x3 multiplyMatrices3x3x2(const mat3x3& mat1, const mat3x3& mat2) {
         mat3x3 result;
         result.a = mat1.a * mat2.a + mat1.b * mat2.d + mat1.c * mat2.g;
@@ -239,15 +250,13 @@ namespace ndt_cpp
         return cov;
     }
 
-    std::vector<mat2x2> compute_ndt_points(const ndtParam& param, std::vector<point2>& points){
-        // auto N = 10;
-        
+    std::vector<std::pair<mat2x2, point2>> compute_ndt_points(const ndtParam& param, const std::vector<point2>& points){        
         const auto point_size = points.size();
 
         std::vector<std::pair<double, size_t>> distances(point_size);
         std::vector<point2> compute_points(param.ndt_sample_num_point);
 
-        std::vector<mat2x2> covs;
+        std::vector<std::pair<mat2x2, point2>> results;
 
         for(auto &point : points){
             for(size_t i = 0; i < point_size; i++){
@@ -263,17 +272,23 @@ namespace ndt_cpp
             const auto mean = compute_mean(compute_points);
             const auto cov = compute_covariance(compute_points, mean);
 
-            point = mean;
-            covs.push_back(cov);
+            results.push_back({cov, mean});
         }
 
-        return covs;
+        return results;
     }
 
-    void ndt_scan_matching(const ndtParam& param, const rclcpp::Logger& logger, mat3x3& trans_mat, const std::vector<point2>& source_points, const std::vector<point2>& target_points, const std::vector<mat2x2>& target_covs){
+    void ndt_scan_matching(
+        const ndtParam& param, 
+        const rclcpp::Logger& logger,
+        mat3x3& trans_mat, 
+        const std::vector<point2>& source_points, 
+        const std::vector<std::pair<ndt_cpp::mat2x2, ndt_cpp::point2>>& targets,
+        std::vector<point2>& map_points
+    ){
         const double max_distance2 = 1.0f * 1.0f;
         
-        const size_t target_points_size = target_points.size();
+        const size_t target_points_size = targets.size();
         const size_t source_points_size = source_points.size();
         std::vector<std::pair<double, size_t>> distances(target_points_size);
 
@@ -291,16 +306,16 @@ namespace ndt_cpp
             for(auto point_iter = 0; point_iter < source_points_size; point_iter += param.ndt_matching_step){
                 point2 query_point = transformPointCopy(trans_mat, source_points[point_iter]);
                 for(auto i = 0; i < target_points_size; i++){
-                    auto dx = target_points[i].x - query_point.x;
-                    auto dy = target_points[i].y - query_point.y;
+                    auto dx = targets[i].second.x - query_point.x;
+                    auto dy = targets[i].second.y - query_point.y;
                     distances[i] = { dx * dx + dy * dy, i };
                 }
 
                 auto target_iter = std::min_element(distances.begin(), distances.end());
 
-                const point2 target_point = target_points[target_iter->second];
+                const point2 target_point = targets[target_iter->second].second;
                 const double target_distance = target_iter->first;
-                const mat2x2 target_cov = target_covs[target_iter->second];
+                const mat2x2 target_cov = targets[target_iter->second].first;
 
                 if(target_distance > max_distance2){continue;}
 
@@ -311,7 +326,6 @@ namespace ndt_cpp
                 };
 
                 const mat3x3 target_cov_inv = inverse3x3Copy(identity_plus_cov); //IM
-
 
                 const auto error = point3{
                     target_point.x - query_point.x,
@@ -355,6 +369,62 @@ namespace ndt_cpp
         }
         if(param.enable_debug){
             RCLCPP_WARN_STREAM(logger,"INACCURATE ODOMETRY");
+            if(param.enable_debug){
+                RCLCPP_INFO_STREAM(logger, 
+                    " dx: " << trans_mat.c << 
+                    " dy: " << trans_mat.f << 
+                    " dz: " << atan(trans_mat.d / trans_mat.a) * 57.295779 << "°"
+                );
+            }
         }
-}
+    }
+
+    void modfiyMapFillter(std::vector<point2>& map_points, const std::vector<point2>& sensor_points, const mat3x3 trans_mat){
+        std::vector<point2> transed_sensor_points;
+        std::copy(sensor_points.begin(), sensor_points.end(), std::back_inserter(transed_sensor_points));
+        transformPointsZeroCopy(trans_mat, transed_sensor_points);
+
+        for(const auto& point : transed_sensor_points){
+            auto fillter_max = 0;
+            for(const auto& map_point : map_points){
+                const auto dx = point.x - map_point.x;
+                const auto dy = point.y - map_point.y;
+                const auto distance = dx * dx + dy * dy;
+                // std::cout << distance << std::endl;
+                if(distance < 0.5){
+                    fillter_max++;
+                }
+
+                if(fillter_max > 5){
+                    break;
+                }
+            }
+
+            if(fillter_max < 4){
+                map_points.push_back(point);
+            }
+        }
+
+        // std::vector<point2> fillterd_points;
+
+        // for(const auto& point : map_points){
+        //     auto fillter_max = 0;
+        //     for(const auto& iter_point : map_points){
+        //         const auto dx = point.x - iter_point.x;
+        //         const auto dy = point.y - iter_point.y;
+        //         const auto distance = dx * dx + dy * dy;
+        //         if(distance < 0.5){
+        //             fillter_max++;
+        //         }
+        //         if(fillter_max > 10){
+        //             fillterd_points.push_back(point);
+        //             break;
+        //         }
+        //     }
+        // }
+        // std::copy(fillterd_points.begin(), fillterd_points.end(), std::back_inserter(map_points));
+
+        std::cout << map_points.size() << std::endl;
+
+    }
 }
