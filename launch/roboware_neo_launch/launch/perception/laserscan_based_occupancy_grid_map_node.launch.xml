@@ -1,0 +1,11 @@
+<launch>    
+    <arg name="laserscan_based_occupancy_grid_map_node_param_path" default="$(find-pkg-share roboware_neo_launch)/config/laserscan_based_occupancy_grid_map_node.param.yaml"/>
+
+    <node pkg="probabilistic_occupancy_grid_map" exec="laserscan_based_occupancy_grid_map_node" >
+        <param from="$(var laserscan_based_occupancy_grid_map_node_param_path)"/>
+
+    </node>
+
+    <node pkg="tf2_ros" exec="static_transform_publisher" name="base_link_to_velodyne" args="0 0 0 0 0 0 1 map velodyne" />
+
+</launch>

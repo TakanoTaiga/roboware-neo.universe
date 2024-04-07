@@ -1,0 +1,30 @@
+/**:
+  ros__parameters:
+    map_frame: "map"
+    base_link_frame: "velodyne"
+    # center of the grid map
+    gridmap_origin_frame: "velodyne"
+    # ray-tracing center: main sensor frame is preferable like: "velodyne_top"
+    scan_origin_frame: "velodyne"
+
+    height_filter:
+      use_height_filter: true
+      min_height: -1.0
+      max_height: 2.0
+
+    enable_single_frame_mode: false
+    map_length: 40.0
+    map_width: 40.0
+    map_resolution: 0.1
+    input_obstacle_pointcloud: false
+    input_obstacle_and_raw_pointcloud: false
+    updater_type: "binary_bayes_filter"
+    probability_matrix: ;top;
+
+    probability_matrix:
+      occupied_to_occupied: 0.95
+      occupied_to_free: 0.05
+      free_to_occupied: 0.2
+      free_to_free: 0.8
+
+    v_ratio: 10.0
