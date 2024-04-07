@@ -1,0 +1,14 @@
+name: build check
+on:
+ pull_request:
+    branches: [ main ]
+ push:
+    branches: [ main ]
+jobs:
+ build_check:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checking out
+      uses: actions/checkout@v3
+    - name: Building
+      uses: hakoroboken/roboware-ci@v3
