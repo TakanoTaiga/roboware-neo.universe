@@ -21,28 +21,31 @@ namespace detect_ar_marker
         : rclcpp::Node("bbox_to_foxglove_node", node_option)
     {   
       sub_image_ = create_subscription<sensor_msgs::msg::Image>(
-        "/sensing/realsense/color/image_raw", 0, std::bind(&detectARMakerNode::subscriber_callback, this, std::placeholders::_1));
+        "/sensing/realsense/color/image_raw", 0, std::bind(&detectARMakerNode::image_subscriber_callback, this, std::placeholders::_1));
+
+      sub_cam_info_ = create_subscription<sensor_msgs::msg::CameraInfo>(
+        "/sensing/realsense/color/camera_info", 0, std::bind(&detectARMakerNode::cam_info_subscriber_callback, this, std::placeholders::_1));
 
       pub_debug_image_ = create_publisher<sensor_msgs::msg::Image>(
         "debug/image", 0);
 
       tf_broadcaster_ =
         std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+
+      markerLength = declare_parameter<double>("marker_length" , 0.1);
+
+
+      cameraMatrix = (cv::Mat_<double>(3, 3) << 0.0, 0.0, 0.0,
+                                                0.0, 0.0, 0.0,
+                                                0.0, 0.0, 1.0);
+
+      distCoeffs = (cv::Mat_<double>(5, 1) << 0.0, 0.0,
+                                              0.0, 0.0,
+                                              0.0);
     }
 
-    void detectARMakerNode::subscriber_callback(const sensor_msgs::msg::Image::SharedPtr msg){
-
-      cv::Mat cameraMatrix = (cv::Mat_<double>(3, 3) << 379.79150390625, 0.0, 314.5777587890625,
-                                                      0.0, 379.31451416015625, 246.184814453125,
-                                                      0.0, 0.0, 1.0);
-
-      cv::Mat distCoeffs = (cv::Mat_<double>(5, 1) << -0.05570452660322189, 0.06647524237632751,
-                                                    0.00021408198517747223, -0.00022482164786197245,
-                                                    -0.020616639405488968);
-
-      // マーカーの一辺の長さ（メートル）
-      float markerLength = 0.1;  // 実際のマーカーのサイズに合わせて調整
-
+    void detectARMakerNode::image_subscriber_callback(const sensor_msgs::msg::Image::SharedPtr msg)
+    {
       auto cv_image = cv_bridge::toCvShare(msg, msg->encoding);
       std::vector<int> markerIds;
       std::vector<std::vector<cv::Point2f>> markerCorners, rejectedCandidates;
@@ -82,6 +85,19 @@ namespace detect_ar_marker
       cv_image->toImageMsg(ros_img_msg);
       pub_debug_image_->publish(ros_img_msg);
     }
+
+    void detectARMakerNode::cam_info_subscriber_callback(const sensor_msgs::msg::CameraInfo::SharedPtr msg){
+
+      msg->k[0];
+      cameraMatrix = (cv::Mat_<double>(3, 3) << msg->k[0], msg->k[1], msg->k[2],
+                                                msg->k[3], msg->k[4], msg->k[5],
+                                                msg->k[6], msg->k[7], msg->k[8]);
+
+      distCoeffs = (cv::Mat_<double>(5, 1) << msg->d[0], msg->d[1],
+                                              msg->d[2], msg->d[3],
+                                              msg->d[4]);
+    }
+
 }
 
 #include "rclcpp_components/register_node_macro.hpp"
