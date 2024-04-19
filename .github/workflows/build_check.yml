@@ -1,41 +1,54 @@
-name: build check
+name: build and test
+
 on:
- pull_request:
+  push:
     branches: [ main ]
- push:
+  pull_request:
     branches: [ main ]
-steps:
- build_check:
+
+jobs:
+  build_and_test:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-22.04
+        rosdistro:
+          - humble
+
     runs-on: ubuntu-latest
+
     container:
-      image: ros:humble-ros-base
+      image: ros:${{ matrix.rosdistro }}-ros-base
 
     steps:
-    - name: Setup directories
-      run: mkdir -p ros2_ws/src
+      - name: Setup directories
+        run: mkdir -p ros2_ws/src
+        
+      - name: Check out repository
+        uses: actions/checkout@v3
+        with:
+          path: ros2_ws/src/ros2_topic_sample
 
-    - name: Checking out
-      uses: actions/checkout@v3
-      with:
-          path: ros2_ws/src/roboware-neo.universe
+      - name: Install dependencies
+        run: |
+          rosdep update && 
+          apt-get update && 
+          rosdep install --from-path . -i -y --rosdistro ${{ matrix.rosdistro }}
 
-    - name: Install dependencies
-      run: |
-         rosdep update && 
-         apt-get update && 
-         rosdep install --from-path . -i -y --rosdistro ${{ matrix.rosdistro }}
+      - name: Install diagnostic-updater
+        run: apt-get install ros-${{ matrix.rosdistro }}-diagnostic-updater
 
-   - name: Build tests
-      id: build_test
-      run: |
-         . /opt/ros/${{ matrix.rosdistro }}/setup.sh && 
-         colcon build
-      continue-on-error: true
+      - name: Build tests
+        id: build_test
+        run: |
+          . /opt/ros/${{ matrix.rosdistro }}/setup.sh && 
+          colcon build
+        continue-on-error: true
 
-   - name: build_test command success
-      if: steps.build_test.outcome == 'success'
-      run: echo "result - success"
+      - name: build_test command success
+        if: steps.build_test.outcome == 'success'
+        run: echo "result - success"
 
-   - name: build_test command failure
-      if: steps.build_test.outcome == 'failure'
-      run: echo "result - failure" && exit 1
+      - name: build_test command failure
+        if: steps.build_test.outcome == 'failure'
+        run: echo "result - failure" && exit 1
