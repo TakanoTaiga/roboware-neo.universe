@@ -7,8 +7,35 @@ on:
 jobs:
  build_check:
     runs-on: ubuntu-latest
+    container:
+      image: ros:humble-ros-base
+
     steps:
+    - name: Setup directories
+      run: mkdir -p ros2_ws/src
+
     - name: Checking out
       uses: actions/checkout@v3
-    - name: Building
-      uses: hakoroboken/roboware-ci@v3
+      with:
+          path: ros2_ws/src/roboware-neo.universe
+
+    - name: Install dependencies
+      run: |
+         rosdep update && 
+         apt-get update && 
+         rosdep install --from-path . -i -y --rosdistro ${{ matrix.rosdistro }}
+
+   - name: Build tests
+      id: build_test
+      run: |
+         . /opt/ros/${{ matrix.rosdistro }}/setup.sh && 
+         colcon build
+      continue-on-error: true
+
+   - name: build_test command success
+      if: steps.build_test.outcome == 'success'
+      run: echo "result - success"
+
+   - name: build_test command failure
+      if: steps.build_test.outcome == 'failure'
+      run: echo "result - failure" && exit 1
