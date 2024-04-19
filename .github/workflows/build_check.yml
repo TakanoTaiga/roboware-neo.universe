@@ -27,7 +27,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
         with:
-          path: ros2_ws/src/ros2_topic_sample
+          path: ros2_ws/src/roboware-neo.universe
 
       - name: Install dependencies
         run: |
