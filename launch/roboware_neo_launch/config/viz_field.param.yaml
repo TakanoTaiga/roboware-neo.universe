@@ -1,0 +1,15 @@
+/**:
+  ros__parameters:
+    frame_id: mesh_field
+    marker.namespace: robocon2024
+    marker.id: 0
+
+    marker.scale: 0.001
+
+    marker.color.r: 0.8
+    marker.color.g: 0.8
+    marker.color.b: 0.8
+    marker.color.a: 1.0
+
+    marker.lifetime.sec: 0.0
+    marker.lifetime.nanosec: 0.0
