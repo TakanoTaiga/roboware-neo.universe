@@ -77,6 +77,9 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "valarray": "cpp",
-        "regex": "cpp"
-    }
+        "regex": "cpp",
+        "coroutine": "cpp",
+        "source_location": "cpp"
+    },
+    "cmake.configureOnOpen": false
 }
