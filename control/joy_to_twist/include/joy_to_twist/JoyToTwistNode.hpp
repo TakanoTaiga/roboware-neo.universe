@@ -12,31 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LOCALIZATION_DEBUG_NODE_HPP
-#define LOCALIZATION_DEBUG_NODE_HPP
-
-#include <vector>
-#include <memory>
-#include <chrono>
+#ifndef JOY_TO_TWIST_NODE_HPP_
+#define JOY_TO_TWIST_NODE_HPP_
 
 #include <rclcpp/rclcpp.hpp>
-#include <visualization_msgs/msg/marker.hpp>
+#include <sensor_msgs/msg/joy.hpp>
+#include <geometry_msgs/msg/twist.hpp>
 
-namespace localization_debug
+namespace joy_to_twist
 {
-    class localizationDebugNode : public rclcpp::Node
+
+    class JoyToTwistNode : public rclcpp::Node
     {
     public:
-        explicit localizationDebugNode(const rclcpp::NodeOptions & node_options);
+        explicit JoyToTwistNode(const rclcpp::NodeOptions & node_options);
 
     private:
-        rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr pub_maker_;
-        rclcpp::TimerBase::SharedPtr pub_timer_;
+        rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr pub_twist_;
+        rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr sub_joy_;
 
-        void timer_callback();
+        void subscriber_callback(const sensor_msgs::msg::Joy& msg);
 
-        visualization_msgs::msg::Marker marker_msg;
     };
-} // namespace localization_debug
+} // namespace joy_to_twist
 
 #endif

@@ -1,0 +1,11 @@
+<launch>    
+    <!-- show field -->
+    <node pkg="joy" exec="joy_node" >
+        <remap from="/joy" to="/control/joy/data"/>
+        <remap from="/joy/set_feedback" to="/control/joy/set_feedback"/>
+    </node>
+    <node pkg="joy_to_twist" exec="joy_to_twist_node" >
+        <remap from="output/twist" to="/control/cmd_vel"/>
+        <remap from="input/joy" to="/control/joy/data"/>
+    </node>
+</launch>
