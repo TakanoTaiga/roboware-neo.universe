@@ -1,0 +1,11 @@
+<launch>
+    <include file="$(find-pkg-share roboware_neo_launch)/launch/control/joy.launch.xml"/>
+
+    <include file="$(find-pkg-share roboware_neo_launch)/launch/planning/simple_palnning_simulator.launch.xml"/>
+
+    <!-- Visualize -->
+    <include file="$(find-pkg-share roboware_neo_launch)/launch/localization/viz_field.launch.xml"/>
+    <include file="$(find-pkg-share roboware_neo_launch)/launch/localization/viz_robot.launch.xml"/>
+
+    <node pkg="foxglove_bridge" exec="foxglove_bridge" ></node>
+</launch>

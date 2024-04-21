@@ -21,7 +21,7 @@
 namespace joy_to_twist
 {
     JoyToTwistNode::JoyToTwistNode(const rclcpp::NodeOptions &node_option)
-        : rclcpp::Node("bbox_to_foxglove_node", node_option)
+        : rclcpp::Node("joy_to_twist_node", node_option)
     {   
         pub_twist_ = create_publisher<geometry_msgs::msg::Twist>(
             "output/twist", 0);
@@ -34,7 +34,7 @@ namespace joy_to_twist
         send_msg.linear.x = msg.axes[0] * -1.0;
         send_msg.linear.y = msg.axes[1];
 
-        send_msg.angular.z = msg.axes[3] * -1.0;
+        send_msg.angular.z = msg.axes[3] * -0.5;
 
         pub_twist_->publish(send_msg);
     }

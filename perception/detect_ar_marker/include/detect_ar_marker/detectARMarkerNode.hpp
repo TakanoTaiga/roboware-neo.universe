@@ -32,10 +32,10 @@
 namespace detect_ar_marker
 {
 
-class detectARMakerNode : public rclcpp::Node
+class detectARMarkerNode : public rclcpp::Node
 {
 public:
-    explicit detectARMakerNode(const rclcpp::NodeOptions & node_options);
+    explicit detectARMarkerNode(const rclcpp::NodeOptions & node_options);
 
 private:
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr sub_image_;

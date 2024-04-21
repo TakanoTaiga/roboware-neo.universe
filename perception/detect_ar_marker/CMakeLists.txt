@@ -13,7 +13,7 @@ target_include_directories(target_detect_ar_marker
 )
 
 rclcpp_components_register_node(target_detect_ar_marker
-  PLUGIN "detect_ar_marker::detectARMakerNode"
+  PLUGIN "detect_ar_marker::detectARMarkerNode"
   EXECUTABLE detect_ar_marker_node
 )
 

@@ -13,18 +13,18 @@
 // limitations under the License.
 
 
-#include "detect_ar_marker/detectARMakerNode.hpp"
+#include "detect_ar_marker/detectARMarkerNode.hpp"
 
 namespace detect_ar_marker
 {
-    detectARMakerNode::detectARMakerNode(const rclcpp::NodeOptions &node_option)
-        : rclcpp::Node("bbox_to_foxglove_node", node_option)
+    detectARMarkerNode::detectARMarkerNode(const rclcpp::NodeOptions &node_option)
+        : rclcpp::Node("detect_ar_marker_node", node_option)
     {   
       sub_image_ = create_subscription<sensor_msgs::msg::Image>(
-        "/sensing/realsense/color/image_raw", 0, std::bind(&detectARMakerNode::image_subscriber_callback, this, std::placeholders::_1));
+        "/sensing/realsense/color/image_raw", 0, std::bind(&detectARMarkerNode::image_subscriber_callback, this, std::placeholders::_1));
 
       sub_cam_info_ = create_subscription<sensor_msgs::msg::CameraInfo>(
-        "/sensing/realsense/color/camera_info", 0, std::bind(&detectARMakerNode::cam_info_subscriber_callback, this, std::placeholders::_1));
+        "/sensing/realsense/color/camera_info", 0, std::bind(&detectARMarkerNode::cam_info_subscriber_callback, this, std::placeholders::_1));
 
       pub_debug_image_ = create_publisher<sensor_msgs::msg::Image>(
         "debug/image", 0);
@@ -44,7 +44,7 @@ namespace detect_ar_marker
                                               0.0);
     }
 
-    void detectARMakerNode::image_subscriber_callback(const sensor_msgs::msg::Image::SharedPtr msg)
+    void detectARMarkerNode::image_subscriber_callback(const sensor_msgs::msg::Image::SharedPtr msg)
     {
       auto cv_image = cv_bridge::toCvShare(msg, msg->encoding);
       std::vector<int> markerIds;
@@ -86,7 +86,7 @@ namespace detect_ar_marker
       pub_debug_image_->publish(ros_img_msg);
     }
 
-    void detectARMakerNode::cam_info_subscriber_callback(const sensor_msgs::msg::CameraInfo::SharedPtr msg){
+    void detectARMarkerNode::cam_info_subscriber_callback(const sensor_msgs::msg::CameraInfo::SharedPtr msg){
 
       msg->k[0];
       cameraMatrix = (cv::Mat_<double>(3, 3) << msg->k[0], msg->k[1], msg->k[2],
@@ -101,4 +101,4 @@ namespace detect_ar_marker
 }
 
 #include "rclcpp_components/register_node_macro.hpp"
-RCLCPP_COMPONENTS_REGISTER_NODE(detect_ar_marker::detectARMakerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(detect_ar_marker::detectARMarkerNode)

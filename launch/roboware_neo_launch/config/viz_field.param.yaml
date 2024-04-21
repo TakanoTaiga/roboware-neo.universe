@@ -1,7 +1,7 @@
 /**:
   ros__parameters:
     frame_id: mesh_field
-    marker.namespace: robocon2024
+    marker.namespace: robocon2024_field
     marker.id: 0
 
     marker.scale: 0.001
@@ -13,3 +13,5 @@
 
     marker.lifetime.sec: 0.0
     marker.lifetime.nanosec: 0.0
+
+    publsih_rate_ms: 1000
