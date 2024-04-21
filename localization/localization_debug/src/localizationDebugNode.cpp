@@ -17,12 +17,10 @@
 namespace localization_debug
 {
     localizationDebugNode::localizationDebugNode(const rclcpp::NodeOptions &node_option)
-        : rclcpp::Node("tailoc_node", node_option)
+        : rclcpp::Node("localization_debug_node", node_option)
     {   
         pub_maker_ = create_publisher<visualization_msgs::msg::Marker>(
             "output/maker", 0);
-
-        pub_timer_  = create_wall_timer(std::chrono::milliseconds(1000), std::bind(&localizationDebugNode::timer_callback, this));
 
         marker_msg = visualization_msgs::msg::Marker();
 
@@ -46,12 +44,13 @@ namespace localization_debug
         marker_msg.lifetime.nanosec = declare_parameter<double>("marker.lifetime.nanosec" , 0.0);
 
         marker_msg.frame_locked = false;
-
+ 
         marker_msg.mesh_resource = "file://" + declare_parameter<std::string>("marker.meshpath" , "/path/to/object");
         marker_msg.mesh_use_embedded_materials = false;
 
-        
-        
+        const auto period = declare_parameter<int>("publsih_rate_ms" , 1000);
+        pub_timer_  = create_wall_timer(std::chrono::milliseconds(period), std::bind(&localizationDebugNode::timer_callback, this));
+
         RCLCPP_INFO_STREAM(get_logger(),  "Initialize Task Done");
     }
 

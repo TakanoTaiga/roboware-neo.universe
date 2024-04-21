@@ -1,0 +1,5 @@
+<launch>    
+    <node pkg="simple_planning_simulator" exec="simple_planning_simulator_node" >
+        <remap from="input/cmd_vel" to="/control/cmd_vel"/>
+    </node>
+</launch>

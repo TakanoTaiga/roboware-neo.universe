@@ -1,13 +1,13 @@
 <launch>    
-    <arg name="localization_debug_param_path" default="$(find-pkg-share roboware_neo_launch)/config/viz_robot.param.yaml"/>
-    <arg name="3d_model_path" default="$(find-pkg-share roboware_neo_launch)/3dmodel/robot.stl"/>
+    <arg name="viz_robot_param_path" default="$(find-pkg-share roboware_neo_launch)/config/viz_robot.param.yaml"/>
+    <arg name="robot_3d_model_path" default="$(find-pkg-share roboware_neo_launch)/3dmodel/robot.stl"/>
 
-    <!-- show field -->
-    <node pkg="localization_debug" exec="localization_debug_node" >
-        <remap from="output/maker" to="/localization/debug/field"/>
-        <param from="$(var localization_debug_param_path)"/>
-        <param name="marker.meshpath" value="$(var 3d_model_path)"/>
+    <!-- show robot -->
+    <node pkg="localization_debug" exec="localization_debug_node" name="localization_debug_node_robot" >
+        <remap from="output/maker" to="/localization/debug/robot"/>
+        <param from="$(var viz_robot_param_path)"/>
+        <param name="marker.meshpath" value="$(var robot_3d_model_path)"/>
     </node>
 
-    <node pkg="tf2_ros" exec="static_transform_publisher" name="map_to_mesh_robot" args="0 0 0.035 -0.7071068 0 0 0.7071068 base_link mesh_robot" />
+    <node pkg="tf2_ros" exec="static_transform_publisher" name="map_to_mesh_robot" args="0 -0.3 0.035 -0.7071068 0 0 0.7071068 base_link mesh_robot" />
 </launch>

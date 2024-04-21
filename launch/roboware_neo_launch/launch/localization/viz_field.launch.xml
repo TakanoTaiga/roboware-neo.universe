@@ -1,13 +1,13 @@
 <launch>    
-    <arg name="localization_debug_param_path" default="$(find-pkg-share roboware_neo_launch)/config/viz_field.param.yaml"/>
-    <arg name="3d_model_path" default="$(find-pkg-share roboware_neo_launch)/3dmodel/field.stl"/>
+    <arg name="viz_field_param_path" default="$(find-pkg-share roboware_neo_launch)/config/viz_field.param.yaml"/>
+    <arg name="field_3d_model_path" default="$(find-pkg-share roboware_neo_launch)/3dmodel/field.stl"/>
 
     <!-- show field -->
-    <node pkg="localization_debug" exec="localization_debug_node" >
+    <node pkg="localization_debug" exec="localization_debug_node" name="localization_debug_node_field">
         <remap from="output/maker" to="/localization/debug/field"/>
-        <param from="$(var localization_debug_param_path)"/>
-        <param name="marker.meshpath" value="$(var 3d_model_path)"/>
+        <param from="$(var viz_field_param_path)"/>
+        <param name="marker.meshpath" value="$(var field_3d_model_path)"/>
     </node>
 
-    <node pkg="tf2_ros" exec="static_transform_publisher" name="map_to_mesh_field" args="0 0 -0.1 0 0 0 1 map mesh_field" />
+    <node pkg="tf2_ros" exec="static_transform_publisher" name="map_to_mesh_field" args="0 0 -0.1 0 0 0.7071068 0.7071068 map mesh_field" />
 </launch>
