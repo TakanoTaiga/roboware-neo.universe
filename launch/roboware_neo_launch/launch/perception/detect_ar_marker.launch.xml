@@ -1,0 +1,10 @@
+<launch>    
+    <arg name="detect_ar_marker_param_path" default="$(find-pkg-share roboware_neo_launch)/config/detect_ar_marker.param.yaml"/>
+    <!-- Detection ARMaker -->
+    <node pkg="detect_ar_marker" exec="detect_ar_marker_node" >
+        <remap from="input/raw_image" to="/sensing/realsense/color/image_raw"/>
+        <remap from="input/camera_info" to="/sensing/realsense/color/camera_info"/>
+        <remap from="debug/image" to="/perception/debug/ar_marker/image"/>
+        <param from="$(var detect_ar_marker_param_path)"/>
+    </node>
+</launch>

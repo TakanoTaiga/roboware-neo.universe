@@ -21,10 +21,10 @@ namespace detect_ar_marker
         : rclcpp::Node("detect_ar_marker_node", node_option)
     {   
       sub_image_ = create_subscription<sensor_msgs::msg::Image>(
-        "/sensing/realsense/color/image_raw", 0, std::bind(&detectARMarkerNode::image_subscriber_callback, this, std::placeholders::_1));
+        "input/raw_image", 0, std::bind(&detectARMarkerNode::image_subscriber_callback, this, std::placeholders::_1));
 
       sub_cam_info_ = create_subscription<sensor_msgs::msg::CameraInfo>(
-        "/sensing/realsense/color/camera_info", 0, std::bind(&detectARMarkerNode::cam_info_subscriber_callback, this, std::placeholders::_1));
+        "input/camera_info", 0, std::bind(&detectARMarkerNode::cam_info_subscriber_callback, this, std::placeholders::_1));
 
       pub_debug_image_ = create_publisher<sensor_msgs::msg::Image>(
         "debug/image", 0);
