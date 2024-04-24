@@ -5,4 +5,18 @@
     <include file="$(find-pkg-share roboware_neo_launch)/launch/perception.launch.xml"/>
     <!-- Visualize -->
     <node pkg="foxglove_bridge" exec="foxglove_bridge" ></node>
+
+    <!-- ROSBag Record -->
+
+    <!-- color_realsense -->
+    <executable cmd="ros2 bag record -s mcap -o color_realsense /sensing/realsense/color/image_raw /sensing/realsense/color/camera_info /tf_static" output="screen" />
+
+    <!-- depth_realsense -->
+    <executable cmd="ros2 bag record -s mcap -o depth_realsense /sensing/realsense/depth/image_rect_raw /sensing/realsense/depth/camera_info /tf_static" output="screen" />
+
+    <!-- aligned_depth_realsense -->
+    <executable cmd="ros2 bag record -s mcap -o aligned_depth_realsense /sensing/realsense/aligned_depth_to_color/image_raw /sensing/realsense/aligned_depth_to_color/camera_info /tf_static" output="screen" />
+
+    <!-- rs_depth_point -->
+    <executable cmd="ros2 bag record -s mcap -o rs_depth_point /sensing/realsense/depth/color/points /tf_static" output="screen" />
 </launch>
