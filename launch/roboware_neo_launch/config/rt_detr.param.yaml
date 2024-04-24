@@ -1,0 +1,5 @@
+/**:
+  ros__parameters:
+    model_path: rtdetr-l.pt
+    device: cuda:1
+    conf: 0.7
