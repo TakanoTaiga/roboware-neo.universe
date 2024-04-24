@@ -12,7 +12,16 @@ from bboxes_ex_msgs.msg import BoundingBoxes
 class rt_detr_node(Node):
     def __init__(self):
         super().__init__('rt_detr_node')
-        self.model = RTDETR('/home/taiga/rtdetr-l.pt')
+        self.declare_parameter('model_path', 'rtdetr-l.pt')
+        self.declare_parameter('device', 'cuda:0')
+        self.declare_parameter('conf', 0.7)
+
+        self.model_path = self.get_parameter('model_path').get_parameter_value().string_value
+        self.device = self.get_parameter('device').get_parameter_value().string_value
+        self.conf = self.get_parameter('conf').get_parameter_value().double_value
+
+
+        self.model = RTDETR(self.model_path)
         
         self.subscription = self.create_subscription(
             rosimg,
@@ -23,7 +32,7 @@ class rt_detr_node(Node):
         self.publisher_result = self.create_publisher(BoundingBoxes, 'output/result', 0)
 
         self.bridge = cv_bridge.CvBridge()
-        
+
         self.get_logger().info('start ultra_obejct_detection package rt_detr node')
  
     def parse_boxes(self, results: Results) -> BoundingBoxes:
@@ -56,7 +65,14 @@ class rt_detr_node(Node):
 
     def listener_callback(self, msg):
         cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
-        results = self.model.track(cv_image, verbose=False, persist=True, tracker="bytetrack.yaml", conf=0.7, half=True)
+        results = self.model.track(
+            source=cv_image,
+            device=self.device,
+            verbose=False,
+            persist=True,
+            tracker="botsort.yaml",
+            conf=self.conf,
+            half=True)
         if len(results) > 0 and results[0].boxes:
             results: Results = results[0].cpu()
             bbox_msg = self.parse_boxes(results)
