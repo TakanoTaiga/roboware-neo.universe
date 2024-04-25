@@ -1,0 +1,5 @@
+<launch>    
+    <node pkg="tf2_ros" exec="static_transform_publisher" name="base_link_to_rs" args="0 0 0 0 0 0 1 base_link realsense_link" />
+    <node pkg="tf2_ros" exec="static_transform_publisher" name="base_link_to_velodyne" args="0 0 0 0 0 0 1 base_link velodyne" />
+    <node pkg="tf2_ros" exec="static_transform_publisher" name="base_link_to_laser" args="0 0 0 0 0 0 1 base_link laser" />
+</launch>

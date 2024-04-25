@@ -1,3 +1,7 @@
 <launch>
     <include file="$(find-pkg-share roboware_neo_launch)/launch/sensing/rs_launch.py"/>
+    <include file="$(find-pkg-share roboware_neo_launch)/launch/sensing/velodyne-all-nodes-VLP16-launch.py"/>
+    <include file="$(find-pkg-share roboware_neo_launch)/launch/sensing/urg.launch.xml"/>
+
+    <include file="$(find-pkg-share roboware_neo_launch)/launch/sensing/sensor_tf.launch.xml"/>
 </launch>

@@ -14,4 +14,6 @@ ament_auto_package(
   config
   launch
   3dmodel
+  params
+  rviz
 )
