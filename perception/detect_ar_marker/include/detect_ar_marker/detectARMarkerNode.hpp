@@ -23,6 +23,7 @@
 #include <sensor_msgs/msg/camera_info.hpp>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2/LinearMath/Quaternion.h>
+#include <tf2/LinearMath/Matrix3x3.h>
 
 #include <opencv2/opencv.hpp>
 #include <opencv4/opencv2/aruco.hpp>
