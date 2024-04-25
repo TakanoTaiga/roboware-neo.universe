@@ -59,26 +59,38 @@ namespace detect_ar_marker
         cv::aruco::estimatePoseSingleMarkers(markerCorners, markerLength, cameraMatrix, distCoeffs, rvecs, tvecs);
 
         for(size_t i = 0; i < markerIds.size(); i++) {
-          geometry_msgs::msg::TransformStamped transformStamped;
+            geometry_msgs::msg::TransformStamped transformStamped;
 
-          transformStamped.header.stamp = now();
-          transformStamped.header.frame_id = msg->header.frame_id;
-          transformStamped.child_frame_id = "marker_" + std::to_string(markerIds[i]);
-          transformStamped.transform.translation.x =  tvecs[i][0];
-          transformStamped.transform.translation.y =  tvecs[i][1];
-          transformStamped.transform.translation.z =  tvecs[i][2];
+            transformStamped.header.stamp = now();
+            transformStamped.header.frame_id = msg->header.frame_id;
+            transformStamped.child_frame_id = "marker_" + std::to_string(markerIds[i]);
+            transformStamped.transform.translation.x = tvecs[i][0];
+            transformStamped.transform.translation.y = tvecs[i][1];
+            transformStamped.transform.translation.z = tvecs[i][2];
 
-          tf2::Quaternion q;
-          double r = rvecs[i][0], p = rvecs[i][1], y = rvecs[i][2];
-          q.setRPY(r, p, y);
-          transformStamped.transform.rotation.x = q.x();
-          transformStamped.transform.rotation.y = q.y();
-          transformStamped.transform.rotation.z = q.z();
-          transformStamped.transform.rotation.w = q.w();
+            // rvecsをロドリゲスの回転ベクトルから回転行列に変換
+            cv::Mat rotMat;
+            cv::Rodrigues(rvecs[i], rotMat);
 
+            // 回転行列からtf2::Matrix3x3を作成
+            tf2::Matrix3x3 tfRotMat(
+                rotMat.at<double>(0, 0), rotMat.at<double>(0, 1), rotMat.at<double>(0, 2),
+                rotMat.at<double>(1, 0), rotMat.at<double>(1, 1), rotMat.at<double>(1, 2),
+                rotMat.at<double>(2, 0), rotMat.at<double>(2, 1), rotMat.at<double>(2, 2)
+            );
 
-          tf_broadcaster_->sendTransform(transformStamped);
+            // tf2::Quaternionに変換
+            tf2::Quaternion q;
+            tfRotMat.getRotation(q);
+
+            transformStamped.transform.rotation.x = q.x();
+            transformStamped.transform.rotation.y = q.y();
+            transformStamped.transform.rotation.z = q.z();
+            transformStamped.transform.rotation.w = q.w();
+
+            tf_broadcaster_->sendTransform(transformStamped);
         }
+
       }
 
       auto ros_img_msg = sensor_msgs::msg::Image();
