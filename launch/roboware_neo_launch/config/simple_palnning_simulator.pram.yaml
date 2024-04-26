@@ -1,0 +1,11 @@
+/**:
+  ros__parameters:
+
+    noise.transoform.strength: 0.02
+    noise.transoform.sd: 0.2
+    noise.rotation.strength: 0.002
+    noise.rotation_tr.strength: 0.01
+    noise.transoform.sd: 0.5
+
+    frameid.map: map
+    frameid.map: base_link

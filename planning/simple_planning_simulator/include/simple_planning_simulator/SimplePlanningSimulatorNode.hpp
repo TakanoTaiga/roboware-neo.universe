@@ -18,6 +18,7 @@
 #include <vector>
 #include <memory>
 #include <chrono>
+#include <random>
 
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist.hpp>
@@ -36,9 +37,17 @@ namespace simple_planning_simulator
         std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
         rclcpp::TimerBase::SharedPtr pub_tf_timer_;
 
+        std::vector<geometry_msgs::msg::Twist> twist_history;
+
         geometry_msgs::msg::Twist twist_msg;
         geometry_msgs::msg::TransformStamped tf_stamp;
         double roll;
+
+        double transform_noise_strength;
+        double transform_noise_sd;
+        double rotation_noise_strength;
+        double rotation_tr_noise_strength;
+        double rotation_noise_sd;
 
         void timer_callback();
         void subscriber_callback(const geometry_msgs::msg::Twist& msg);
