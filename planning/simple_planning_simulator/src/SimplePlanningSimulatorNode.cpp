@@ -28,23 +28,62 @@ namespace simple_planning_simulator
         pub_tf_timer_  = 
             create_wall_timer(std::chrono::milliseconds(20), std::bind(&SimplePlanningSimulatorNode::timer_callback, this));
 
+        transform_noise_strength = declare_parameter<double>("noise.transoform.strength" , 0.02);
+        transform_noise_sd = declare_parameter<double>("noise.transoform.sd" , 0.2);
+        rotation_noise_strength = declare_parameter<double>("noise.rotation.strength" , 0.002);
+        rotation_tr_noise_strength = declare_parameter<double>("noise.rotation_tr.strength" , 0.01);
+        rotation_noise_sd = declare_parameter<double>("noise.rotation.sd" , 0.5);
+
         tf_stamp = geometry_msgs::msg::TransformStamped();
-        tf_stamp.header.frame_id = "map";
-        tf_stamp.child_frame_id = "base_link";
+        tf_stamp.header.frame_id = declare_parameter<std::string>("frameid.map" , "map");
+        tf_stamp.child_frame_id = declare_parameter<std::string>("frameid.base_link" , "base_link");
         twist_msg = geometry_msgs::msg::Twist();
     }
 
     void SimplePlanningSimulatorNode::timer_callback(){
+        twist_history.push_back(twist_msg);
+        if(twist_history.size() >= 10){
+            twist_history.erase(twist_history.begin());
+        }
+
+        auto twist_avg = geometry_msgs::msg::Twist();
+
+        for(const auto& twist : twist_history){
+            twist_avg.linear.x += twist.linear.x;
+            twist_avg.linear.y += twist.linear.y;
+            twist_avg.linear.z += twist.linear.z;
+
+            twist_avg.angular.x += twist.angular.x;
+            twist_avg.angular.y += twist.angular.y;
+            twist_avg.angular.z += twist.angular.z;
+        }
+        twist_avg.linear.x /= twist_history.size();
+        twist_avg.linear.y /= twist_history.size();
+        twist_avg.linear.z /= twist_history.size();
+
+        twist_avg.angular.x /= twist_history.size();
+        twist_avg.angular.y /= twist_history.size();
+        twist_avg.angular.z /= twist_history.size();
+
+        std::random_device seed_gen;
+        std::default_random_engine engine(seed_gen());
+        std::normal_distribution<> dist(1.0, transform_noise_sd);
+        std::normal_distribution<> dist_4r(0.0, rotation_noise_sd);
+
+
         // twist linear: m/s
         // twist anguler: rad/s
 
         tf_stamp.header.stamp = now();
 
-        tf_stamp.transform.translation.x += twist_msg.linear.x * 0.02;
-        tf_stamp.transform.translation.y += twist_msg.linear.y * 0.02;
+        tf_stamp.transform.translation.x += twist_avg.linear.x * transform_noise_strength * dist(engine);
+        tf_stamp.transform.translation.y += twist_avg.linear.y * transform_noise_strength * dist(engine);
         tf_stamp.transform.translation.z = 0.0;
 
-        roll += twist_msg.angular.z * 0.002 * 57.295 * -1.0;
+        roll += 
+            twist_avg.angular.z * rotation_noise_strength * 57.295 * -1.0 * dist(engine) +
+            twist_avg.linear.x * dist_4r(engine) * rotation_tr_noise_strength +
+            twist_avg.linear.y * dist_4r(engine) * rotation_tr_noise_strength;
 
         tf2::Quaternion q;
         q.setEuler(0.0, 0.0, roll);
