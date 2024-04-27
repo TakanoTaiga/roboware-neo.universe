@@ -1,0 +1,11 @@
+<launch>    
+    <arg name="depth_merger_param_path" default="$(find-pkg-share roboware_neo_launch)/config/depth_merger.param.yaml"/>
+
+    <node pkg="depth_merger" exec="depth_merger_node" >
+        <remap from="input/bbox" to="/perception/rt_detr/result"/>
+        <remap from="input/depth_raw" to="/sensing/realsense/aligned_depth_to_color/image_raw"/>
+        <remap from="input/camera_info" to="/sensing/realsense/aligned_depth_to_color/camera_info"/>
+        <remap from="debug/marker" to="/perception/debug/bbox3d/marker"/>
+        <param from="$(var detect_ar_marker_param_path)"/>
+    </node>
+</launch>
