@@ -2,4 +2,5 @@
     <!-- percept image -->
     <include file="$(find-pkg-share roboware_neo_launch)/launch/perception/ml_image.launch.xml"/>
     <include file="$(find-pkg-share roboware_neo_launch)/launch/perception/detect_ar_marker.launch.xml"/>
+    <include file="$(find-pkg-share roboware_neo_launch)/launch/perception/depth_merger.launch.xml"/>
 </launch>
