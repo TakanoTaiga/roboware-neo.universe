@@ -34,7 +34,7 @@ namespace joy_to_twist
         send_msg.linear.x = msg.axes[0] * -1.0;
         send_msg.linear.y = msg.axes[1];
 
-        send_msg.angular.z = msg.axes[3] * -0.5;
+        send_msg.angular.z = msg.axes[3] * -1.0 * 3.141592;
 
         pub_twist_->publish(send_msg);
     }

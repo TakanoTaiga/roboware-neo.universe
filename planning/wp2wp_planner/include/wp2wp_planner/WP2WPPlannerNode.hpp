@@ -18,16 +18,22 @@
 #include <vector>
 #include <memory>
 #include <chrono>
+#include <string>
 
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <nav_msgs/msg/path.hpp>
-
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <visualization_msgs/msg/marker.hpp>
 #include <tf2/LinearMath/Quaternion.h>
+#include <tf2/LinearMath/Matrix3x3.h>
+
+#include "wp2wp_planner/path_planning.hpp"
+#include "wp2wp_planner/planning_util.hpp"
 
 namespace wp2wp_planner
 {
-    class WP2WPPlannerNode : public rclcpp::Node
+    class WP2WPPlannerNode : public rclcpp::Node, public PathPlanning, public PlanningUtil
     {
     public:
         explicit WP2WPPlannerNode(const rclcpp::NodeOptions & node_options);
@@ -37,6 +43,8 @@ namespace wp2wp_planner
         rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr sub_goal_pose_;
 
         rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr pub_global_plan_path_;
+        rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr pub_debug_area_;
+        rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr pub_debug_robot_;
 
         geometry_msgs::msg::PoseStamped current_pose;
 

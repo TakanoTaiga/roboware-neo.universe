@@ -14,69 +14,80 @@
 
 #include "wp2wp_planner/WP2WPPlannerNode.hpp"
 
-geometry_msgs::msg::PoseStamped 
-findPointC(
-    const geometry_msgs::msg::PoseStamped& pose_origin,
-    const geometry_msgs::msg::PoseStamped& pose_goal,
-    const double& l
-){
-    const double ab_x = pose_goal.pose.position.x - pose_origin.pose.position.x;
-    const double ab_y = pose_goal.pose.position.y - pose_origin.pose.position.y;
-
-    const double lengthAB = std::sqrt(ab_x * ab_x + ab_y * ab_y);
-
-    const double unit_x = ab_x / lengthAB;
-    const double unit_y = ab_y / lengthAB;
-
-    const double c_x = pose_origin.pose.position.x + unit_x * l;
-    const double c_y = pose_origin.pose.position.y + unit_y * l;
-
-    auto pose = geometry_msgs::msg::PoseStamped();
-    pose.header.frame_id = "map";
-    pose.header.stamp = pose_goal.header.stamp;
-    pose.pose.position.x = c_x;
-    pose.pose.position.y = c_y;
-    return pose;
-}
+#include <boost/assign/list_of.hpp>
 
 namespace wp2wp_planner
 {
     WP2WPPlannerNode::WP2WPPlannerNode(const rclcpp::NodeOptions &node_option)
-        : rclcpp::Node("wp_to_wp_planner_node", node_option)
+        : rclcpp::Node("wp_to_wp_planner_node", node_option), PathPlanning(), PlanningUtil()
     {   
         sub_current_pose_ = create_subscription<geometry_msgs::msg::PoseStamped>(
-            "/initialpose", 0, std::bind(&WP2WPPlannerNode::current_pose_subscriber_callback, this, std::placeholders::_1));
+            "input/pose/current", 0, std::bind(&WP2WPPlannerNode::current_pose_subscriber_callback, this, std::placeholders::_1));
         sub_goal_pose_ = create_subscription<geometry_msgs::msg::PoseStamped>(
-            "/goal_pose", 0, std::bind(&WP2WPPlannerNode::goal_pose_subscriber_callback, this, std::placeholders::_1));
+            "input/pose/goal", 0, std::bind(&WP2WPPlannerNode::goal_pose_subscriber_callback, this, std::placeholders::_1));
 
         pub_global_plan_path_ = create_publisher<nav_msgs::msg::Path>(
             "output/global_plan_path", 0);
+        pub_debug_area_ = create_publisher<visualization_msgs::msg::Marker>(
+            "debug/area",0);
+        pub_debug_robot_ = create_publisher<visualization_msgs::msg::Marker>(
+            "debug/robot",0);
 
         RCLCPP_INFO_STREAM(get_logger(),  "Initialize Task Done");
     }
 
     void WP2WPPlannerNode::current_pose_subscriber_callback(const geometry_msgs::msg::PoseStamped& msg){
         current_pose = msg;
-        RCLCPP_INFO_STREAM(get_logger(),  "sub");
+        
+        boost_type::polygon_2d_lf map;
+        boost::geometry::exterior_ring(map) = 
+            boost::assign::list_of<boost_type::point_2d_lf>(-0.150,0.150)(-5.150,0.150)(-5.150,3.150)(-0.150,3.150)(-0.150,0.150);
+
+        boost_type::polygon_2d_lf robot;
+        boost::geometry::exterior_ring(robot) = 
+            boost::assign::list_of<boost_type::point_2d_lf>(-0.5,-0.5)(-0.5,0.5)(0.5,0.5)(0.5,-0.5)(-0.5,-0.5);
+
+        const auto result = check_pose_in_map(
+            msg,
+            map,
+            robot
+        );
+        auto robot_msg = polygon_to_ros("base_link", get_clock()->now(), robot, 0);
+        if(result == outside_pose){
+            robot_msg.color.g = 0.0;
+            robot_msg.color.r = 1.0;
+        }
+
+        pub_debug_area_->publish(polygon_to_ros("map", get_clock()->now(), map, 0));
+        pub_debug_robot_->publish(robot_msg);
+
     }
 
     void WP2WPPlannerNode::goal_pose_subscriber_callback(const geometry_msgs::msg::PoseStamped& msg){
-        const double ab_x = msg.pose.position.x - current_pose.pose.position.x;
-        const double ab_y = msg.pose.position.y - current_pose.pose.position.y;
+        boost_type::polygon_2d_lf map;
+        boost::geometry::exterior_ring(map) = 
+            boost::assign::list_of<boost_type::point_2d_lf>(-0.150,0.150)(-5.150,0.150)(-5.150,3.150)(-0.150,3.150)(-0.150,0.150);
 
-        const double length = std::sqrt(ab_x * ab_x + ab_y * ab_y);
+        boost_type::polygon_2d_lf robot;
+        boost::geometry::exterior_ring(robot) = 
+            boost::assign::list_of<boost_type::point_2d_lf>(-0.5,-0.5)(-0.5,0.5)(0.5,0.5)(0.5,-0.5)(-0.5,-0.5);
 
         auto nav_path = nav_msgs::msg::Path();
-        for(double i = 0; i < length; i += length / 10){
-            auto pose = findPointC(current_pose, msg, i);
-            nav_path.poses.push_back(pose);
-        }
         nav_path.header.frame_id = "map";
         nav_path.header.stamp = get_clock()->now();
 
+        const auto result = global_path_init(
+            current_pose,
+            msg,
+            map,
+            robot,
+            nav_path,
+            get_logger()
+        );
+
         pub_global_plan_path_->publish(nav_path);
-        RCLCPP_INFO_STREAM(get_logger(),  "Pub");
     }
+
 
 }
 

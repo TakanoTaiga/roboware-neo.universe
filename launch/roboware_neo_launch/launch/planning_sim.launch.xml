@@ -1,7 +1,10 @@
 <launch>
+    <!-- simulation -->
     <include file="$(find-pkg-share roboware_neo_launch)/launch/control/joy.launch.xml"/>
+    <include file="$(find-pkg-share roboware_neo_launch)/launch/planning/p_sim_node.launch.xml"/>
 
-    <include file="$(find-pkg-share roboware_neo_launch)/launch/planning/simple_palnning_simulator.launch.xml"/>
+    <!-- planning -->
+    <include file="$(find-pkg-share roboware_neo_launch)/launch/planning.launch.xml"/>
 
     <!-- Visualize -->
     <include file="$(find-pkg-share roboware_neo_launch)/launch/localization/viz_field.launch.xml"/>
