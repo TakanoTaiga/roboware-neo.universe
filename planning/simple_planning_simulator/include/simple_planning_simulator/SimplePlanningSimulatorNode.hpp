@@ -22,8 +22,11 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2/LinearMath/Quaternion.h>
+#include <tf2/LinearMath/Matrix3x3.h>
+
 
 namespace simple_planning_simulator
 {
@@ -34,8 +37,9 @@ namespace simple_planning_simulator
 
     private:
         rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr sub_twist_;
+        rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_pose_;
         std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
-        rclcpp::TimerBase::SharedPtr pub_tf_timer_;
+        rclcpp::TimerBase::SharedPtr tf_timer_;
 
         std::vector<geometry_msgs::msg::Twist> twist_history;
 

@@ -21,11 +21,14 @@ namespace simple_planning_simulator
     {   
         sub_twist_ = create_subscription<geometry_msgs::msg::Twist>(
             "input/cmd_vel", 0, std::bind(&SimplePlanningSimulatorNode::subscriber_callback, this, std::placeholders::_1));
+
+        pub_pose_ = create_publisher<geometry_msgs::msg::PoseStamped>(
+            "output/pose", 0);
     
         tf_broadcaster_ =
             std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
-        pub_tf_timer_  = 
+        tf_timer_  = 
             create_wall_timer(std::chrono::milliseconds(20), std::bind(&SimplePlanningSimulatorNode::timer_callback, this));
 
         transform_noise_strength = declare_parameter<double>("noise.transoform.strength" , 0.02);
@@ -67,23 +70,24 @@ namespace simple_planning_simulator
 
         std::random_device seed_gen;
         std::default_random_engine engine(seed_gen());
-        std::normal_distribution<> dist(1.0, transform_noise_sd);
+        std::normal_distribution<> dist_tf(0.0, transform_noise_sd);
         std::normal_distribution<> dist_4r(0.0, rotation_noise_sd);
 
 
         // twist linear: m/s
         // twist anguler: rad/s
+        //dt = 0.02
 
         tf_stamp.header.stamp = now();
 
-        tf_stamp.transform.translation.x += twist_avg.linear.x * transform_noise_strength * dist(engine);
-        tf_stamp.transform.translation.y += twist_avg.linear.y * transform_noise_strength * dist(engine);
+        tf_stamp.transform.translation.x += twist_avg.linear.x * 0.02 + twist_avg.linear.x * 0.02 * transform_noise_strength * dist_tf(engine);
+        tf_stamp.transform.translation.y += twist_avg.linear.y * 0.02 + twist_avg.linear.y * 0.02 * transform_noise_strength * dist_tf(engine);
         tf_stamp.transform.translation.z = 0.0;
 
-        roll += 
-            twist_avg.angular.z * rotation_noise_strength * 57.295 * -1.0 * dist(engine) +
-            twist_avg.linear.x * dist_4r(engine) * rotation_tr_noise_strength +
-            twist_avg.linear.y * dist_4r(engine) * rotation_tr_noise_strength;
+        roll += twist_avg.angular.z * 0.02 * -1.0 +
+            twist_avg.angular.z * 0.02 * rotation_noise_strength * dist_tf(engine) +
+            twist_avg.linear.x * 0.02 * dist_4r(engine) * rotation_tr_noise_strength +
+            twist_avg.linear.y * 0.02 * dist_4r(engine) * rotation_tr_noise_strength;
 
         tf2::Quaternion q;
         q.setEuler(0.0, 0.0, roll);
@@ -93,6 +97,20 @@ namespace simple_planning_simulator
         tf_stamp.transform.rotation.w = q.w();
 
         tf_broadcaster_->sendTransform(tf_stamp);
+
+        auto pose_msg = geometry_msgs::msg::PoseStamped();
+
+        pose_msg.header = tf_stamp.header;
+
+        pose_msg.pose.position.x = tf_stamp.transform.translation.x;
+        pose_msg.pose.position.y = tf_stamp.transform.translation.y;
+        pose_msg.pose.position.z = tf_stamp.transform.translation.z;
+
+        pose_msg.pose.orientation.x = tf_stamp.transform.rotation.x;
+        pose_msg.pose.orientation.y = tf_stamp.transform.rotation.y;
+        pose_msg.pose.orientation.z = tf_stamp.transform.rotation.z;
+        pose_msg.pose.orientation.w = tf_stamp.transform.rotation.w;
+        pub_pose_->publish(pose_msg);
     }
 
     void SimplePlanningSimulatorNode::subscriber_callback(const geometry_msgs::msg::Twist& msg){

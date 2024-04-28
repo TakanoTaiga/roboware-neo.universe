@@ -3,6 +3,7 @@
 
     <node pkg="simple_planning_simulator" exec="simple_planning_simulator_node" >
         <remap from="input/cmd_vel" to="/control/cmd_vel"/>
+        <remap from="output/pose" to="/localization/current_pose"/>
         <param from="$(var simple_planning_simulator_param_path)"/>
     </node>
 </launch>

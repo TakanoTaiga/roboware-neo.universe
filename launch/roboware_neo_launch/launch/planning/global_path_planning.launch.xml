@@ -1,0 +1,7 @@
+<launch>  
+    <node pkg="wp2wp_planner" exec="wp2wp_planner_node" >
+        <remap from="input/pose/goal" to="/goal_pose"/>
+        <remap from="input/pose/current" to="/localization/current_pose"/>
+        <remap from="output/global_plan_path" to="/planning/global/path"/>
+    </node>
+</launch>
