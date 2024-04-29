@@ -38,6 +38,8 @@ namespace simple_planning_simulator
         rotation_noise_sd = declare_parameter<double>("noise.rotation.sd" , 0.5);
 
         tf_stamp = geometry_msgs::msg::TransformStamped();
+        tf_stamp.transform.translation.x = declare_parameter<double>("init_pose.x" , -0.9);
+        tf_stamp.transform.translation.y = declare_parameter<double>("init_pose.y" , 0.9);
         tf_stamp.header.frame_id = declare_parameter<std::string>("frameid.map" , "map");
         tf_stamp.child_frame_id = declare_parameter<std::string>("frameid.base_link" , "base_link");
         twist_msg = geometry_msgs::msg::Twist();
