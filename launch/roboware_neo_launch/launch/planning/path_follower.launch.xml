@@ -1,0 +1,7 @@
+<launch>  
+    <node pkg="path_follower" exec="path_follower_node" >
+        <remap from="input/current_pose" to="/localization/current_pose"/>
+        <remap from="input/nav_path" to="/planning/global/path"/>
+        <remap from="output/cmd_vel" to="/control/cmd_vel"/>
+    </node>
+</launch>

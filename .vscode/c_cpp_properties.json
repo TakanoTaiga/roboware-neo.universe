@@ -4,7 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${default}",
-                "/home/taiga/ros_ws/install/include/**"
+                "/home/taiga/ros_ws/install/include/**",
+                "/home/taiga/ros_ws/src/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
