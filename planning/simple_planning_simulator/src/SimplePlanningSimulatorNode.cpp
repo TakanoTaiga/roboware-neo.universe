@@ -70,6 +70,16 @@ namespace simple_planning_simulator
         twist_avg.angular.y /= twist_history.size();
         twist_avg.angular.z /= twist_history.size();
 
+        if(!std::isfinite(twist_avg.angular.z)){
+            twist_avg.angular.z = 0.0;
+        }
+        if(!std::isfinite(twist_avg.linear.x)){
+            twist_avg.linear.x = 0.0;
+        }
+        if(!std::isfinite(twist_avg.linear.y)){
+            twist_avg.linear.y = 0.0;
+        }
+
         std::random_device seed_gen;
         std::default_random_engine engine(seed_gen());
         std::normal_distribution<> dist_tf(0.0, transform_noise_sd);
