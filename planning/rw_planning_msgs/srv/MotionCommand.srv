@@ -1,0 +1,5 @@
+std_msgs/Header header
+geometry_msgs/Pose target_pose
+geometry_msgs/Twist motion_power
+---
+rw_common_msgs/Status status
