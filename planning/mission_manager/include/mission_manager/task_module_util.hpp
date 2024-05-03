@@ -12,29 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MISSION_GRAPH_MODULE_HPP_
-#define MISSION_GRAPH_MODULE_HPP_
+#ifndef TASK_MODULE_UTIL_HPP_
+#define TASK_MODULE_UTIL_HPP_
 
-#include <fstream>
-#include <stdexcept>
+#include <string>
+#include <map>
+#include <sstream>
 
-#include "mission_manager/mission_graph_util.hpp"
 #include "mission_manager/type.hpp"
 
 namespace mission_manager
 {
-    class MissionGraph: public GraphUtil
+    class SetPoseUtil
     {
     public:
-        void get_mission_graph(const std::string& file_path);
-        mission_graph_str at_mgraph_str();
-        mission_graph_bin at_mgraph_bin();
+        point3 infomation_to_point3(const std::string& setpose_cmd);
         
     private:
-        void get_str_graph(const std::string& file_path, mission_graph_str& graph_str);
-        void get_bin_graph(mission_graph_str& graph_str, mission_graph_bin& result_mgraph);
-        mission_graph_str mgraph_str;
-        mission_graph_bin mgraph_bin;
+        
     };
 } // namespace mission_manager
 

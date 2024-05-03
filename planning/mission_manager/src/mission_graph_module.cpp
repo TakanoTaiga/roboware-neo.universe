@@ -16,6 +16,33 @@
 
 namespace mission_manager
 {
+    void MissionGraph::get_mission_graph(const std::string& file_path)
+    {
+        try
+        {
+            get_str_graph(file_path, mgraph_str);
+        }
+        catch (const std::runtime_error &e)
+        {
+            std::cout << e.what() << std::endl;
+            std::exit(1);
+        }
+        
+        get_bin_graph(mgraph_str, mgraph_bin);
+    }
+
+    mission_graph_str MissionGraph::at_mgraph_str()
+    {
+        if(mgraph_str.empty()) throw std::runtime_error("Access empty str graph.");
+        return mgraph_str;
+    }
+    
+    mission_graph_bin MissionGraph::at_mgraph_bin()
+    {
+        if(mgraph_bin.empty()) throw std::runtime_error("Access empty bin graph.");
+        return mgraph_bin;
+    }
+
     void MissionGraph::get_str_graph(const std::string &file_path, mission_graph_str &graph_str)
     {
         std::ifstream file(file_path);
@@ -65,47 +92,44 @@ namespace mission_manager
         }
     }
 
-    mission_graph_bin MissionGraph::get_bin_graph(mission_graph_str &graph_str)
+    void MissionGraph::get_bin_graph(mission_graph_str& graph_str, mission_graph_bin& result_mgraph)
     {
-        mission_graph_bin graph_bin;
-
         for (const auto &pair : graph_str)
         {
             // set id
-            graph_bin[pair.second.id].id = pair.second.id;
+            result_mgraph[pair.second.id].id = pair.second.id;
 
             // set connections
             for (const auto &connection : pair.second.connections)
             {
-                graph_bin[pair.second.id].connections.push_back(graph_str[connection].id);
+                result_mgraph[pair.second.id].connections.push_back(graph_str[connection].id);
             }
 
             // set task
             if (pair.second.infomation.find("START") != std::string::npos)
             {
-                graph_bin[pair.second.id].task = mission_task::Start;
+                result_mgraph[pair.second.id].task = mission_task::Start;
             }
             else if (pair.second.infomation.find("END") != std::string::npos)
             {
-                graph_bin[pair.second.id].task = mission_task::End;
+                result_mgraph[pair.second.id].task = mission_task::End;
             }
             else if (pair.second.infomation.find("SETPOSE") != std::string::npos)
             {
-                graph_bin[pair.second.id].task = mission_task::SetPose;
+                result_mgraph[pair.second.id].task = mission_task::SetPose;
             }
             else if (pair.second.infomation.find("ADDPOSE") != std::string::npos)
             {
-                graph_bin[pair.second.id].task = mission_task::AddPose;
+                result_mgraph[pair.second.id].task = mission_task::AddPose;
             }
             else if (pair.second.infomation.find("FIND") != std::string::npos)
             {
-                graph_bin[pair.second.id].task = mission_task::Find;
+                result_mgraph[pair.second.id].task = mission_task::Find;
             }
             else
             {
-                graph_bin[pair.second.id].task = mission_task::Unknown;
+                result_mgraph[pair.second.id].task = mission_task::Unknown;
             }
         }
-        return graph_bin;
     }
 } // namespace mission_manager

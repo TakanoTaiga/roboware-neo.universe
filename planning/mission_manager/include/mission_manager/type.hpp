@@ -31,7 +31,9 @@ namespace mission_manager
     };
 
     enum class status {
-        correct,
+        start,
+        working_in_progress,
+        end,
         error
     };
 
@@ -46,6 +48,12 @@ namespace mission_manager
         uint32_t id;
         mission_task task;
         std::vector<uint32_t> connections;
+    };
+
+    struct point3{
+        double x;
+        double y;
+        double z;
     };
 
     using mission_graph_str = std::map<std::string, node_str>;

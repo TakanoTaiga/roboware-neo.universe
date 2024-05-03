@@ -20,24 +20,14 @@ namespace mission_manager
     MissionManagerNode::MissionManagerNode(const rclcpp::NodeOptions &node_option)
         : rclcpp::Node("MissionManagerNode", node_option)
     {
-        std::string file_path = "/home/taiga/ros_ws/src/roboware-neo.universe/graph.md";
+        std::string file_path = "/home/taiga/ros_ws/src/roboware-neo.universe/s-graph.md";
         mission_graph_str graph_str;
 
-        try
-        {
-            get_str_graph(file_path, graph_str);
-        }
-        catch (const std::runtime_error &e)
-        {
-            std::cout << e.what() << std::endl;
-            std::exit(1);
-        }
-
-        auto graph = get_bin_graph(graph_str);
+        get_mission_graph(file_path);
 
         // visualize
-        show_str_graph(graph_str);
-        show_bin_graph(graph);
+        show_str_graph(at_mgraph_str());
+        show_bin_graph(at_mgraph_bin());
         std::exit(0);
     }
 } // namespace mission_manager

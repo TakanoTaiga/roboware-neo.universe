@@ -24,6 +24,7 @@
 #include <rw_common_msgs/msg/status.hpp>
 
 #include "mission_manager/mission_graph_module.hpp"
+#include "mission_manager/task_module_util.hpp"
 
 namespace mission_manager
 {
