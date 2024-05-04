@@ -20,8 +20,6 @@
 #include <sstream>
 #include <iostream>
 
-#include <rclcpp/rclcpp.hpp>
-
 #include "mission_manager/type.hpp"
 
 namespace mission_manager
