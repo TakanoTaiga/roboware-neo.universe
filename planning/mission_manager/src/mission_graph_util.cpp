@@ -76,30 +76,37 @@ namespace mission_manager
         return "Unknown";
     }
 
-    void GraphUtil::show_str_graph(mission_graph_str graph)
+    void GraphUtil::show_str_graph(mission_graph_str graph, rclcpp::Logger ros_logger)
     {
+        std::string out_show = "show_str_graph\n";
         for (const auto &pair : graph)
         {
-            std::cout << pair.first << "(" << pair.second.infomation << ")-" << pair.second.id << " connects to: ";
+            out_show +=  pair.first + "(" + pair.second.infomation + ")-" + std::to_string(pair.second.id) + " connects to: ";
+            // std::cout << pair.first << "(" << pair.second.infomation << ")-" << pair.second.id << " connects to: ";
             for (const auto &conn : pair.second.connections)
             {
-                std::cout << conn << "; ";
+                // std::cout << conn << "; ";
+                out_show += conn + "; ";
             }
-            std::cout << std::endl;
+            out_show += "\n";
+            // std::cout << std::endl;
         }
-        std::cout << std::endl;
+        RCLCPP_INFO_STREAM(ros_logger, out_show);
+        // std::cout << std::endl;
     }
 
-    void GraphUtil::show_bin_graph(mission_graph_bin graph)
+    void GraphUtil::show_bin_graph(mission_graph_bin graph, rclcpp::Logger ros_logger)
     {
+        std::string out_show = "show_bin_graph\n";
         for (const auto &pair : graph)
         {
-            std::cout << pair.second.id << "-" << get_task_name(pair.second.task) << " connects to: ";
+            out_show += std::to_string(pair.second.id) + "-" + get_task_name(pair.second.task) + " connects to: ";
             for (const auto &conn : pair.second.connections)
             {
-                std::cout << conn << "; ";
+                out_show += std::to_string(conn) + "; ";
             }
-            std::cout << std::endl;
+            out_show += "\n";
         }
+        RCLCPP_INFO_STREAM(ros_logger, out_show);
     }
 } // namespace mission_manager

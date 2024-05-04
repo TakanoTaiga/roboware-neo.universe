@@ -1,0 +1,4 @@
+<launch>    
+    <node pkg="mission_manager" exec="mission_manager_node" >
+    </node>
+</launch>

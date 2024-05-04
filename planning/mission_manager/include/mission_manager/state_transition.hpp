@@ -20,17 +20,22 @@
 #include <iostream>
 
 #include "mission_manager/type.hpp"
+#include "mission_manager/task_module.hpp"
 
 namespace mission_manager
 {
     class StateTransition
     {
     public:
-        StateTransition(const mission_graph_bin& input_graph);
+        StateTransition();
+        void set_graph(const mission_graph_bin& input_graph);
         void state_transition_master();
     private:
         mission_graph_bin node_graph;
-        void update_graph(uint32_t id, task_state sate);
+        void update_graph(uint32_t id);
+
+        //task modules
+        std::map<mission_task, task_module::TaskStrategy*> strategies;
     };
 } // namespace mission_manager
 

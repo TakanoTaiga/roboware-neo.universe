@@ -16,7 +16,47 @@
 
 namespace mission_manager
 {
-    point3 SetPose::infomation_to_point3(const std::string& setpose_cmd)
+namespace task_module
+{
+    void StartStrategy::update(node_bin& node)
+    {
+        std::cout << "Start:" << node.mission_infomation << std::endl;
+        node.state.change_state(task_state::start);
+        node.state.change_state(task_state::working_in_progress);
+        node.state.change_state(task_state::end);
+    }
+}
+}
+
+namespace mission_manager
+{
+namespace task_module
+{
+    void EndStrategy::update(node_bin& node)
+    {
+        std::cout << "End:" << node.mission_infomation << std::endl;
+        node.state.change_state(task_state::start);
+        node.state.change_state(task_state::working_in_progress);
+        node.state.change_state(task_state::end);
+    }
+}
+}
+
+namespace mission_manager
+{
+namespace task_module
+{
+    void SetPoseStrategy::update(node_bin& node)
+    {
+        node.state.change_state(task_state::start);
+        node.state.change_state(task_state::working_in_progress);
+        node.state.change_state(task_state::end);
+
+        const auto p3 = infomation_to_point3(node.mission_infomation);
+        std::cout << p3.x << "," << p3.y << "," << p3.z << ","  << std::endl;
+    }
+
+    point3 SetPoseStrategy::infomation_to_point3(const std::string& setpose_cmd)
     {
         point3 result_point;
         std::istringstream iss(setpose_cmd.substr(setpose_cmd.find(':') + 1));
@@ -44,4 +84,5 @@ namespace mission_manager
        
         return result_point;
     }
+}
 }

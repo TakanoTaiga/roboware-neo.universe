@@ -24,17 +24,18 @@
 #include <rw_common_msgs/msg/status.hpp>
 
 #include "mission_manager/mission_graph_module.hpp"
+#include "mission_manager/state_transition.hpp"
 
 namespace mission_manager
 {
-    class MissionManagerNode : public rclcpp::Node, public MissionGraph
+    class MissionManagerNode : public rclcpp::Node
     {
     public:
         explicit MissionManagerNode(const rclcpp::NodeOptions & node_options);
     private:
-        rclcpp::Service<rw_planning_msg::srv::MotionCommand>::SharedPtr motion_command_;
-        rclcpp::Service<rw_planning_msg::srv::RobotStop>::SharedPtr robot_move_event_closer_;
-        rclcpp::Service<rw_planning_msg::srv::RobotStart>::SharedPtr robot_move_stater_;
+        StateTransition state_transition_handler = StateTransition();
+        rclcpp::Logger logger = get_logger();
+
     };
 } // namespace mission_manager
 

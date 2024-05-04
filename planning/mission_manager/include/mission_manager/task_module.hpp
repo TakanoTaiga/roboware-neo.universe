@@ -18,18 +18,48 @@
 #include <string>
 #include <map>
 #include <sstream>
+#include <iostream>
 
 #include "mission_manager/type.hpp"
 
 namespace mission_manager
 {
-    class SetPose
+namespace task_module
+{
+    class StartStrategy : public TaskStrategy
+    {
+    public:
+        void update(node_bin& node) override;
+    };
+
+    class EndStrategy : public TaskStrategy
+    {
+    public:
+        void update(node_bin& node) override;
+    };
+
+    class SetPoseStrategy : public TaskStrategy
+    {
+    public:
+        void update(node_bin& node) override;
+    private:
+        point3 infomation_to_point3(const std::string& setpose_cmd);
+    };
+
+    class AddPoseStrategy : public TaskStrategy
     {
     public:
          
     private:
-        point3 infomation_to_point3(const std::string& setpose_cmd);
     };
+
+    class FindStrategy : public TaskStrategy
+    {
+    public:
+         
+    private:
+    };
+}
 } // namespace mission_manager
 
 #endif

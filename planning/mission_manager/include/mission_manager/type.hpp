@@ -79,4 +79,16 @@ namespace mission_manager
 
 } // namespace mission_manager
 
+namespace mission_manager
+{
+namespace task_module
+{
+    class TaskStrategy{
+    public:
+        virtual ~TaskStrategy(){}
+        virtual void update(node_bin& node) = 0;
+    };
+}// namespace task_module
+}// namespace mission_manager
+
 #endif
