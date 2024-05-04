@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "mission_manager/task_module_util.hpp"
+#include "mission_manager/task_module.hpp"
 
 namespace mission_manager
 {
-    point3 SetPoseUtil::infomation_to_point3(const std::string& setpose_cmd)
+    point3 SetPose::infomation_to_point3(const std::string& setpose_cmd)
     {
         point3 result_point;
         std::istringstream iss(setpose_cmd.substr(setpose_cmd.find(':') + 1));

@@ -15,19 +15,32 @@
 #include "mission_manager/mission_manager_node.hpp"
 #include "mission_manager/mission_graph_module.hpp"
 
+#include "mission_manager/state_transition.hpp"
+
 namespace mission_manager
 {
     MissionManagerNode::MissionManagerNode(const rclcpp::NodeOptions &node_option)
         : rclcpp::Node("MissionManagerNode", node_option)
     {
         std::string file_path = "/home/taiga/ros_ws/src/roboware-neo.universe/s-graph.md";
-        mission_graph_str graph_str;
 
         get_mission_graph(file_path);
 
         // visualize
+        std::cout << std::endl << "show_str_graph" << std::endl;
         show_str_graph(at_mgraph_str());
+
+        std::cout << std::endl << "show_bin_graph" << std::endl;
         show_bin_graph(at_mgraph_bin());
+
+        auto st = StateTransition(at_mgraph_bin());
+        std::cout << std::endl << "StateTransition" << std::endl;
+        st.state_transition_master();
+        st.state_transition_master();
+        st.state_transition_master();
+        st.state_transition_master();
+        st.state_transition_master();
+
         std::exit(0);
     }
 } // namespace mission_manager

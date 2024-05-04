@@ -12,24 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef TASK_MODULE_UTIL_HPP_
-#define TASK_MODULE_UTIL_HPP_
+#ifndef STATE_TRANSITION_HPP_
+#define STATE_TRANSITION_HPP_
 
-#include <string>
+#include <optional>
 #include <map>
-#include <sstream>
+#include <iostream>
 
 #include "mission_manager/type.hpp"
 
 namespace mission_manager
 {
-    class SetPoseUtil
+    class StateTransition
     {
     public:
-        point3 infomation_to_point3(const std::string& setpose_cmd);
-        
+        StateTransition(const mission_graph_bin& input_graph);
+        void state_transition_master();
     private:
-        
+        mission_graph_bin node_graph;
+        void update_graph(uint32_t id, task_state sate);
     };
 } // namespace mission_manager
 

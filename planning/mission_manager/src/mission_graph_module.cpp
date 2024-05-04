@@ -98,6 +98,8 @@ namespace mission_manager
         {
             // set id
             result_mgraph[pair.second.id].id = pair.second.id;
+            result_mgraph[pair.second.id].state = State();
+            result_mgraph[pair.second.id].now_transitioning = false;
 
             // set connections
             for (const auto &connection : pair.second.connections)
@@ -109,6 +111,7 @@ namespace mission_manager
             if (pair.second.infomation.find("START") != std::string::npos)
             {
                 result_mgraph[pair.second.id].task = mission_task::Start;
+                result_mgraph[pair.second.id].now_transitioning = true;
             }
             else if (pair.second.infomation.find("END") != std::string::npos)
             {
@@ -130,6 +133,10 @@ namespace mission_manager
             {
                 result_mgraph[pair.second.id].task = mission_task::Unknown;
             }
+
+            // copy mission infomations
+            result_mgraph[pair.second.id].mission_infomation = pair.second.infomation;
+
         }
     }
 } // namespace mission_manager

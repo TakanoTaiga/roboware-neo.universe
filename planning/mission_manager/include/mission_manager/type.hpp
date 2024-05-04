@@ -30,7 +30,8 @@ namespace mission_manager
         Unknown
     };
 
-    enum class status {
+    enum class task_state {
+        wait,
         start,
         working_in_progress,
         end,
@@ -44,9 +45,26 @@ namespace mission_manager
         uint32_t id;
     };
 
-    struct node{
+    class State
+    {
+        public:
+            State();
+            bool change_state(const task_state& change_to);
+            void set_error();
+            void state_reset();
+            task_state get_state();
+
+        private:
+            task_state state;
+            std::map<task_state, task_state> allowed_transitions;
+    };
+
+    struct node_bin{
         uint32_t id;
         mission_task task;
+        std::string mission_infomation;
+        State state;
+        bool now_transitioning;
         std::vector<uint32_t> connections;
     };
 
@@ -57,7 +75,8 @@ namespace mission_manager
     };
 
     using mission_graph_str = std::map<std::string, node_str>;
-    using mission_graph_bin = std::map<uint32_t, node>;
+    using mission_graph_bin = std::map<uint32_t, node_bin>;
+
 } // namespace mission_manager
 
 #endif
