@@ -24,9 +24,9 @@ namespace mission_manager
         gen_mission_graph.get_mission_graph(file_path);
 
         // visualize
-        gen_mission_graph.show_str_graph(gen_mission_graph.at_mgraph_str(), logger);
+        RCLCPP_INFO_STREAM(logger, gen_mission_graph.str_graph_tostring(gen_mission_graph.at_mgraph_str()));
 
-        gen_mission_graph.show_bin_graph(gen_mission_graph.at_mgraph_bin(), logger);
+        RCLCPP_INFO_STREAM(logger, gen_mission_graph.bin_graph_tostring(gen_mission_graph.at_mgraph_bin()));
 
         state_transition_handler.set_graph(gen_mission_graph.at_mgraph_bin());
         std::cout << std::endl << "StateTransition" << std::endl;

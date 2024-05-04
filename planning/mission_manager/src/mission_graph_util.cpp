@@ -76,26 +76,23 @@ namespace mission_manager
         return "Unknown";
     }
 
-    void GraphUtil::show_str_graph(mission_graph_str graph, rclcpp::Logger ros_logger)
+    std::string GraphUtil::str_graph_tostring(mission_graph_str graph)
     {
         std::string out_show = "show_str_graph\n";
         for (const auto &pair : graph)
         {
             out_show +=  pair.first + "(" + pair.second.infomation + ")-" + std::to_string(pair.second.id) + " connects to: ";
-            // std::cout << pair.first << "(" << pair.second.infomation << ")-" << pair.second.id << " connects to: ";
             for (const auto &conn : pair.second.connections)
             {
-                // std::cout << conn << "; ";
                 out_show += conn + "; ";
             }
             out_show += "\n";
-            // std::cout << std::endl;
         }
-        RCLCPP_INFO_STREAM(ros_logger, out_show);
-        // std::cout << std::endl;
+        
+        return out_show;
     }
 
-    void GraphUtil::show_bin_graph(mission_graph_bin graph, rclcpp::Logger ros_logger)
+    std::string GraphUtil::bin_graph_tostring(mission_graph_bin graph)
     {
         std::string out_show = "show_bin_graph\n";
         for (const auto &pair : graph)
@@ -107,6 +104,6 @@ namespace mission_manager
             }
             out_show += "\n";
         }
-        RCLCPP_INFO_STREAM(ros_logger, out_show);
+        return out_show;
     }
 } // namespace mission_manager

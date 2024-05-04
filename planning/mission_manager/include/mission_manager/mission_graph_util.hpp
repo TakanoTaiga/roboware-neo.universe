@@ -34,8 +34,8 @@ namespace mission_manager
             std::string get_key(const std::string& str_data);
             std::string get_task_name(const mission_task task);
 
-            void show_str_graph(mission_graph_str graph, rclcpp::Logger ros_logger);
-            void show_bin_graph(mission_graph_bin graph, rclcpp::Logger ros_logger);
+            std::string str_graph_tostring(mission_graph_str graph);
+            std::string bin_graph_tostring(mission_graph_bin graph);
 
         private:
             static bool isSpace(unsigned char c);
