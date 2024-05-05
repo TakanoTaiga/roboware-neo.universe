@@ -27,6 +27,9 @@
 #include <visualization_msgs/msg/marker.hpp>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Matrix3x3.h>
+#include <rw_planning_msg/msg/action_result.hpp>
+#include <rw_planning_msg/msg/task_action.hpp>
+
 
 #include "wp2wp_planner/path_planning.hpp"
 #include "wp2wp_planner/planning_util.hpp"
@@ -41,8 +44,11 @@ namespace wp2wp_planner
     private:
         rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr sub_current_pose_;
         rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr sub_goal_pose_;
+        rclcpp::Subscription<rw_planning_msg::msg::TaskAction>::SharedPtr sub_task_action_;
 
         rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr pub_global_plan_path_;
+        rclcpp::Publisher<rw_planning_msg::msg::ActionResult>::SharedPtr pub_action_result;
+
         rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr pub_debug_area_;
         rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr pub_debug_robot_;
 
@@ -50,6 +56,7 @@ namespace wp2wp_planner
 
         void current_pose_subscriber_callback(const geometry_msgs::msg::PoseStamped& msg);
         void goal_pose_subscriber_callback(const geometry_msgs::msg::PoseStamped& msg);
+        void task_action_subscriber_callback(const rw_planning_msg::msg::TaskAction& action_msg);
 
     };
 } // namespace wp2wp_planner

@@ -25,9 +25,14 @@ namespace wp2wp_planner
             "input/pose/current", 0, std::bind(&WP2WPPlannerNode::current_pose_subscriber_callback, this, std::placeholders::_1));
         sub_goal_pose_ = create_subscription<geometry_msgs::msg::PoseStamped>(
             "input/pose/goal", 0, std::bind(&WP2WPPlannerNode::goal_pose_subscriber_callback, this, std::placeholders::_1));
+        sub_task_action_ = create_subscription<rw_planning_msg::msg::TaskAction>(
+            "input/task_action", 0, std::bind(&WP2WPPlannerNode::task_action_subscriber_callback, this, std::placeholders::_1));
 
         pub_global_plan_path_ = create_publisher<nav_msgs::msg::Path>(
             "output/global_plan_path", 0);
+        pub_action_result = create_publisher<rw_planning_msg::msg::ActionResult>(
+            "output/action_result", 0);
+
         pub_debug_area_ = create_publisher<visualization_msgs::msg::Marker>(
             "debug/area",0);
         pub_debug_robot_ = create_publisher<visualization_msgs::msg::Marker>(
@@ -88,6 +93,12 @@ namespace wp2wp_planner
         pub_global_plan_path_->publish(nav_path);
     }
 
+    void WP2WPPlannerNode::task_action_subscriber_callback(const rw_planning_msg::msg::TaskAction& action_msg)
+    {
+        if(action_msg.task != rw_planning_msg::msg::TaskAction::SETPOSE) return;
+
+        goal_pose_subscriber_callback(action_msg.pose);
+    }
 
 }
 

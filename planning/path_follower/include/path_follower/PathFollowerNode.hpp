@@ -24,7 +24,8 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
-
+#include <rw_planning_msg/msg/action_result.hpp>
+#include <rw_planning_msg/msg/task_action.hpp>
 
 namespace path_follower
 {
@@ -44,8 +45,10 @@ namespace path_follower
     private:
         rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr sub_current_pose_;
         rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr sub_nav_path_;
+        rclcpp::Subscription<rw_planning_msg::msg::TaskAction>::SharedPtr sub_task_action_;
 
         rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr pub_twist_;
+        rclcpp::Publisher<rw_planning_msg::msg::ActionResult>::SharedPtr pub_action_result;
 
         rclcpp::TimerBase::SharedPtr control_timer_;
 
@@ -59,10 +62,12 @@ namespace path_follower
         geometry_msgs::msg::PoseStamped start_pose;
         geometry_msgs::msg::PoseStamped goal_pose;
 
+        int32_t task_id;
 
         void timer_callback();
         void current_pose_subscriber_callback(const geometry_msgs::msg::PoseStamped& sub_msg_pose);
         void nav_path_subscriber_callback(const nav_msgs::msg::Path& sub_msg_path);
+        void task_action_subscriber_callback(const rw_planning_msg::msg::TaskAction& action_msg);
 
 
     };
