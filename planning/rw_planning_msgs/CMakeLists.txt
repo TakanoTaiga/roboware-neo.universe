@@ -15,6 +15,8 @@ find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
 rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/ActionResult.msg"
+  "msg/TaskAction.msg"
   "srv/MotionCommand.srv"
   "srv/RobotStop.srv"
   "srv/RobotStart.srv"

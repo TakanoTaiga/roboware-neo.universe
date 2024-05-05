@@ -23,9 +23,13 @@ namespace path_follower
             "input/current_pose", 0, std::bind(&PathFollowerNode::current_pose_subscriber_callback, this, std::placeholders::_1));
         sub_nav_path_ = create_subscription<nav_msgs::msg::Path>(
             "input/nav_path", 0, std::bind(&PathFollowerNode::nav_path_subscriber_callback, this, std::placeholders::_1));
+        sub_task_action_ = create_subscription<rw_planning_msg::msg::TaskAction>(
+            "input/task_action", 0, std::bind(&PathFollowerNode::task_action_subscriber_callback, this, std::placeholders::_1));
 
         pub_twist_ = create_publisher<geometry_msgs::msg::Twist>(
             "output/cmd_vel", 0);
+        pub_action_result = create_publisher<rw_planning_msg::msg::ActionResult>(
+            "output/action_result", 0);
 
         control_timer_ = create_wall_timer(
             std::chrono::milliseconds(100), std::bind(&PathFollowerNode::timer_callback, this));
@@ -42,6 +46,14 @@ namespace path_follower
         if(target_pose_index == global_path.poses.size()){
             auto twist_msg = geometry_msgs::msg::Twist();
             pub_twist_->publish(twist_msg);
+            path_status = not_found;
+
+            auto action_result_msg = rw_planning_msg::msg::ActionResult();
+            action_result_msg.status.code = rw_common_msgs::msg::Status::SUCCESS;
+            action_result_msg.status.success = true;
+            action_result_msg.result_pose = current_pose;
+            action_result_msg.task_id = task_id;
+            pub_action_result->publish(action_result_msg);
             return;
         }
 
@@ -120,6 +132,12 @@ namespace path_follower
 
         target_pose_index = start_pose_index;
     }
+
+    void PathFollowerNode::task_action_subscriber_callback(const rw_planning_msg::msg::TaskAction& action_msg)
+    {
+        task_id = action_msg.id;
+    }
+
 }
 
 #include "rclcpp_components/register_node_macro.hpp"

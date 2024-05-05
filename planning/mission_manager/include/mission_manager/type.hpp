@@ -19,6 +19,12 @@
 #include <vector>
 #include <string>
 
+#include <iostream>
+
+#include <rclcpp/rclcpp.hpp>
+#include <rw_planning_msg/msg/task_action.hpp>
+#include <rw_planning_msg/msg/action_result.hpp>
+
 namespace mission_manager
 {
     enum class mission_task {
@@ -73,6 +79,9 @@ namespace mission_manager
         double y;
         double z;
     };
+    struct debug_info{
+        std::string debug_str;
+    };
 
     using mission_graph_str = std::map<std::string, node_str>;
     using mission_graph_bin = std::map<uint32_t, node_bin>;
@@ -86,7 +95,15 @@ namespace task_module
     class TaskStrategy{
     public:
         virtual ~TaskStrategy(){}
-        virtual void update(node_bin& node) = 0;
+        virtual void update(node_bin& node, debug_info& info) = 0;
+
+        void get_task_action_publisher(rclcpp::Publisher<rw_planning_msg::msg::TaskAction>::SharedPtr publisher);
+        void get_action_result(const rw_planning_msg::msg::ActionResult& action_result_msg);
+
+    protected:
+        rclcpp::Publisher<rw_planning_msg::msg::TaskAction>::SharedPtr pub_task_action_;
+        rw_planning_msg::msg::ActionResult action_result;
+
     };
 }// namespace task_module
 }// namespace mission_manager

@@ -111,6 +111,7 @@ namespace mission_manager
             if (pair.second.infomation.find("START") != std::string::npos)
             {
                 result_mgraph[pair.second.id].task = mission_task::Start;
+                result_mgraph[pair.second.id].state.change_state(task_state::start);
                 result_mgraph[pair.second.id].now_transitioning = true;
             }
             else if (pair.second.infomation.find("END") != std::string::npos)

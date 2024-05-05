@@ -18,10 +18,9 @@ namespace mission_manager
 {
 namespace task_module
 {
-    void StartStrategy::update(node_bin& node)
+    void StartStrategy::update(node_bin& node, debug_info& info)
     {
-        std::cout << "Start:" << node.mission_infomation << std::endl;
-        node.state.change_state(task_state::start);
+        info.debug_str = "Start:" + node.mission_infomation;
         node.state.change_state(task_state::working_in_progress);
         node.state.change_state(task_state::end);
     }
@@ -32,10 +31,9 @@ namespace mission_manager
 {
 namespace task_module
 {
-    void EndStrategy::update(node_bin& node)
+    void EndStrategy::update(node_bin& node, debug_info& info)
     {
-        std::cout << "End:" << node.mission_infomation << std::endl;
-        node.state.change_state(task_state::start);
+        info.debug_str = "End:" + node.mission_infomation;
         node.state.change_state(task_state::working_in_progress);
         node.state.change_state(task_state::end);
     }
@@ -46,14 +44,36 @@ namespace mission_manager
 {
 namespace task_module
 {
-    void SetPoseStrategy::update(node_bin& node)
+    void SetPoseStrategy::update(node_bin& node, debug_info& info)
     {
-        node.state.change_state(task_state::start);
-        node.state.change_state(task_state::working_in_progress);
-        node.state.change_state(task_state::end);
+        if(node.state.get_state() == task_state::start)
+        {
+            const auto p3 = infomation_to_point3(node.mission_infomation);
+            info.debug_str = std::to_string(p3.x) + "," + std::to_string(p3.y) + "," + std::to_string(p3.z);
 
-        const auto p3 = infomation_to_point3(node.mission_infomation);
-        std::cout << p3.x << "," << p3.y << "," << p3.z << ","  << std::endl;
+            auto pub_msg = rw_planning_msg::msg::TaskAction();
+            pub_msg.header.frame_id = "map";
+
+            pub_msg.task = rw_planning_msg::msg::TaskAction::SETPOSE;
+            pub_msg.id = node.id;
+
+            pub_msg.pose.pose.position.x = p3.x;
+            pub_msg.pose.pose.position.y = p3.y;
+            pub_msg.pose.pose.position.z = 0.0;
+
+            pub_task_action_->publish(pub_msg);
+
+            node.state.change_state(task_state::working_in_progress);
+
+        }
+        else if(node.state.get_state() == task_state::working_in_progress)
+        {
+            info.debug_str = "working in progress";
+            if(action_result.status.code == rw_common_msgs::msg::Status::SUCCESS && action_result.status.success)
+            {
+                node.state.change_state(task_state::end);
+            }
+        }
     }
 
     point3 SetPoseStrategy::infomation_to_point3(const std::string& setpose_cmd)

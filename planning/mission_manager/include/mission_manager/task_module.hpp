@@ -20,6 +20,9 @@
 #include <sstream>
 #include <iostream>
 
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <rw_planning_msg/msg/task_action.hpp>
+
 #include "mission_manager/type.hpp"
 
 namespace mission_manager
@@ -29,19 +32,19 @@ namespace task_module
     class StartStrategy : public TaskStrategy
     {
     public:
-        void update(node_bin& node) override;
+        void update(node_bin& node, debug_info& info) override;
     };
 
     class EndStrategy : public TaskStrategy
     {
     public:
-        void update(node_bin& node) override;
+        void update(node_bin& node, debug_info& info) override;
     };
 
     class SetPoseStrategy : public TaskStrategy
     {
     public:
-        void update(node_bin& node) override;
+        void update(node_bin& node, debug_info& info) override;
     private:
         point3 infomation_to_point3(const std::string& setpose_cmd);
     };

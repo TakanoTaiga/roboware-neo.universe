@@ -29,13 +29,17 @@ namespace mission_manager
     public:
         StateTransition();
         void set_graph(const mission_graph_bin& input_graph);
-        void state_transition_master();
+        void get_task_action_publisher(rclcpp::Publisher<rw_planning_msg::msg::TaskAction>::SharedPtr publisher);
+        void get_action_result(const rw_planning_msg::msg::ActionResult& action_result_msg);
+        debug_info state_transition_master();
+        bool is_end();
     private:
         mission_graph_bin node_graph;
         void update_graph(uint32_t id);
 
         //task modules
         std::map<mission_task, task_module::TaskStrategy*> strategies;
+        std::map<uint32_t, rw_planning_msg::msg::ActionResult> action_results;
     };
 } // namespace mission_manager
 

@@ -18,10 +18,8 @@
 #include <memory>
 
 #include <rclcpp/rclcpp.hpp>
-#include <rw_planning_msg/srv/motion_command.hpp>
-#include <rw_planning_msg/srv/robot_start.hpp>
-#include <rw_planning_msg/srv/robot_stop.hpp>
-#include <rw_common_msgs/msg/status.hpp>
+#include <rw_planning_msg/msg/task_action.hpp>
+#include <rw_planning_msg/msg/action_result.hpp>
 
 #include "mission_manager/mission_graph_module.hpp"
 #include "mission_manager/state_transition.hpp"
@@ -33,8 +31,15 @@ namespace mission_manager
     public:
         explicit MissionManagerNode(const rclcpp::NodeOptions & node_options);
     private:
-        StateTransition state_transition_handler = StateTransition();
         rclcpp::Logger logger = get_logger();
+        rclcpp::Subscription<rw_planning_msg::msg::ActionResult>::SharedPtr sub_action_result_;
+        rclcpp::Publisher<rw_planning_msg::msg::TaskAction>::SharedPtr pub_task_action_;
+        rclcpp::TimerBase::SharedPtr st_timer_;
+
+        StateTransition state_transition_handler = StateTransition();
+        
+        void state_transition_callback();
+        void action_result_subscriber_callback(const rw_planning_msg::msg::ActionResult& action_result);
 
     };
 } // namespace mission_manager

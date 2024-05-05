@@ -32,6 +32,7 @@ namespace mission_manager
             state = change_to;
             return true;
         }
+        std::cout << "ERROR_STATE_CHANGE" << std::endl;
         return false;
     }
 
@@ -49,4 +50,20 @@ namespace mission_manager
     {
         return state;
     }
+}
+
+namespace mission_manager
+{
+namespace task_module
+{
+    void TaskStrategy::get_task_action_publisher(rclcpp::Publisher<rw_planning_msg::msg::TaskAction>::SharedPtr publisher)
+    {
+        pub_task_action_ = publisher;
+    }
+
+    void TaskStrategy::get_action_result(const rw_planning_msg::msg::ActionResult& action_result_msg)
+    {
+        action_result = action_result_msg;
+    }
+}
 }
