@@ -4,7 +4,7 @@
         <remap from="/magnet" to="/mag"/>
         
         <param name="enable_magnet" value="true"/>
-        <param name="enable_position" value="false"/>
+        <param name="enable_position" value="true"/>
         <param name="frame_id" value="odom"/>
         <param name="child_frame_id" value="imu"/>
     </node>
