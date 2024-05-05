@@ -7,6 +7,7 @@
 #include <sensor_msgs/msg/imu.hpp>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2/LinearMath/Quaternion.h>
+#include <tf2/LinearMath/Matrix3x3.h>
 
 #include <chrono>
 #include <string>
@@ -31,6 +32,9 @@ namespace motiodom
         void axis6_callback();
         void axis9_callback();
 
+        Vector3 remove_gravity(Vector3 linear_accel, Vector3 euler, float gravity);
+        float noise_filter(float value, float alpha);
+
         rclcpp::Subscription<geometry_msgs::msg::Vector3>::SharedPtr magnetic_field_subscriber_;
         rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_subscriber_;
         rclcpp::TimerBase::SharedPtr timer_;
@@ -40,6 +44,9 @@ namespace motiodom
 
         AccelAngularEKF ekf6_;
         AAMEKF ekf9_;
+
+        Vector3 prev_accel_;
+        Vector3 prev_vel;
 
         sensor_msgs::msg::Imu::SharedPtr get_imu_;
         geometry_msgs::msg::Vector3::SharedPtr get_magnet_;
