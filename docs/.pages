@@ -1,0 +1,5 @@
+nav:
+    - Introduction: index.md
+    - Installation: installation
+    - Tutorials: tutorials
+    - Control: control
