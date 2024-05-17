@@ -110,29 +110,29 @@ namespace mission_manager
             // set task
             if (pair.second.infomation.find("START") != std::string::npos)
             {
-                result_mgraph[pair.second.id].task = mission_task::Start;
-                result_mgraph[pair.second.id].state.change_state(task_state::start);
+                result_mgraph[pair.second.id].task = strategy_label::Start;
+                result_mgraph[pair.second.id].state.change_state(state_transition_label::start);
                 result_mgraph[pair.second.id].now_transitioning = true;
             }
             else if (pair.second.infomation.find("END") != std::string::npos)
             {
-                result_mgraph[pair.second.id].task = mission_task::End;
+                result_mgraph[pair.second.id].task = strategy_label::End;
             }
             else if (pair.second.infomation.find("SETPOSE") != std::string::npos)
             {
-                result_mgraph[pair.second.id].task = mission_task::SetPose;
+                result_mgraph[pair.second.id].task = strategy_label::SetPose;
             }
             else if (pair.second.infomation.find("ADDPOSE") != std::string::npos)
             {
-                result_mgraph[pair.second.id].task = mission_task::AddPose;
+                result_mgraph[pair.second.id].task = strategy_label::AddPose;
             }
             else if (pair.second.infomation.find("FIND") != std::string::npos)
             {
-                result_mgraph[pair.second.id].task = mission_task::Find;
+                result_mgraph[pair.second.id].task = strategy_label::Find;
             }
             else
             {
-                result_mgraph[pair.second.id].task = mission_task::Unknown;
+                result_mgraph[pair.second.id].task = strategy_label::Unknown;
             }
 
             // copy mission infomations

@@ -18,9 +18,9 @@ namespace mission_manager
 {
     StateTransition::StateTransition()
     {
-        strategies[mission_task::Start] = new task_module::StartStrategy();
-        strategies[mission_task::End] = new task_module::EndStrategy();
-        strategies[mission_task::SetPose] = new task_module::SetPoseStrategy();
+        strategies[strategy_label::Start] = new strategy_module::StartStrategy();
+        strategies[strategy_label::End] = new strategy_module::EndStrategy();
+        strategies[strategy_label::SetPose] = new strategy_module::SetPoseStrategy();
     }
 
     void StateTransition::set_graph(const mission_graph_bin& input_graph)
@@ -32,7 +32,7 @@ namespace mission_manager
     {
         for(auto& pair_strategy : strategies)
         {
-            pair_strategy.second->get_task_action_publisher(publisher);
+            pair_strategy.second->get_action_publisher(publisher);
         }
     }
 
@@ -60,13 +60,13 @@ namespace mission_manager
 
     void StateTransition::update_graph(uint32_t id)
     {
-        if(node_graph[id].state.get_state() != task_state::end) return;
+        if(node_graph[id].state.get_state() != state_transition_label::end) return;
 
         node_graph[id].now_transitioning = false;
         for(const auto& start_node_id : node_graph[id].connections)
         {
             node_graph[start_node_id].now_transitioning = true;
-            node_graph[start_node_id].state.change_state(task_state::start);
+            node_graph[start_node_id].state.change_state(state_transition_label::start);
         }
     }
 
@@ -74,7 +74,7 @@ namespace mission_manager
     {
         for (auto& pair : node_graph)
         {
-            if(pair.second.task == mission_task::End && pair.second.state.get_state() == task_state::end)
+            if(pair.second.task == strategy_label::End && pair.second.state.get_state() == state_transition_label::end)
             {
                 return true;
             }

@@ -12,41 +12,41 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "mission_manager/task_module.hpp"
+#include "mission_manager/strategy_module.hpp"
 
 namespace mission_manager
 {
-namespace task_module
+namespace strategy_module
 {
     void StartStrategy::update(node_bin& node, debug_info& info)
     {
         info.debug_str = "Start:" + node.mission_infomation;
-        node.state.change_state(task_state::working_in_progress);
-        node.state.change_state(task_state::end);
+        node.state.change_state(state_transition_label::working_in_progress);
+        node.state.change_state(state_transition_label::end);
     }
 }
 }
 
 namespace mission_manager
 {
-namespace task_module
+namespace strategy_module
 {
     void EndStrategy::update(node_bin& node, debug_info& info)
     {
         info.debug_str = "End:" + node.mission_infomation;
-        node.state.change_state(task_state::working_in_progress);
-        node.state.change_state(task_state::end);
+        node.state.change_state(state_transition_label::working_in_progress);
+        node.state.change_state(state_transition_label::end);
     }
 }
 }
 
 namespace mission_manager
 {
-namespace task_module
+namespace strategy_module
 {
     void SetPoseStrategy::update(node_bin& node, debug_info& info)
     {
-        if(node.state.get_state() == task_state::start)
+        if(node.state.get_state() == state_transition_label::start)
         {
             const auto p3 = infomation_to_point3(node.mission_infomation);
             info.debug_str = std::to_string(p3.x) + "," + std::to_string(p3.y) + "," + std::to_string(p3.z);
@@ -63,15 +63,15 @@ namespace task_module
 
             pub_task_action_->publish(pub_msg);
 
-            node.state.change_state(task_state::working_in_progress);
+            node.state.change_state(state_transition_label::working_in_progress);
 
         }
-        else if(node.state.get_state() == task_state::working_in_progress)
+        else if(node.state.get_state() == state_transition_label::working_in_progress)
         {
             info.debug_str = "working in progress";
             if(action_result.status.code == rw_common_msgs::msg::Status::SUCCESS && action_result.status.success)
             {
-                node.state.change_state(task_state::end);
+                node.state.change_state(state_transition_label::end);
             }
         }
     }

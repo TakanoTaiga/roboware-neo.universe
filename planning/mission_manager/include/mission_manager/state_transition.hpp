@@ -20,7 +20,7 @@
 #include <iostream>
 
 #include "mission_manager/type.hpp"
-#include "mission_manager/task_module.hpp"
+#include "mission_manager/strategy_module.hpp"
 
 namespace mission_manager
 {
@@ -38,7 +38,7 @@ namespace mission_manager
         void update_graph(uint32_t id);
 
         //task modules
-        std::map<mission_task, task_module::TaskStrategy*> strategies;
+        std::map<strategy_label, strategy_module::RWStrategy*> strategies;
         std::map<uint32_t, rw_planning_msg::msg::ActionResult> action_results;
     };
 } // namespace mission_manager
