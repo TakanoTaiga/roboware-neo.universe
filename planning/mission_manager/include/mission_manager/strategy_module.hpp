@@ -23,6 +23,8 @@
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <rw_planning_msg/msg/task_action.hpp>
 
+#include <tf2/LinearMath/Quaternion.h>
+
 #include "mission_manager/type.hpp"
 
 namespace mission_manager

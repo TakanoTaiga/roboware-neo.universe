@@ -61,6 +61,14 @@ namespace strategy_module
             pub_msg.pose.pose.position.y = p3.y;
             pub_msg.pose.pose.position.z = 0.0;
 
+            tf2::Quaternion q;
+            const auto rad = p3.z * 57.295779513;
+            q.setEuler(0.0, 0.0, rad);
+            pub_msg.pose.pose.orientation.x = q.x();
+            pub_msg.pose.pose.orientation.y = q.y();
+            pub_msg.pose.pose.orientation.z = q.z();
+            pub_msg.pose.pose.orientation.w = q.w();
+
             pub_task_action_->publish(pub_msg);
 
             node.state.change_state(state_transition_label::working_in_progress);
