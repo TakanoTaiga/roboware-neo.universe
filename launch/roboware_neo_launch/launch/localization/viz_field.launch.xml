@@ -4,7 +4,7 @@
 
     <!-- show field -->
     <node pkg="localization_debug" exec="localization_debug_node" name="localization_debug_node_field">
-        <remap from="output/maker" to="/localization/debug/field"/>
+        <remap from="output/maker" to="/visualize/debug/field"/>
         <param from="$(var viz_field_param_path)"/>
         <param name="marker.meshpath" value="$(var field_3d_model_path)"/>
     </node>

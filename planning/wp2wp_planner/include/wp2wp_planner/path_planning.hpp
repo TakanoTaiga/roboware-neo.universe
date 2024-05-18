@@ -71,8 +71,13 @@ namespace wp2wp_planner
             const boost_type::polygon_2d_lf& robot
         );
 
-    private:
+        status map_avoidance_planner(
+            nav_msgs::msg::Path& move_path,
+            const boost_type::polygon_2d_lf& map,
+            const boost_type::polygon_2d_lf& robot
+        );
 
+    private:
     };
 }
 
