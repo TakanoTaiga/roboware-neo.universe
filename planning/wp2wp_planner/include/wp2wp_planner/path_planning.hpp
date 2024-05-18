@@ -36,7 +36,6 @@ namespace wp2wp_planner
     enum status
     {
         outside_pose,
-        path_error,
         non_error
     };
 
@@ -79,7 +78,6 @@ namespace wp2wp_planner
         );
 
     private:
-
     };
 }
 

@@ -46,9 +46,12 @@ namespace wp2wp_planner
         );
 
         if(check_path_in_map(result_path, map, robot) == outside_pose){
+            map_avoidance_planner(result_path, map, robot);
+        }
+
+         if(check_path_in_map(result_path, map, robot) == outside_pose){
             RCLCPP_ERROR_STREAM(logger,  "path is outside map");
-            result_path.poses.clear();
-            return path_error;
+            return outside_pose;
         }
 
         return non_error;
@@ -127,6 +130,42 @@ namespace wp2wp_planner
         const boost_type::polygon_2d_lf& map,
         const boost_type::polygon_2d_lf& robot
     ){
+        std::vector<std::pair<geometry_msgs::msg::PoseStamped, geometry_msgs::msg::PoseStamped>> error_poses;
+        for (size_t i = 0; i < move_path.poses.size(); ++i) {
+            const auto& point = move_path.poses[i];
+            if (check_pose_in_map(point, map, robot) == non_error) continue;
+
+            geometry_msgs::msg::PoseStamped next_point;
+            if (i + 1 < move_path.poses.size()) {
+                next_point = move_path.poses[i + 1];
+            } else if (i > 0) {
+                next_point = move_path.poses[i - 1];
+            }
+
+            const auto vec_x = point.pose.position.x - next_point.pose.position.x;
+            const auto vec_y = point.pose.position.y - next_point.pose.position.y;
+            const auto length = std::sqrt(vec_x * vec_x + vec_y * vec_y);
+            const auto perp_vec_x = vec_y / length;
+            const auto perp_vec_y = -vec_x / length;
+
+            for(double sc = 0.0; sc < 2.0; sc += 0.01)
+            {
+                auto point_ = point;
+                point_.pose.position.x += perp_vec_x * sc;
+                point_.pose.position.y += perp_vec_y * sc;
+                if(check_pose_in_map(point_, map, robot) == non_error){
+                    move_path.poses[i] = point_;
+                    break;
+                }
+
+                point_.pose.position.x -= 2.0 * perp_vec_x * sc;
+                point_.pose.position.y -= 2.0 * perp_vec_y * sc;
+                if(check_pose_in_map(point_, map, robot) == non_error){
+                    move_path.poses[i] = point_;
+                    break;
+                }
+            }
+        }
         return non_error;
     }
 }

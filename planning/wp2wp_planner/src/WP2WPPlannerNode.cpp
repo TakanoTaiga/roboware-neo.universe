@@ -63,7 +63,6 @@ namespace wp2wp_planner
             robot_msg.color.r = 1.0;
         }
         pub_debug_robot_->publish(robot_msg);
-
     }
 
     void WP2WPPlannerNode::goal_pose_subscriber_callback(const geometry_msgs::msg::PoseStamped& msg){
