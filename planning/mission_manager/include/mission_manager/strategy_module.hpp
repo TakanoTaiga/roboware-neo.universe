@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #ifndef TASK_MODULE_HPP_
-#define TASK_MODULE_HPP_
+#define STRATEGY_MODULE_HPP_
 
 #include <string>
 #include <map>
@@ -23,25 +23,28 @@
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <rw_planning_msg/msg/task_action.hpp>
 
+#include <tf2/LinearMath/Quaternion.h>
+#include <rw_common_util/geometry.hpp>
+
 #include "mission_manager/type.hpp"
 
 namespace mission_manager
 {
-namespace task_module
+namespace strategy_module
 {
-    class StartStrategy : public TaskStrategy
+    class StartStrategy : public RWStrategy
     {
     public:
         void update(node_bin& node, debug_info& info) override;
     };
 
-    class EndStrategy : public TaskStrategy
+    class EndStrategy : public RWStrategy
     {
     public:
         void update(node_bin& node, debug_info& info) override;
     };
 
-    class SetPoseStrategy : public TaskStrategy
+    class SetPoseStrategy : public RWStrategy
     {
     public:
         void update(node_bin& node, debug_info& info) override;
@@ -49,19 +52,19 @@ namespace task_module
         point3 infomation_to_point3(const std::string& setpose_cmd);
     };
 
-    class AddPoseStrategy : public TaskStrategy
-    {
-    public:
+    // class AddPoseStrategy : public RWStrategy
+    // {
+    // public:
          
-    private:
-    };
+    // private:
+    // };
 
-    class FindStrategy : public TaskStrategy
-    {
-    public:
+    // class FindStrategy : public RWStrategy
+    // {
+    // public:
          
-    private:
-    };
+    // private:
+    // };
 }
 } // namespace mission_manager
 

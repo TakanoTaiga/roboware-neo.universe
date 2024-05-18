@@ -18,15 +18,15 @@ namespace mission_manager
 {
     State::State()
     {
-        state = task_state::wait;
+        state = state_transition_label::wait;
 
-        allowed_transitions[task_state::wait] = task_state::start;
-        allowed_transitions[task_state::start] = task_state::working_in_progress;
-        allowed_transitions[task_state::working_in_progress] = task_state::end;
-        allowed_transitions[task_state::end] = task_state::start;
+        allowed_transitions[state_transition_label::wait] = state_transition_label::start;
+        allowed_transitions[state_transition_label::start] = state_transition_label::working_in_progress;
+        allowed_transitions[state_transition_label::working_in_progress] = state_transition_label::end;
+        allowed_transitions[state_transition_label::end] = state_transition_label::start;
     }
 
-    bool State::change_state(const task_state& change_to)
+    bool State::change_state(const state_transition_label& change_to)
     {
         if (allowed_transitions[state] == change_to) {
             state = change_to;
@@ -38,15 +38,15 @@ namespace mission_manager
 
     void State::set_error()
     {
-        state = task_state::error;
+        state = state_transition_label::error;
     }
 
     void State::state_reset()
     {
-        state = task_state::wait;
+        state = state_transition_label::wait;
     }
 
-    task_state State::get_state()
+    state_transition_label State::get_state()
     {
         return state;
     }
@@ -54,14 +54,14 @@ namespace mission_manager
 
 namespace mission_manager
 {
-namespace task_module
+namespace strategy_module
 {
-    void TaskStrategy::get_task_action_publisher(rclcpp::Publisher<rw_planning_msg::msg::TaskAction>::SharedPtr publisher)
+    void RWStrategy::get_action_publisher(rclcpp::Publisher<rw_planning_msg::msg::TaskAction>::SharedPtr publisher)
     {
         pub_task_action_ = publisher;
     }
 
-    void TaskStrategy::get_action_result(const rw_planning_msg::msg::ActionResult& action_result_msg)
+    void RWStrategy::get_action_result(const rw_planning_msg::msg::ActionResult& action_result_msg)
     {
         action_result = action_result_msg;
     }

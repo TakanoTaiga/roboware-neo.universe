@@ -59,14 +59,9 @@ namespace wp2wp_planner
         const boost_type::polygon_2d_lf& map,
         const boost_type::polygon_2d_lf& robot
     ){
-        // rotate translate
-        tf2::Quaternion quat_pose;
-        tf2::fromMsg(pose.pose.orientation, quat_pose);
-        tf2::Matrix3x3 mat_pose(quat_pose);
-        double roll, pitch, yaw;
-        mat_pose.getRPY(roll, pitch, yaw);
+        const auto rpy = rw_common_util::geometry::quat_to_euler(pose.pose.orientation);
         
-        boost_type::r_tf rotate_translate(yaw);
+        boost_type::r_tf rotate_translate(rpy.yaw);
         boost_type::polygon_2d_lf pose_rotated_robot;
         boost::geometry::transform(robot, pose_rotated_robot, rotate_translate);
 
@@ -92,15 +87,8 @@ namespace wp2wp_planner
         const double ab_y = pose_goal.pose.position.y - pose_current.pose.position.y;
         const double length = std::sqrt(ab_x * ab_x + ab_y * ab_y);
 
-        tf2::Quaternion quat_current, quat_goal;
-        tf2::fromMsg(pose_current.pose.orientation, quat_current);
-        tf2::fromMsg(pose_goal.pose.orientation, quat_goal);
-
-        tf2::Matrix3x3 mat_current(quat_current), mat_goal(quat_goal);
-        double roll_current, pitch_current, yaw_current;
-        double roll_goal, pitch_goal, yaw_goal;
-        mat_current.getRPY(roll_current, pitch_current, yaw_current);
-        mat_goal.getRPY(roll_goal, pitch_goal, yaw_goal);
+        const auto current_rpy = rw_common_util::geometry::quat_to_euler(pose_current.pose.orientation);
+        const auto goal_rpy = rw_common_util::geometry::quat_to_euler(pose_goal.pose.orientation);
 
         for(double l = 0.0; l <= length; l+= 0.1){
             const double unit_x = ab_x / length;
@@ -108,15 +96,13 @@ namespace wp2wp_planner
             const double c_x = pose_current.pose.position.x + unit_x * l;
             const double c_y = pose_current.pose.position.y + unit_y * l;
 
-            const double interp_yaw = yaw_current + (yaw_goal - yaw_current) * (l / length);
-            tf2::Quaternion quat;
-            quat.setRPY(0, 0, interp_yaw);
+            const double interp_yaw = current_rpy.yaw + (goal_rpy.yaw - current_rpy.yaw) * (l / length);
 
             auto pose = geometry_msgs::msg::PoseStamped();
             pose.header = result_path.header;
             pose.pose.position.x = c_x;
             pose.pose.position.y = c_y;
-            pose.pose.orientation = tf2::toMsg(quat);
+            pose.pose.orientation = rw_common_util::geometry::euler_to_rosquat(0.0, 0.0, interp_yaw);
 
             result_path.poses.push_back(pose);
         }

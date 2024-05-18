@@ -51,25 +51,25 @@ namespace mission_manager
         return result;
     }
 
-    std::string GraphUtil::get_task_name(const mission_task task)
+    std::string GraphUtil::get_task_name(const strategy_label task)
     {
-        if (task == mission_task::Start)
+        if (task == strategy_label::Start)
         {
             return "Start";
         }
-        else if (task == mission_task::End)
+        else if (task == strategy_label::End)
         {
             return "End";
         }
-        else if (task == mission_task::SetPose)
+        else if (task == strategy_label::SetPose)
         {
             return "SetPose";
         }
-        else if (task == mission_task::AddPose)
+        else if (task == strategy_label::AddPose)
         {
             return "AddPose";
         }
-        else if (task == mission_task::Find)
+        else if (task == strategy_label::Find)
         {
             return "Find";
         }

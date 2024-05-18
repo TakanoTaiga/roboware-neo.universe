@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>mission_manager</name>
+  <name>rw_common_util</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
   <maintainer email="ttttghghnb554z@outlook.jp">taiga</maintainer>
@@ -11,10 +11,8 @@
 
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
-  <depend>rw_common_msgs</depend>
-  <depend>rw_planning_msg</depend>
   <depend>tf2</depend>
-  <depend>rw_common_util</depend>
+  <depend>geometry_msgs</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

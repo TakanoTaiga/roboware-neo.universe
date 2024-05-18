@@ -30,7 +30,7 @@ namespace mission_manager
             void erase_space(std::string& input);
             bool get_information(const std::string& input, std::string& result);
             std::string get_key(const std::string& str_data);
-            std::string get_task_name(const mission_task task);
+            std::string get_task_name(const strategy_label task);
 
             std::string str_graph_tostring(mission_graph_str graph);
             std::string bin_graph_tostring(mission_graph_bin graph);

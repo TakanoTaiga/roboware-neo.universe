@@ -27,7 +27,7 @@
 
 namespace mission_manager
 {
-    enum class mission_task {
+    enum class strategy_label {
         Start,
         End,
         SetPose,
@@ -36,7 +36,7 @@ namespace mission_manager
         Unknown
     };
 
-    enum class task_state {
+    enum class state_transition_label {
         wait,
         start,
         working_in_progress,
@@ -55,19 +55,19 @@ namespace mission_manager
     {
         public:
             State();
-            bool change_state(const task_state& change_to);
+            bool change_state(const state_transition_label& change_to);
             void set_error();
             void state_reset();
-            task_state get_state();
+            state_transition_label get_state();
 
         private:
-            task_state state;
-            std::map<task_state, task_state> allowed_transitions;
+            state_transition_label state;
+            std::map<state_transition_label, state_transition_label> allowed_transitions;
     };
 
     struct node_bin{
         uint32_t id;
-        mission_task task;
+        strategy_label task;
         std::string mission_infomation;
         State state;
         bool now_transitioning;
@@ -90,22 +90,21 @@ namespace mission_manager
 
 namespace mission_manager
 {
-namespace task_module
+namespace strategy_module
 {
-    class TaskStrategy{
+    class RWStrategy{
     public:
-        virtual ~TaskStrategy(){}
+        virtual ~RWStrategy(){}
         virtual void update(node_bin& node, debug_info& info) = 0;
 
-        void get_task_action_publisher(rclcpp::Publisher<rw_planning_msg::msg::TaskAction>::SharedPtr publisher);
+        void get_action_publisher(rclcpp::Publisher<rw_planning_msg::msg::TaskAction>::SharedPtr publisher);
         void get_action_result(const rw_planning_msg::msg::ActionResult& action_result_msg);
 
     protected:
         rclcpp::Publisher<rw_planning_msg::msg::TaskAction>::SharedPtr pub_task_action_;
         rw_planning_msg::msg::ActionResult action_result;
-
     };
-}// namespace task_module
+}// namespace strategy_module
 }// namespace mission_manager
 
 #endif
