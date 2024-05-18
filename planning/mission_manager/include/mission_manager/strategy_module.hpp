@@ -24,6 +24,7 @@
 #include <rw_planning_msg/msg/task_action.hpp>
 
 #include <tf2/LinearMath/Quaternion.h>
+#include <rw_common_util/geometry.hpp>
 
 #include "mission_manager/type.hpp"
 

@@ -19,6 +19,7 @@
   <depend>libboost-dev</depend>
   <depend>rw_common_msgs</depend>
   <depend>rw_planning_msg</depend>
+  <depend>rw_common_util</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
