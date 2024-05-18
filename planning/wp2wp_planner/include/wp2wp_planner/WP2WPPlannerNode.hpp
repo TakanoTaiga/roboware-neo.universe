@@ -30,7 +30,6 @@
 #include <rw_planning_msg/msg/action_result.hpp>
 #include <rw_planning_msg/msg/task_action.hpp>
 
-
 #include "wp2wp_planner/path_planning.hpp"
 #include "wp2wp_planner/planning_util.hpp"
 
@@ -52,12 +51,17 @@ namespace wp2wp_planner
         rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr pub_debug_area_;
         rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr pub_debug_robot_;
 
+        rclcpp::TimerBase::SharedPtr map_pub_timer_;
+
         geometry_msgs::msg::PoseStamped current_pose;
+
+        boost_type::polygon_2d_lf ply2d_map;
+        boost_type::polygon_2d_lf ply2d_robot;
 
         void current_pose_subscriber_callback(const geometry_msgs::msg::PoseStamped& msg);
         void goal_pose_subscriber_callback(const geometry_msgs::msg::PoseStamped& msg);
         void task_action_subscriber_callback(const rw_planning_msg::msg::TaskAction& action_msg);
-
+        void map_pub_timer_callback();
     };
 } // namespace wp2wp_planner
 

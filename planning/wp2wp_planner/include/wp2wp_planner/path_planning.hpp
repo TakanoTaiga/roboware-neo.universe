@@ -36,6 +36,7 @@ namespace wp2wp_planner
     enum status
     {
         outside_pose,
+        path_error,
         non_error
     };
 
@@ -67,6 +68,12 @@ namespace wp2wp_planner
 
         status check_path_in_map(
             const nav_msgs::msg::Path& result_path,
+            const boost_type::polygon_2d_lf& map,
+            const boost_type::polygon_2d_lf& robot
+        );
+
+        status map_avoidance_planner(
+            nav_msgs::msg::Path& move_path,
             const boost_type::polygon_2d_lf& map,
             const boost_type::polygon_2d_lf& robot
         );

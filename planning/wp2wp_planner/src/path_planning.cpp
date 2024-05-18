@@ -48,7 +48,7 @@ namespace wp2wp_planner
         if(check_path_in_map(result_path, map, robot) == outside_pose){
             RCLCPP_ERROR_STREAM(logger,  "path is outside map");
             result_path.poses.clear();
-            return outside_pose;
+            return path_error;
         }
 
         return non_error;
@@ -122,4 +122,11 @@ namespace wp2wp_planner
         return non_error;
     }
 
+    status PathPlanning::map_avoidance_planner(
+        nav_msgs::msg::Path& move_path,
+        const boost_type::polygon_2d_lf& map,
+        const boost_type::polygon_2d_lf& robot
+    ){
+        return non_error;
+    }
 }
