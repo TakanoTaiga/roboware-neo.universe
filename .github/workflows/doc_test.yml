@@ -1,12 +1,10 @@
-name: build_test 
+name: doc_build_test 
 on:
-  push:
-    branches: [ main ]
   pull_request:
     branches: [ main ]
 
 jobs:
-  build_test:
+  doc_build_test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
