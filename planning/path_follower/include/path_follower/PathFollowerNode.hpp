@@ -16,6 +16,7 @@
 #define PATH_FOLLOWER_NODE_HPP_
 
 #include <memory>
+#include <fstream>
 
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
@@ -26,15 +27,14 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <rw_planning_msg/msg/action_result.hpp>
 #include <rw_planning_msg/msg/task_action.hpp>
+#include <rw_common_util/geometry.hpp>
 
 namespace path_follower
 {
     enum planner_status
     {
         ready,
-        not_found,
-        done,
-        wip
+        not_found
     };
 
     class PathFollowerNode : public rclcpp::Node
@@ -56,7 +56,6 @@ namespace path_follower
         nav_msgs::msg::Path global_path;
         planner_status pose_status;
         planner_status path_status;
-        planner_status p_status;
         size_t start_pose_index;
         size_t target_pose_index;
         geometry_msgs::msg::PoseStamped start_pose;

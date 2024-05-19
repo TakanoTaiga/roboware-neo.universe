@@ -6,6 +6,7 @@
     noise.rotation.strength: 1.0
     noise.rotation_tr.strength: 1.0
     noise.rotation.sd: 0.2
+    init_pose.x: -0.8
 
     frameid.map: map
     frameid.base_link: base_link

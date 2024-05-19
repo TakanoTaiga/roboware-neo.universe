@@ -1,6 +1,5 @@
 <launch>
     <!-- simulation -->
-    <!-- <include file="$(find-pkg-share roboware_neo_launch)/launch/control/joy.launch.xml"/> -->
     <include file="$(find-pkg-share roboware_neo_launch)/launch/planning/p_sim_node.launch.xml"/>
 
     <!-- planning -->
@@ -10,11 +9,12 @@
     <include file="$(find-pkg-share roboware_neo_launch)/launch/localization/viz_field.launch.xml"/>
     <include file="$(find-pkg-share roboware_neo_launch)/launch/localization/viz_robot.launch.xml"/>
 
-    <node
+    <!-- <node
       pkg="rviz2"
       exec="rviz2"
       name="rviz2"
-    args="-d $(find-pkg-share roboware_neo_launch)/rviz/rw-p.rviz"
+      args="-d $(find-pkg-share roboware_neo_launch)/rviz/rw-p.rviz"
       output="screen"
-    />
+    /> -->
+    <!-- <node pkg="foxglove_bridge" exec="foxglove_bridge" ></node> -->
 </launch>
