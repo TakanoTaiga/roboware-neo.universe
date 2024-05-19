@@ -65,7 +65,10 @@ jobs:
           ros2 launch roboware_neo_launch planning_sim.launch.xml
         continue-on-error: true
         shell: bash
-      
+
+      - name: Set up GitHub CLI
+        uses: actions/setup-gh@v1
+
       - name: Result output
         env:
           PR_NUMBER: ${{ github.event.number }}
