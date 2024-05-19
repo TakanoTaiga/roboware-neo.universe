@@ -55,7 +55,7 @@ jobs:
       
       - name: Scenario Simulation
         run: |
-        . /opt/ros/humble/local_setup.bash && . ./install/setup.bash && ros2 launch roboware_neo_launch planning_sim.launch.xml
+          . /opt/ros/humble/local_setup.bash && . ./install/setup.bash && ros2 launch roboware_neo_launch planning_sim.launch.xml
         continue-on-error: true
       
       - name: Result output
