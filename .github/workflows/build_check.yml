@@ -67,7 +67,9 @@ jobs:
         shell: bash
 
       - name: Set up GitHub CLI
-        uses: actions/setup-gh@v1
+        uses: sersoft-gmbh/setup-gh-cli-action@v2
+        with:
+          version: stable
 
       - name: Result output
         env:
