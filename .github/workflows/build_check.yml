@@ -21,13 +21,14 @@ jobs:
       image: ros:${{ matrix.rosdistro }}-ros-base
 
     steps:
-      - name: Setup directories
-        run: mkdir -p ros2_ws/src
-        
-      - name: Check out repository
+      - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          path: ros2_ws/src/roboware-neo.universe
+
+      # - name: Setup directories
+      #   run: mkdir -p ros2_ws/src
+
+      # - name: Move repository
+      #   run: mv * ros2_ws/src/roboware-neo.universe/
 
       - name: Install dependencies
         run: |
@@ -57,7 +58,7 @@ jobs:
         if: steps.build_test.outcome == 'failure'
         run: echo "result - failure" && exit 1
         shell: bash
-      
+
       - name: Scenario Simulation
         run: |
           source /opt/ros/humble/local_setup.bash && 
