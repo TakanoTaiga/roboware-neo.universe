@@ -77,6 +77,6 @@ jobs:
           PR_NUMBER: ${{ github.event.number }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python3 ros2_ws/src/roboware-neo.universe/tools/ss_action.py comment simple_scenario && 
+          python3 ./tools/ss_action.py comment simple_scenario && 
           gh pr comment "${PR_NUMBER}" -F ./comment
         shell: bash
