@@ -55,7 +55,7 @@ jobs:
       
       - name: Scenario Simulation
         run: |
-          source ./install/setup.bash && ros2 launch roboware_neo_launch planning_sim.launch.xml 
+          . ./install/setup.bash && ros2 launch roboware_neo_launch planning_sim.launch.xml
         continue-on-error: true
       
       - name: Result output
