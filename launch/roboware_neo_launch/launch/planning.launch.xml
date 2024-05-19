@@ -1,4 +1,5 @@
 <launch>
     <include file="$(find-pkg-share roboware_neo_launch)/launch/planning/global_path_planning.launch.xml"/>
     <include file="$(find-pkg-share roboware_neo_launch)/launch/planning/path_follower.launch.xml"/>
+    <include file="$(find-pkg-share roboware_neo_launch)/launch/planning/mission_manager.launch.xml"/>
 </launch>

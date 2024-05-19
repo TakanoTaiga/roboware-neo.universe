@@ -19,6 +19,7 @@
 #include <map>
 #include <sstream>
 #include <iostream>
+#include <fstream>
 
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <rw_planning_msg/msg/task_action.hpp>

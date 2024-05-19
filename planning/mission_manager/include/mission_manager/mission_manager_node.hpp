@@ -16,6 +16,7 @@
 #define MISSION_MANAGER_NODE_HPP
 
 #include <memory>
+#include <cstdlib>
 
 #include <rclcpp/rclcpp.hpp>
 #include <rw_planning_msg/msg/task_action.hpp>

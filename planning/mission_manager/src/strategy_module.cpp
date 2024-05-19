@@ -74,7 +74,12 @@ namespace strategy_module
             info.debug_str = "working in progress";
             if(action_result.status.code == rw_common_msgs::msg::Status::SUCCESS && action_result.status.success)
             {
+                const auto p3 = infomation_to_point3(node.mission_infomation);
                 node.state.change_state(state_transition_label::end);
+                std::ofstream log_file;
+                log_file.open("/tmp/rw.log", std::ios::app);
+                log_file << "target , " << std::to_string(p3.x) << "," << std::to_string(p3.y) << "," << std::to_string(p3.z) << std::endl;
+                log_file.close();
             }
         }
     }

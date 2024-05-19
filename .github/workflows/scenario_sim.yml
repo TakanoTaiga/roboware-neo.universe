@@ -1,0 +1,78 @@
+name: scenario simulation
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  scenario_simulation:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-22.04
+        rosdistro:
+          - humble
+
+    runs-on: ubuntu-latest
+
+    container:
+      image: ros:${{ matrix.rosdistro }}-ros-base
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Mark directory as safe
+        run: git config --global --add safe.directory /__w/roboware-neo.universe/roboware-neo.universe
+        shell: bash
+
+      - name: Install dependencies
+        run: |
+          rosdep update && 
+          apt-get update && 
+          rosdep install --from-path . -i -y --rosdistro ${{ matrix.rosdistro }} --skip-keys=OpenCV
+        shell: bash
+
+      - name: Install diagnostic-updater
+        run: apt-get install ros-${{ matrix.rosdistro }}-diagnostic-updater
+        shell: bash
+
+      - name: Build tests
+        id: build_test
+        run: |
+          . /opt/ros/${{ matrix.rosdistro }}/setup.sh && 
+          colcon build
+        continue-on-error: true
+        shell: bash
+
+      - name: build_test command success
+        if: steps.build_test.outcome == 'success'
+        run: echo "result - success"
+        shell: bash
+
+      - name: build_test command failure
+        if: steps.build_test.outcome == 'failure'
+        run: echo "result - failure" && exit 1
+        shell: bash
+
+      - name: Scenario Simulation
+        run: |
+          source /opt/ros/humble/local_setup.bash && 
+          source install/local_setup.bash && 
+          ros2 launch roboware_neo_launch planning_sim.launch.xml
+        continue-on-error: true
+        shell: bash
+
+      - name: Set up GitHub CLI
+        uses: sersoft-gmbh/setup-gh-cli-action@v2
+        with:
+          version: stable
+
+      - name: Result output
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 ./tools/ss_action.py comment simple_scenario && 
+          gh pr comment "${PR_NUMBER}" -F ./comment
+        shell: bash
