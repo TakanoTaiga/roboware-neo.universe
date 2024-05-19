@@ -24,11 +24,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # - name: Setup directories
-      #   run: mkdir -p ros2_ws/src
-
-      # - name: Move repository
-      #   run: mv * ros2_ws/src/roboware-neo.universe/
+      - name: Mark directory as safe
+        run: git config --global --add safe.directory /__w/roboware-neo.universe/roboware-neo.universe
+        shell: bash
 
       - name: Install dependencies
         run: |
