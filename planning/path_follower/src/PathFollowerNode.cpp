@@ -109,7 +109,7 @@ namespace path_follower
             pub_action_result->publish(action_result_msg);
 
             std::ofstream log_file;
-            log_file.open("rw.log", std::ios::app);
+            log_file.open("/tmp/rw.log", std::ios::app);
             log_file << "result , " << std::to_string(current_position.x) << "," << std::to_string(current_position.y) << "," << std::to_string(rqy_current.yaw * 57.295779513) << std::endl;
             log_file.close();
 

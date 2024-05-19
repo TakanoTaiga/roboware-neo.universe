@@ -52,7 +52,7 @@ def main():
     parser.add_argument('tittle', type=str, help='The tittle')
     args = parser.parse_args()
 
-    input_file = 'rw.log'
+    input_file = '/tmp/rw.log'
     output_file = args.output_file
     
     lines = read_csv(input_file)
