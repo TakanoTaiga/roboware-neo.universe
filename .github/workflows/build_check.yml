@@ -52,3 +52,16 @@ jobs:
       - name: build_test command failure
         if: steps.build_test.outcome == 'failure'
         run: echo "result - failure" && exit 1
+      
+      - name: Scenario Simulation
+        run: |
+          source ./install/setup.bash && ros2 launch roboware_neo_launch planning_sim.launch.xml 
+        continue-on-error: true
+      
+      - name: Result output
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 ros2_ws/src/roboware-neo.universe/tools/ss_action.py comment simple_scenario && 
+          gh pr comment "${PR_NUMBER}" -F ./comment
