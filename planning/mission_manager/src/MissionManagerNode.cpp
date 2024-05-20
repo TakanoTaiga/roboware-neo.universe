@@ -52,8 +52,9 @@ namespace mission_manager
         RCLCPP_INFO_STREAM(logger, info.debug_str);
 
         if(state_transition_handler.is_end()){
-            rclcpp::shutdown();
-            // const auto _ = system("ps aux | grep ros | grep -v grep | awk '{ print \"kill -9\", $2 }' | sh");
+            // rclcpp::shutdown();
+            const auto _ = system("ps aux | grep ros | grep -v grep | awk '{ print \"kill -9\", $2 }' | sh");
+
         }
     }
 
