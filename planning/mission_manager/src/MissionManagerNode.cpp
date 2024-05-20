@@ -19,6 +19,10 @@ namespace mission_manager
     MissionManagerNode::MissionManagerNode(const rclcpp::NodeOptions &node_option)
         : rclcpp::Node("MissionManagerNode", node_option)
     {   
+        //log file initialize
+        std::ofstream log_file;
+        log_file.open("/tmp/rw.log");
+        log_file.close();
         // Graph initialize
         std::string file_path = declare_parameter<std::string>("graphpath" , "./graph.md");;
         auto gen_mission_graph = MissionGraph();
@@ -49,8 +53,7 @@ namespace mission_manager
 
         if(state_transition_handler.is_end()){
             rclcpp::shutdown();
-            const auto _ = system("ps aux | grep ros | grep -v grep | awk '{ print \"kill -9\", $2 }' | sh");
-
+            // const auto _ = system("ps aux | grep ros | grep -v grep | awk '{ print \"kill -9\", $2 }' | sh");
         }
     }
 
