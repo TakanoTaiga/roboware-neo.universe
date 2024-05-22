@@ -46,6 +46,10 @@ namespace simple_planning_simulator
     }
 
     void SimplePlanningSimulatorNode::timer_callback(){
+        using rw_common_util::geometry::operator+=;
+        using rw_common_util::geometry::operator/=;
+
+
         twist_history.push_back(twist_msg);
         if(twist_history.size() >= 10){
             twist_history.erase(twist_history.begin());
@@ -54,21 +58,9 @@ namespace simple_planning_simulator
         auto twist_avg = geometry_msgs::msg::Twist();
 
         for(const auto& twist : twist_history){
-            twist_avg.linear.x += twist.linear.x;
-            twist_avg.linear.y += twist.linear.y;
-            twist_avg.linear.z += twist.linear.z;
-
-            twist_avg.angular.x += twist.angular.x;
-            twist_avg.angular.y += twist.angular.y;
-            twist_avg.angular.z += twist.angular.z;
+            twist_avg += twist;
         }
-        twist_avg.linear.x /= twist_history.size();
-        twist_avg.linear.y /= twist_history.size();
-        twist_avg.linear.z /= twist_history.size();
-
-        twist_avg.angular.x /= twist_history.size();
-        twist_avg.angular.y /= twist_history.size();
-        twist_avg.angular.z /= twist_history.size();
+        twist_avg /= twist_history.size();
 
         if(!std::isfinite(twist_avg.angular.z)){
             twist_avg.angular.z = 0.0;
@@ -101,12 +93,7 @@ namespace simple_planning_simulator
             twist_avg.linear.x * 0.02 * dist_4r(engine) * rotation_tr_noise_strength +
             twist_avg.linear.y * 0.02 * dist_4r(engine) * rotation_tr_noise_strength;
 
-        tf2::Quaternion q;
-        q.setEuler(0.0, 0.0, roll);
-        tf_stamp.transform.rotation.x = q.x();
-        tf_stamp.transform.rotation.y = q.y();
-        tf_stamp.transform.rotation.z = q.z();
-        tf_stamp.transform.rotation.w = q.w();
+        tf_stamp.transform.rotation = rw_common_util::geometry::euler_to_rosquat(0.0, 0.0, roll);
 
         tf_broadcaster_->sendTransform(tf_stamp);
 
