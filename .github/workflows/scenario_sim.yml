@@ -61,7 +61,29 @@ jobs:
         run: |
           source /opt/ros/humble/local_setup.bash && 
           source install/local_setup.bash && 
-          ros2 launch roboware_neo_launch planning_sim.launch.xml
+          ros2 launch roboware_neo_launch scenario.simple_sim.launch
+        continue-on-error: true
+        shell: bash
+
+      - name: Set up GitHub CLI
+        uses: sersoft-gmbh/setup-gh-cli-action@v2
+        with:
+          version: stable
+
+      - name: Result output
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 ./tools/ss_action.py comment simple_scenario && 
+          gh pr comment "${PR_NUMBER}" -F ./comment
+        shell: bash
+
+      - name: Scenario Simulation
+        run: |
+          source /opt/ros/humble/local_setup.bash && 
+          source install/local_setup.bash && 
+          ros2 launch roboware_neo_launch scenario.avoidance.launch
         continue-on-error: true
         shell: bash
 
