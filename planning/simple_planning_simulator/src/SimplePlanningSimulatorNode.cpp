@@ -58,9 +58,11 @@ namespace simple_planning_simulator
         auto twist_avg = geometry_msgs::msg::Twist();
 
         for(const auto& twist : twist_history){
-            twist_avg += twist;
+            twist_avg.linear += twist.linear;
+            twist_avg.angular += twist.angular;
         }
-        twist_avg /= twist_history.size();
+        twist_avg.linear  /= twist_history.size();
+        twist_avg.angular /= twist_history.size();
 
         if(!std::isfinite(twist_avg.angular.z)){
             twist_avg.angular.z = 0.0;

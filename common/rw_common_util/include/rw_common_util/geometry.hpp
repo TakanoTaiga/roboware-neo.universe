@@ -244,7 +244,7 @@ namespace rw_common_util
       typename T, typename U,
       std::enable_if_t<std::conjunction_v<IsLikeVector3<T>, std::is_scalar<U>>, std::nullptr_t> =
         nullptr>
-    auto operator/=(const T & a, const U & b)
+    auto operator/=(T & a, const U & b)
     {
       a.x /= b;
       a.y /= b;
@@ -307,77 +307,3 @@ namespace rw_common_util
     }
   }  // namespace geometry
 }  // namespace rw_common_util
-
-
-
-namespace rw_common_util
-{
-  namespace geometry
-  {
-    geometry_msgs::msg::Twist operator+(const geometry_msgs::msg::Twist& a, const geometry_msgs::msg::Twist& b)
-    {
-      geometry_msgs::msg::Twist v;
-      v.angular = a.angular + b.angular;
-      v.linear  = a.linear  + b.linear;
-      return v;
-    }
-
-    geometry_msgs::msg::Twist operator-(const geometry_msgs::msg::Twist& a, const geometry_msgs::msg::Twist& b)
-    {
-      geometry_msgs::msg::Twist v;
-      v.angular = a.angular - b.angular;
-      v.linear  = a.linear  - b.linear;
-      return v;
-    }
-
-    auto operator+=(geometry_msgs::msg::Twist& a, const geometry_msgs::msg::Twist& b)
-    {
-      a.angular += b.angular;
-      a.linear  += b.linear;
-    }
-
-    template <
-      typename T,
-      std::enable_if_t<std::conjunction_v<std::is_scalar<T>>, std::nullptr_t> =
-        nullptr>
-    auto operator*=(geometry_msgs::msg::Twist& a, const T& b)
-    {
-      a.angular *= b.angular;
-      a.linear  *= b.linear;
-    }
-
-    template <
-      typename T,
-      std::enable_if_t<std::conjunction_v<std::is_scalar<T>>, std::nullptr_t> =
-        nullptr>
-    auto operator/=(geometry_msgs::msg::Twist& a, const T& b)
-    {
-      a.angular /= b.angular;
-      a.linear  /= b.linear;
-    }
-
-    template <
-      typename T,
-      std::enable_if_t<std::conjunction_v<std::is_scalar<T>>, std::nullptr_t> =
-        nullptr>
-    geometry_msgs::msg::Twist operator*(const geometry_msgs::msg::Twist& a, const T& b)
-    {
-      geometry_msgs::msg::Twist v;
-      v.angular = a.angular * b;
-      v.linear  = a.linear  * b;
-      return v;
-    }
-
-    template <
-      typename T,
-      std::enable_if_t<std::conjunction_v<std::is_scalar<T>>, std::nullptr_t> =
-        nullptr>
-    geometry_msgs::msg::Twist operator/(const geometry_msgs::msg::Twist& a, const T& b)
-    {
-      geometry_msgs::msg::Twist v;
-      v.angular = a.angular / b;
-      v.linear  = a.linear  / b;
-      return v;
-    }
-  }
-}
