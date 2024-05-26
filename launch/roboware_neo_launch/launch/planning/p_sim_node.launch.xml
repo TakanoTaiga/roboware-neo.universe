@@ -1,7 +1,7 @@
 <launch>  
     <arg name="simple_planning_simulator_param_path" default="$(find-pkg-share roboware_neo_launch)/config/simple_palnning_simulator.pram.yaml"/>
 
-    <node pkg="simple_planning_simulator" exec="simple_planning_simulator_node" >
+    <node pkg="rw_simple_planning_simulator" exec="rw_simple_planning_simulator_node" >
         <remap from="input/cmd_vel" to="/control/cmd_vel"/>
         <remap from="output/pose" to="/localization/current_pose"/>
         <param from="$(var simple_planning_simulator_param_path)"/>

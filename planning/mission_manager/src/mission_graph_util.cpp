@@ -51,29 +51,12 @@ namespace mission_manager
         return result;
     }
 
-    std::string GraphUtil::get_task_name(const strategy_label task)
+    std::string GraphUtil::get_arrow(const std::string &str_data)
     {
-        if (task == strategy_label::Start)
-        {
-            return "Start";
-        }
-        else if (task == strategy_label::End)
-        {
-            return "End";
-        }
-        else if (task == strategy_label::SetPose)
-        {
-            return "SetPose";
-        }
-        else if (task == strategy_label::AddPose)
-        {
-            return "AddPose";
-        }
-        else if (task == strategy_label::Find)
-        {
-            return "Find";
-        }
-        return "Unknown";
+        auto str = str_data;
+        char charToRemove = '-';
+        str.erase(std::remove(str.begin(), str.end(), charToRemove), str.end());
+        return str;
     }
 
     std::string GraphUtil::str_graph_tostring(mission_graph_str graph)
@@ -97,7 +80,7 @@ namespace mission_manager
         std::string out_show = "show_bin_graph\n";
         for (const auto &pair : graph)
         {
-            out_show += std::to_string(pair.second.id) + "-" + get_task_name(pair.second.task) + " connects to: ";
+            out_show += std::to_string(pair.second.id) + "-" + pair.second.strategy_label + " connects to: ";
             for (const auto &conn : pair.second.connections)
             {
                 out_show += std::to_string(conn) + "; ";

@@ -30,12 +30,20 @@ namespace wp2wp_planner
         rclcpp::Logger logger
     ){
         if(check_pose_in_map(pose_current, map, robot) == outside_pose){
-            RCLCPP_ERROR_STREAM(logger,  "pose_current is outside map");
+            RCLCPP_ERROR_STREAM(logger,  
+                "pose_current is outside map. " << 
+                pose_current.pose.position.y << 
+                " , " << 
+                pose_current.pose.position.y);
             return outside_pose;
         }
 
         if(check_pose_in_map(pose_goal, map, robot) == outside_pose){
-            RCLCPP_ERROR_STREAM(logger,  "pose_goal is outside map");
+            RCLCPP_ERROR_STREAM(logger,  
+                "pose_goal is outside map. " << 
+                pose_goal.pose.position.y << 
+                " , " << 
+                pose_goal.pose.position.y);
             return outside_pose;
         }
 

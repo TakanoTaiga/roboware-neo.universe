@@ -68,8 +68,9 @@ namespace mission_manager
                 erase_space(arrow);
                 erase_space(target);
 
-                auto source_key = get_key(source);
-                auto target_key = get_key(target);
+                const auto source_key = get_key(source);
+                const auto target_key = get_key(target);
+                const auto formatted_arrow = get_arrow(arrow);
 
                 graph_str[source_key].name = source_key;
                 graph_str[source_key].connections.push_back(target_key);
@@ -85,7 +86,7 @@ namespace mission_manager
         }
         // add id
         uint32_t id_iter = 0;
-        for (const auto &pair : graph_str)
+        for (const auto& pair : graph_str)
         {
             graph_str[pair.first].id = id_iter;
             id_iter++;
@@ -107,32 +108,13 @@ namespace mission_manager
                 result_mgraph[pair.second.id].connections.push_back(graph_str[connection].id);
             }
 
+            result_mgraph[pair.second.id].strategy_label = pair.second.infomation;
+
             // set task
             if (pair.second.infomation.find("START") != std::string::npos)
             {
-                result_mgraph[pair.second.id].task = strategy_label::Start;
                 result_mgraph[pair.second.id].state.change_state(state_transition_label::start);
                 result_mgraph[pair.second.id].now_transitioning = true;
-            }
-            else if (pair.second.infomation.find("END") != std::string::npos)
-            {
-                result_mgraph[pair.second.id].task = strategy_label::End;
-            }
-            else if (pair.second.infomation.find("SETPOSE") != std::string::npos)
-            {
-                result_mgraph[pair.second.id].task = strategy_label::SetPose;
-            }
-            else if (pair.second.infomation.find("ADDPOSE") != std::string::npos)
-            {
-                result_mgraph[pair.second.id].task = strategy_label::AddPose;
-            }
-            else if (pair.second.infomation.find("FIND") != std::string::npos)
-            {
-                result_mgraph[pair.second.id].task = strategy_label::Find;
-            }
-            else
-            {
-                result_mgraph[pair.second.id].task = strategy_label::Unknown;
             }
 
             // copy mission infomations

@@ -18,9 +18,7 @@ namespace mission_manager
 {
     StateTransition::StateTransition()
     {
-        strategies[strategy_label::Start] = new strategy_module::StartStrategy();
-        strategies[strategy_label::End] = new strategy_module::EndStrategy();
-        strategies[strategy_label::SetPose] = new strategy_module::SetPoseStrategy();
+        setting_callback();
     }
 
     void StateTransition::set_graph(const mission_graph_bin& input_graph)
@@ -30,9 +28,9 @@ namespace mission_manager
 
     void StateTransition::get_task_action_publisher(rclcpp::Publisher<rw_planning_msg::msg::TaskAction>::SharedPtr publisher)
     {
-        for(auto& pair_strategy : strategies)
+        for(auto& strategy : strategies)
         {
-            pair_strategy.second->get_action_publisher(publisher);
+            strategy->get_action_publisher(publisher);
         }
     }
 
@@ -44,15 +42,20 @@ namespace mission_manager
     debug_info StateTransition::state_transition_master()
     {
         mission_manager::debug_info info;
-        for (auto& pair : node_graph) {
-            if (!pair.second.now_transitioning) continue;
 
-            if (strategies.find(pair.second.task) != strategies.end()) {
-                strategies[pair.second.task]->get_action_result(action_results[pair.second.id]);
-                strategies[pair.second.task]->update(pair.second, info);
+        for (auto& [id, node] : node_graph)
+        {
+            if (!node.now_transitioning) continue;
+
+            for (const auto& strategy : strategies)
+            {
+                if (strategy->is_match_strategy_label(node.strategy_label))
+                {
+                    strategy->get_action_result(action_results[node.id]);
+                    strategy->update(node, info);
+                }
             }
-
-            update_graph(pair.first);
+            update_graph(id);
             return info;
         }
         return info;
@@ -72,9 +75,9 @@ namespace mission_manager
 
     bool StateTransition::is_end()
     {
-        for (auto& pair : node_graph)
+        for (const auto& [id, node] : node_graph)
         {
-            if(pair.second.task == strategy_label::End && pair.second.state.get_state() == state_transition_label::end)
+            if (node.strategy_label.find("END") != std::string::npos && node.state.get_state() == state_transition_label::end)
             {
                 return true;
             }

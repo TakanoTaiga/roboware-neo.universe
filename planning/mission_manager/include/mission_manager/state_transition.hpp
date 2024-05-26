@@ -36,9 +36,10 @@ namespace mission_manager
     private:
         mission_graph_bin node_graph;
         void update_graph(uint32_t id);
+        void setting_callback();
 
         //task modules
-        std::map<strategy_label, strategy_module::RWStrategy*> strategies;
+        std::vector<strategy_module::RWStrategy*> strategies;
         std::map<uint32_t, rw_planning_msg::msg::ActionResult> action_results;
     };
 } // namespace mission_manager

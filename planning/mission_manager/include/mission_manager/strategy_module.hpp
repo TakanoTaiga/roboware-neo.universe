@@ -36,18 +36,21 @@ namespace strategy_module
     class StartStrategy : public RWStrategy
     {
     public:
+        StartStrategy();
         void update(node_bin& node, debug_info& info) override;
     };
 
     class EndStrategy : public RWStrategy
     {
     public:
+        EndStrategy();
         void update(node_bin& node, debug_info& info) override;
     };
 
     class SetPoseStrategy : public RWStrategy
     {
     public:
+        SetPoseStrategy();
         void update(node_bin& node, debug_info& info) override;
     private:
         point3 infomation_to_point3(const std::string& setpose_cmd);
