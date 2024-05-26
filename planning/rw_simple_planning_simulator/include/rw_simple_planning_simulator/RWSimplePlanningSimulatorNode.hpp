@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SINMPLE_PLANNING_SIMULATOR_NODE_HPP_
-#define SINMPLE_PLANNING_SIMULATOR_NODE_HPP_
+#ifndef RWSIMPLE_PLANNING_SIMULATOR_NODE_HPP_
+#define RWSIMPLE_PLANNING_SIMULATOR_NODE_HPP_
 
 #include <vector>
 #include <memory>
@@ -28,12 +28,12 @@
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <rw_common_util/geometry.hpp>
 
-namespace simple_planning_simulator
+namespace rw_simple_planning_simulator
 {
-    class SimplePlanningSimulatorNode : public rclcpp::Node
+    class RWSimplePlanningSimulatorNode : public rclcpp::Node
     {
     public:
-        explicit SimplePlanningSimulatorNode(const rclcpp::NodeOptions & node_options);
+        explicit RWSimplePlanningSimulatorNode(const rclcpp::NodeOptions & node_options);
 
     private:
         rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr sub_twist_;
@@ -45,7 +45,7 @@ namespace simple_planning_simulator
 
         geometry_msgs::msg::Twist twist_msg;
         geometry_msgs::msg::TransformStamped tf_stamp;
-        double roll;
+        double roll{0.0};
 
         double transform_noise_strength;
         double transform_noise_sd;
@@ -53,10 +53,14 @@ namespace simple_planning_simulator
         double rotation_tr_noise_strength;
         double rotation_noise_sd;
 
+        std::random_device seed_gen;
+        std::default_random_engine engine;
+        std::normal_distribution<> dist_tf;
+        std::normal_distribution<> dist_4r;
+
         void timer_callback();
         void subscriber_callback(const geometry_msgs::msg::Twist& msg);
-
     };
-} // namespace simple_planning_simulator
+} // namespace rw_simple_planning_simulator
 
-#endif
+#endif // RWSIMPLE_PLANNING_SIMULATOR_NODE_HPP_

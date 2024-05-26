@@ -46,7 +46,7 @@ namespace mission_manager
         state = state_transition_label::wait;
     }
 
-    state_transition_label State::get_state()
+    state_transition_label State::get_state() const
     {
         return state;
     }
@@ -64,6 +64,11 @@ namespace strategy_module
     void RWStrategy::get_action_result(const rw_planning_msg::msg::ActionResult& action_result_msg)
     {
         action_result = action_result_msg;
+    }
+
+    bool RWStrategy::is_match_strategy_label(const std::string& label)
+    {
+        return label.find(strategy_label) != std::string::npos;
     }
 }
 }

@@ -27,15 +27,6 @@
 
 namespace mission_manager
 {
-    enum class strategy_label {
-        Start,
-        End,
-        SetPose,
-        AddPose,
-        Find,
-        Unknown
-    };
-
     enum class state_transition_label {
         wait,
         start,
@@ -58,7 +49,7 @@ namespace mission_manager
             bool change_state(const state_transition_label& change_to);
             void set_error();
             void state_reset();
-            state_transition_label get_state();
+            state_transition_label get_state() const;
 
         private:
             state_transition_label state;
@@ -67,7 +58,7 @@ namespace mission_manager
 
     struct node_bin{
         uint32_t id;
-        strategy_label task;
+        std::string strategy_label;
         std::string mission_infomation;
         State state;
         bool now_transitioning;
@@ -100,9 +91,12 @@ namespace strategy_module
         void get_action_publisher(rclcpp::Publisher<rw_planning_msg::msg::TaskAction>::SharedPtr publisher);
         void get_action_result(const rw_planning_msg::msg::ActionResult& action_result_msg);
 
+        bool is_match_strategy_label(const std::string& label);
+
     protected:
         rclcpp::Publisher<rw_planning_msg::msg::TaskAction>::SharedPtr pub_task_action_;
         rw_planning_msg::msg::ActionResult action_result;
+        std::string strategy_label;
     };
 }// namespace strategy_module
 }// namespace mission_manager
