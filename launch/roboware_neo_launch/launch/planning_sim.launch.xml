@@ -16,5 +16,5 @@
       args="-d $(find-pkg-share roboware_neo_launch)/rviz/rw-p.rviz"
       output="screen"
     /> -->
-    <!-- <node pkg="foxglove_bridge" exec="foxglove_bridge" ></node> -->
+    <node pkg="foxglove_bridge" exec="foxglove_bridge" ></node>
 </launch>

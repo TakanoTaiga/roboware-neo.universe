@@ -15,41 +15,41 @@
 #ifndef TAILOC_NODE_HPP_
 #define TAILOC_NODE_HPP_
 
-#include <vector>
-#include <memory>
-#include <chrono>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2_ros/transform_broadcaster.h>
 
+#include <chrono>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/transform_stamped.hpp>
+#include <memory>
+#include <nav_msgs/msg/path.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/laser_scan.hpp>
-#include <tf2_ros/transform_broadcaster.h>
-#include <tf2/LinearMath/Quaternion.h>
-#include <geometry_msgs/msg/transform_stamped.hpp>
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <nav_msgs/msg/path.hpp>
+#include <vector>
 
 #include "tailoc_ros2/ndt_cpp.hpp"
 
 namespace tailoc_ros2
 {
-    class tailocNode : public rclcpp::Node
-    {
-    public:
-        explicit tailocNode(const rclcpp::NodeOptions & node_options);
+class tailocNode : public rclcpp::Node
+{
+public:
+  explicit tailocNode(const rclcpp::NodeOptions & node_options);
 
-    private:
-        rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr sub_laser_scan_;
-        rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_current_pose_;
-        rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr pub_path_;
-        std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+private:
+  rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr sub_laser_scan_;
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_current_pose_;
+  rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr pub_path_;
+  std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
-        void subscriber_callback(const sensor_msgs::msg::LaserScan msg);
+  void subscriber_callback(const sensor_msgs::msg::LaserScan msg);
 
-        ndt_cpp::point3 odom;
-        nav_msgs::msg::Path path;
-        std::vector<ndt_cpp::point2> map_points;
+  ndt_cpp::point3 odom;
+  nav_msgs::msg::Path path;
+  std::vector<ndt_cpp::point2> map_points;
 
-        ndt_cpp::ndtParam ndt_param;
-    };
-} // namespace tailoc_ros2
+  ndt_cpp::ndtParam ndt_param;
+};
+}  // namespace tailoc_ros2
 
 #endif

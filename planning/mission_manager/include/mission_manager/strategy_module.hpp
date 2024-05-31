@@ -15,17 +15,16 @@
 #ifndef TASK_MODULE_HPP_
 #define STRATEGY_MODULE_HPP_
 
-#include <string>
-#include <map>
-#include <sstream>
-#include <iostream>
-#include <fstream>
-
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <rw_planning_msg/msg/task_action.hpp>
-
 #include <tf2/LinearMath/Quaternion.h>
+
+#include <fstream>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <iostream>
+#include <map>
 #include <rw_common_util/geometry.hpp>
+#include <rw_planning_msg/msg/task_action.hpp>
+#include <sstream>
+#include <string>
 
 #include "mission_manager/type.hpp"
 
@@ -33,43 +32,46 @@ namespace mission_manager
 {
 namespace strategy_module
 {
-    class StartStrategy : public RWStrategy
-    {
-    public:
-        StartStrategy();
-        void update(node_bin& node, debug_info& info) override;
-    };
+class StartStrategy : public RWStrategy
+{
+public:
+  StartStrategy();
+  void update(node_bin & node, debug_info & info) override;
+};
 
-    class EndStrategy : public RWStrategy
-    {
-    public:
-        EndStrategy();
-        void update(node_bin& node, debug_info& info) override;
-    };
+class EndStrategy : public RWStrategy
+{
+public:
+  EndStrategy();
+  void update(node_bin & node, debug_info & info) override;
+};
 
-    class SetPoseStrategy : public RWStrategy
-    {
-    public:
-        SetPoseStrategy();
-        void update(node_bin& node, debug_info& info) override;
-    private:
-        point3 infomation_to_point3(const std::string& setpose_cmd);
-    };
+class SetPoseStrategy : public RWStrategy
+{
+public:
+  SetPoseStrategy();
+  void update(node_bin & node, debug_info & info) override;
 
-    // class AddPoseStrategy : public RWStrategy
-    // {
-    // public:
-         
-    // private:
-    // };
+private:
+  point3 infomation_to_point3(const std::string & setpose_cmd);
+};
 
-    // class FindStrategy : public RWStrategy
-    // {
-    // public:
-         
-    // private:
-    // };
-}
-} // namespace mission_manager
+class AddPoseStrategy : public RWStrategy
+{
+public:
+  AddPoseStrategy();
+  void update(node_bin & node, debug_info & info) override;
+
+private:
+};
+
+// class FindStrategy : public RWStrategy
+// {
+// public:
+
+// private:
+// };
+}  // namespace strategy_module
+}  // namespace mission_manager
 
 #endif

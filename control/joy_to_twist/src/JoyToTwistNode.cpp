@@ -12,33 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "joy_to_twist/JoyToTwistNode.hpp"
+
+#include <cstdlib>
 #include <memory>
 #include <vector>
-#include <cstdlib>
-
-#include "joy_to_twist/JoyToTwistNode.hpp"
 
 namespace joy_to_twist
 {
-    JoyToTwistNode::JoyToTwistNode(const rclcpp::NodeOptions &node_option)
-        : rclcpp::Node("joy_to_twist_node", node_option)
-    {   
-        pub_twist_ = create_publisher<geometry_msgs::msg::Twist>(
-            "output/twist", 0);
-        sub_joy_ = create_subscription<sensor_msgs::msg::Joy>(
-            "input/joy", 0, std::bind(&JoyToTwistNode::subscriber_callback, this, std::placeholders::_1));
-    }
-
-    void JoyToTwistNode::subscriber_callback(const sensor_msgs::msg::Joy& msg){
-        auto send_msg = geometry_msgs::msg::Twist();
-        send_msg.linear.x = msg.axes[0] * -1.0;
-        send_msg.linear.y = msg.axes[1];
-
-        send_msg.angular.z = msg.axes[3] * -1.0 * 3.141592;
-
-        pub_twist_->publish(send_msg);
-    }
+JoyToTwistNode::JoyToTwistNode(const rclcpp::NodeOptions & node_option)
+: rclcpp::Node("joy_to_twist_node", node_option)
+{
+  pub_twist_ = create_publisher<geometry_msgs::msg::Twist>("output/twist", 0);
+  sub_joy_ = create_subscription<sensor_msgs::msg::Joy>(
+    "input/joy", 0, std::bind(&JoyToTwistNode::subscriber_callback, this, std::placeholders::_1));
 }
+
+void JoyToTwistNode::subscriber_callback(const sensor_msgs::msg::Joy & msg)
+{
+  auto send_msg = geometry_msgs::msg::Twist();
+  send_msg.linear.x = msg.axes[0] * -1.0;
+  send_msg.linear.y = msg.axes[1];
+
+  send_msg.angular.z = msg.axes[3] * -1.0 * 3.141592;
+
+  pub_twist_->publish(send_msg);
+}
+}  // namespace joy_to_twist
 
 #include "rclcpp_components/register_node_macro.hpp"
 RCLCPP_COMPONENTS_REGISTER_NODE(joy_to_twist::JoyToTwistNode)

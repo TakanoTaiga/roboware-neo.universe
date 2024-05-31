@@ -43,7 +43,7 @@ jobs:
         id: build_test
         run: |
           . /opt/ros/${{ matrix.rosdistro }}/setup.sh && 
-          colcon build
+          colcon build --symlink-install --merge-install --cmake-args -DCMAKE_BUILD_TYPE=Release  -DCMAKE_CXX_STANDARD=20
         continue-on-error: true
         shell: bash
 

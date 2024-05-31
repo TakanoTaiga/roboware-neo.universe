@@ -25,285 +25,270 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <tf2/LinearMath/Matrix3x3.h>
+#include <tf2/LinearMath/Quaternion.h>
+
+#include <geometry_msgs/msg/point.hpp>
+#include <geometry_msgs/msg/pose.hpp>
+#include <geometry_msgs/msg/quaternion.hpp>
+#include <geometry_msgs/msg/transform.hpp>
+#include <geometry_msgs/msg/twist.hpp>
+#include <geometry_msgs/msg/vector3.hpp>
 #include <type_traits>
 #include <utility>
 
-#include <tf2/LinearMath/Quaternion.h>
-#include <tf2/LinearMath/Matrix3x3.h>
-#include <geometry_msgs/msg/quaternion.hpp>
-#include <geometry_msgs/msg/vector3.hpp>
-#include <geometry_msgs/msg/point.hpp>
-#include <geometry_msgs/msg/twist.hpp>
-#include <geometry_msgs/msg/pose.hpp>
-#include <geometry_msgs/msg/transform.hpp>
-
 namespace rw_common_util
 {
-    namespace geometry
-    {   
-        template <typename T>
-        struct rw_quat
-        {
-            T x, y, z, w;
-        };
-        template <typename T>
-        struct rw_euler
-        {
-            T roll, pitch, yaw;
-        };
-
-        template <typename T>
-        rw_quat<T> euler_to_quat(const T& roll, const T& pitch, const T& yaw);
-        template <typename T>
-        rw_quat<T> euler_to_quat(const rw_euler<T>& input);
-
-        geometry_msgs::msg::Quaternion euler_to_rosquat(
-            const double& roll, const double& pitch, const double& yaw);
-        geometry_msgs::msg::Quaternion euler_to_rosquat(
-            const rw_euler<double>& input);
-
-        template <typename T>
-        rw_euler<T> quat_to_euler(const T& x, const T& y, const T& z, const T& w);
-
-        template <typename T>
-        rw_euler<T> quat_to_euler(const rw_quat<T>& input);
-
-        rw_euler<double> quat_to_euler(const geometry_msgs::msg::Quaternion& input);
-    }
-}
-
-namespace rw_common_util
+namespace geometry
 {
-    namespace geometry
-    {
-        template <typename T, typename = void>
-        struct HasMemberW : std::false_type {};
+template <typename T>
+struct rw_quat
+{
+  T x, y, z, w;
+};
+template <typename T>
+struct rw_euler
+{
+  T roll, pitch, yaw;
+};
 
-        template <typename T>
-        struct HasMemberW<T, std::void_t<decltype(std::declval<T>().w)>> : std::true_type {};
+template <typename T>
+rw_quat<T> euler_to_quat(const T & roll, const T & pitch, const T & yaw);
+template <typename T>
+rw_quat<T> euler_to_quat(const rw_euler<T> & input);
 
-        template <typename T, typename = void>
-        struct IsLikeVector3 : public std::false_type
-        {
-        };
+geometry_msgs::msg::Quaternion euler_to_rosquat(
+  const double & roll, const double & pitch, const double & yaw);
+geometry_msgs::msg::Quaternion euler_to_rosquat(const rw_euler<double> & input);
 
-        template <typename T>
-        struct IsLikeVector3<
-        T, std::void_t<
-            decltype(std::declval<T>().x),
-            decltype(std::declval<T>().y),
-            decltype(std::declval<T>().z),
-            std::enable_if_t<!HasMemberW<T>::value>
-        >>
-        : public std::true_type
-        {
-        };
+template <typename T>
+rw_euler<T> quat_to_euler(const T & x, const T & y, const T & z, const T & w);
 
-        template <typename T, typename = void>
-        struct IsLikeQuaternion : std::false_type {};
+template <typename T>
+rw_euler<T> quat_to_euler(const rw_quat<T> & input);
 
-        template <typename T>
-        struct IsLikeQuaternion<
-        T, std::void_t<
-            decltype(std::declval<T>().x),
-            decltype(std::declval<T>().y),
-            decltype(std::declval<T>().z),
-            decltype(std::declval<T>().w)
-        >>
-        : std::true_type
-        {
-        };
-
-    }  // namespace geometry
+rw_euler<double> quat_to_euler(const geometry_msgs::msg::Quaternion & input);
+}  // namespace geometry
 }  // namespace rw_common_util
 
 namespace rw_common_util
 {
-  namespace geometry
-  {
-    template <
-      typename T, typename U,
-      std::enable_if_t<std::conjunction_v<IsLikeVector3<T>, IsLikeVector3<U>>, std::nullptr_t> =
-        nullptr>
-    auto operator+(const T & a, const U & b)
-    {
-      if constexpr (std::is_same<T, geometry_msgs::msg::Vector3>::value)
-      {
-        geometry_msgs::msg::Vector3 v;
-        v.x = a.x + b.x;
-        v.y = a.y + b.y;
-        v.z = a.z + b.z;
-        return v;
-      }
-      else
-      {
-        geometry_msgs::msg::Point v;
-        v.x = a.x + b.x;
-        v.y = a.y + b.y;
-        v.z = a.z + b.z;
-        return v;
-      }
-    }
+namespace geometry
+{
+template <typename T, typename = void>
+struct HasMemberW : std::false_type
+{
+};
 
-    template <
-      typename T, typename U,
-      std::enable_if_t<std::conjunction_v<IsLikeVector3<T>, IsLikeVector3<U>>, std::nullptr_t> =
-        nullptr>
-    auto operator-(const T & a, const U & b)
-    {
-      if constexpr (std::is_same<T, geometry_msgs::msg::Vector3>::value)
-      {
-        geometry_msgs::msg::Vector3 v;
-        v.x = a.x - b.x;
-        v.y = a.y - b.y;
-        v.z = a.z - b.z;
-        return v;
-      }
-      else
-      {
-        geometry_msgs::msg::Point v;
-        v.x = a.x - b.x;
-        v.y = a.y - b.y;
-        v.z = a.z - b.z;
-        return v;
-      }
-    }
+template <typename T>
+struct HasMemberW<T, std::void_t<decltype(std::declval<T>().w)>> : std::true_type
+{
+};
 
-    template <
-      typename T, typename U,
-      std::enable_if_t<std::conjunction_v<IsLikeVector3<T>, std::is_scalar<U>>, std::nullptr_t> =
-        nullptr>
-    auto operator*(const T & a, const U & b)
-    {
-      if constexpr (std::is_same<T, geometry_msgs::msg::Vector3>::value)
-      {
-        geometry_msgs::msg::Vector3 v;
-        v.x = a.x * b;
-        v.y = a.y * b;
-        v.z = a.z * b;
-        return v;
-      }
-      else
-      {
-        geometry_msgs::msg::Point v;
-        v.x = a.x * b;
-        v.y = a.y * b;
-        v.z = a.z * b;
-        return v;
-      }
-    }
+template <typename T, typename = void>
+struct IsLikeVector3 : public std::false_type
+{
+};
 
-    template <
-      typename T, typename U,
-      std::enable_if_t<std::conjunction_v<IsLikeVector3<T>, std::is_scalar<U>>, std::nullptr_t> =
-        nullptr>
-    auto operator/(const T & a, const U & b)
-    {
-      if constexpr (std::is_same<T, geometry_msgs::msg::Vector3>::value)
-      {
-        geometry_msgs::msg::Vector3 v;
-        v.x = a.x / b;
-        v.y = a.y / b;
-        v.z = a.z / b;
-        return v;
-      }
-      else
-      {
-        geometry_msgs::msg::Point v;
-        v.x = a.x / b;
-        v.y = a.y / b;
-        v.z = a.z / b;
-        return v;
-      }
-    }
+template <typename T>
+struct IsLikeVector3<
+  T, std::void_t<
+       decltype(std::declval<T>().x), decltype(std::declval<T>().y), decltype(std::declval<T>().z),
+       std::enable_if_t<!HasMemberW<T>::value>>> : public std::true_type
+{
+};
 
-    template <
-      typename T, typename U,
-      std::enable_if_t<std::conjunction_v<IsLikeVector3<T>, IsLikeVector3<U>>, std::nullptr_t> =
-        nullptr>
-    auto operator+=(T & a, const U & b) -> decltype(auto)
-    {
-      a.x += b.x;
-      a.y += b.y;
-      a.z += b.z;
-      return a;
-    }
+template <typename T, typename = void>
+struct IsLikeQuaternion : std::false_type
+{
+};
 
-    template <
-      typename T, typename U,
-      std::enable_if_t<std::conjunction_v<IsLikeVector3<T>, std::is_scalar<U>>, std::nullptr_t> =
-        nullptr>
-    auto operator*=(const T & a, const U & b)
-    {
-      a.x *= b;
-      a.y *= b;
-      a.z *= b;
-    }
+template <typename T>
+struct IsLikeQuaternion<
+  T, std::void_t<
+       decltype(std::declval<T>().x), decltype(std::declval<T>().y), decltype(std::declval<T>().z),
+       decltype(std::declval<T>().w)>> : std::true_type
+{
+};
 
-    template <
-      typename T, typename U,
-      std::enable_if_t<std::conjunction_v<IsLikeVector3<T>, std::is_scalar<U>>, std::nullptr_t> =
-        nullptr>
-    auto operator/=(T & a, const U & b)
-    {
-      a.x /= b;
-      a.y /= b;
-      a.z /= b;
-    }
+}  // namespace geometry
+}  // namespace rw_common_util
 
-    template <
-      typename T, typename U,
-      std::enable_if_t<std::conjunction_v<IsLikeQuaternion<T>, IsLikeQuaternion<U>>, std::nullptr_t> =
-        nullptr>
-    auto operator+(const T & a, const U & b)
-    {
-      geometry_msgs::msg::Quaternion v;
-      v.x = a.x + b.x;
-      v.y = a.y + b.y;
-      v.z = a.z + b.z;
-      v.w = a.w + b.w;
-      return v;
-    }
+namespace rw_common_util
+{
+namespace geometry
+{
+template <
+  typename T, typename U,
+  std::enable_if_t<std::conjunction_v<IsLikeVector3<T>, IsLikeVector3<U>>, std::nullptr_t> =
+    nullptr>
+auto operator+(const T & a, const U & b)
+{
+  if constexpr (std::is_same<T, geometry_msgs::msg::Vector3>::value) {
+    geometry_msgs::msg::Vector3 v;
+    v.x = a.x + b.x;
+    v.y = a.y + b.y;
+    v.z = a.z + b.z;
+    return v;
+  } else {
+    geometry_msgs::msg::Point v;
+    v.x = a.x + b.x;
+    v.y = a.y + b.y;
+    v.z = a.z + b.z;
+    return v;
+  }
+}
 
-    template <
-      typename T, typename U,
-      std::enable_if_t<std::conjunction_v<IsLikeQuaternion<T>, IsLikeQuaternion<U>>, std::nullptr_t> =
-        nullptr>
-    auto operator-(const T & a, const U & b)
-    {
-      geometry_msgs::msg::Quaternion v;
-      v.x = a.x - b.x;
-      v.y = a.y - b.y;
-      v.z = a.z - b.z;
-      v.w = a.w - b.w;
-      return v;
-    }
+template <
+  typename T, typename U,
+  std::enable_if_t<std::conjunction_v<IsLikeVector3<T>, IsLikeVector3<U>>, std::nullptr_t> =
+    nullptr>
+auto operator-(const T & a, const U & b)
+{
+  if constexpr (std::is_same<T, geometry_msgs::msg::Vector3>::value) {
+    geometry_msgs::msg::Vector3 v;
+    v.x = a.x - b.x;
+    v.y = a.y - b.y;
+    v.z = a.z - b.z;
+    return v;
+  } else {
+    geometry_msgs::msg::Point v;
+    v.x = a.x - b.x;
+    v.y = a.y - b.y;
+    v.z = a.z - b.z;
+    return v;
+  }
+}
 
-    template <
-      typename T, typename U,
-      std::enable_if_t<std::conjunction_v<IsLikeQuaternion<T>, IsLikeQuaternion<U>>, std::nullptr_t> =
-        nullptr>
-    auto operator*(const T & a, const U & b)
-    {
-      geometry_msgs::msg::Quaternion v;
-      v.x = a.w  * b.x - a.z * b.y + a.y * b.z + a.x * b.w;
-      v.y = a.z  * b.x + a.w * b.y - a.x * b.z + a.y * b.w;
-      v.z = -a.y * b.x + a.x * b.y + a.w * b.z + a.z * b.w;
-      v.w = -a.x * b.x - a.y * b.y - a.z * b.z + a.w * b.w;
-      return v;
-    }
+template <
+  typename T, typename U,
+  std::enable_if_t<std::conjunction_v<IsLikeVector3<T>, std::is_scalar<U>>, std::nullptr_t> =
+    nullptr>
+auto operator*(const T & a, const U & b)
+{
+  if constexpr (std::is_same<T, geometry_msgs::msg::Vector3>::value) {
+    geometry_msgs::msg::Vector3 v;
+    v.x = a.x * b;
+    v.y = a.y * b;
+    v.z = a.z * b;
+    return v;
+  } else {
+    geometry_msgs::msg::Point v;
+    v.x = a.x * b;
+    v.y = a.y * b;
+    v.z = a.z * b;
+    return v;
+  }
+}
 
-    template <
-      typename T, typename U,
-      std::enable_if_t<std::conjunction_v<IsLikeQuaternion<T>, IsLikeQuaternion<U>>, std::nullptr_t> =
-        nullptr>
-    auto operator+=(T & a, const U & b) -> decltype(auto)
-    {
-      a.x += b.x;
-      a.y += b.y;
-      a.z += b.z;
-      a.w += b.w;
-      return a;
-    }
-  }  // namespace geometry
+template <
+  typename T, typename U,
+  std::enable_if_t<std::conjunction_v<IsLikeVector3<T>, std::is_scalar<U>>, std::nullptr_t> =
+    nullptr>
+auto operator/(const T & a, const U & b)
+{
+  if constexpr (std::is_same<T, geometry_msgs::msg::Vector3>::value) {
+    geometry_msgs::msg::Vector3 v;
+    v.x = a.x / b;
+    v.y = a.y / b;
+    v.z = a.z / b;
+    return v;
+  } else {
+    geometry_msgs::msg::Point v;
+    v.x = a.x / b;
+    v.y = a.y / b;
+    v.z = a.z / b;
+    return v;
+  }
+}
+
+template <
+  typename T, typename U,
+  std::enable_if_t<std::conjunction_v<IsLikeVector3<T>, IsLikeVector3<U>>, std::nullptr_t> =
+    nullptr>
+auto operator+=(T & a, const U & b) -> decltype(auto)
+{
+  a.x += b.x;
+  a.y += b.y;
+  a.z += b.z;
+  return a;
+}
+
+template <
+  typename T, typename U,
+  std::enable_if_t<std::conjunction_v<IsLikeVector3<T>, std::is_scalar<U>>, std::nullptr_t> =
+    nullptr>
+auto operator*=(const T & a, const U & b)
+{
+  a.x *= b;
+  a.y *= b;
+  a.z *= b;
+}
+
+template <
+  typename T, typename U,
+  std::enable_if_t<std::conjunction_v<IsLikeVector3<T>, std::is_scalar<U>>, std::nullptr_t> =
+    nullptr>
+auto operator/=(T & a, const U & b)
+{
+  a.x /= b;
+  a.y /= b;
+  a.z /= b;
+}
+
+template <
+  typename T, typename U,
+  std::enable_if_t<std::conjunction_v<IsLikeQuaternion<T>, IsLikeQuaternion<U>>, std::nullptr_t> =
+    nullptr>
+auto operator+(const T & a, const U & b)
+{
+  geometry_msgs::msg::Quaternion v;
+  v.x = a.x + b.x;
+  v.y = a.y + b.y;
+  v.z = a.z + b.z;
+  v.w = a.w + b.w;
+  return v;
+}
+
+template <
+  typename T, typename U,
+  std::enable_if_t<std::conjunction_v<IsLikeQuaternion<T>, IsLikeQuaternion<U>>, std::nullptr_t> =
+    nullptr>
+auto operator-(const T & a, const U & b)
+{
+  geometry_msgs::msg::Quaternion v;
+  v.x = a.x - b.x;
+  v.y = a.y - b.y;
+  v.z = a.z - b.z;
+  v.w = a.w - b.w;
+  return v;
+}
+
+template <
+  typename T, typename U,
+  std::enable_if_t<std::conjunction_v<IsLikeQuaternion<T>, IsLikeQuaternion<U>>, std::nullptr_t> =
+    nullptr>
+auto operator*(const T & a, const U & b)
+{
+  geometry_msgs::msg::Quaternion v;
+  v.x = a.w * b.x - a.z * b.y + a.y * b.z + a.x * b.w;
+  v.y = a.z * b.x + a.w * b.y - a.x * b.z + a.y * b.w;
+  v.z = -a.y * b.x + a.x * b.y + a.w * b.z + a.z * b.w;
+  v.w = -a.x * b.x - a.y * b.y - a.z * b.z + a.w * b.w;
+  return v;
+}
+
+template <
+  typename T, typename U,
+  std::enable_if_t<std::conjunction_v<IsLikeQuaternion<T>, IsLikeQuaternion<U>>, std::nullptr_t> =
+    nullptr>
+auto operator+=(T & a, const U & b) -> decltype(auto)
+{
+  a.x += b.x;
+  a.y += b.y;
+  a.z += b.z;
+  a.w += b.w;
+  return a;
+}
+}  // namespace geometry
 }  // namespace rw_common_util

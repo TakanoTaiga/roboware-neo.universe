@@ -23,19 +23,19 @@
 
 namespace mission_manager
 {
-    class MissionGraph: public GraphUtil
-    {
-    public:
-        void get_mission_graph(const std::string& file_path);
-        mission_graph_str at_mgraph_str();
-        mission_graph_bin at_mgraph_bin();
-        
-    private:
-        void get_str_graph(const std::string& file_path, mission_graph_str& graph_str);
-        void get_bin_graph(mission_graph_str& graph_str, mission_graph_bin& result_mgraph);
-        mission_graph_str mgraph_str;
-        mission_graph_bin mgraph_bin;
-    };
-} // namespace mission_manager
+class MissionGraph : public GraphUtil
+{
+public:
+  void get_mission_graph(const std::string & file_path);
+  mission_graph_str at_mgraph_str();
+  mission_graph_bin at_mgraph_bin();
+
+private:
+  void get_str_graph(const std::string & file_path, mission_graph_str & graph_str);
+  void get_bin_graph(mission_graph_str & graph_str, mission_graph_bin & result_mgraph);
+  mission_graph_str mgraph_str;
+  mission_graph_bin mgraph_bin;
+};
+}  // namespace mission_manager
 
 #endif

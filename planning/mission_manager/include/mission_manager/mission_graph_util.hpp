@@ -15,29 +15,29 @@
 #ifndef MISSION_GRAPH_UTIL_HPP_
 #define MISSION_GRAPH_UTIL_HPP_
 
-#include <string>
 #include <algorithm>
-#include <sstream>
 #include <iostream>
+#include <sstream>
+#include <string>
 
 #include "mission_manager/type.hpp"
 
 namespace mission_manager
 {
-    class GraphUtil
-    {
-        public:
-            void erase_space(std::string& input);
-            bool get_information(const std::string& input, std::string& result);
-            std::string get_key(const std::string& str_data);
-            std::string get_arrow(const std::string& str_data);
+class GraphUtil
+{
+public:
+  void erase_space(std::string & input);
+  bool get_information(const std::string & input, std::string & result);
+  std::string get_key(const std::string & str_data);
+  std::string get_arrow(const std::string & str_data);
 
-            std::string str_graph_tostring(mission_graph_str graph);
-            std::string bin_graph_tostring(mission_graph_bin graph);
+  std::string str_graph_tostring(mission_graph_str graph);
+  std::string bin_graph_tostring(mission_graph_bin graph);
 
-        private:
-            static bool isSpace(unsigned char c);
-    };
-} // namespace mission_manager
+private:
+  static bool isSpace(unsigned char c);
+};
+}  // namespace mission_manager
 
 #endif

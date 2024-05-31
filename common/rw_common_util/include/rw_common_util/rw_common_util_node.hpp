@@ -16,19 +16,19 @@
 #define RW_COMMON_UTIL_NODE_HPP_
 
 #include <memory>
-
 #include <rclcpp/rclcpp.hpp>
 
 #include "rw_common_util/geometry.hpp"
 
 namespace rw_common_util
 {
-    class RWCommonUtilNode : public rclcpp::Node
-    {
-    public:
-        explicit RWCommonUtilNode(const rclcpp::NodeOptions & node_options);
-    private:
-    };
-} // namespace rw_common_util
+class RWCommonUtilNode : public rclcpp::Node
+{
+public:
+  explicit RWCommonUtilNode(const rclcpp::NodeOptions & node_options);
+
+private:
+};
+}  // namespace rw_common_util
 
 #endif

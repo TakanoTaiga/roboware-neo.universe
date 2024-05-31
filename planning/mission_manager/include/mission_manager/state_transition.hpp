@@ -15,33 +15,35 @@
 #ifndef STATE_TRANSITION_HPP_
 #define STATE_TRANSITION_HPP_
 
-#include <optional>
-#include <map>
 #include <iostream>
+#include <map>
+#include <optional>
 
-#include "mission_manager/type.hpp"
 #include "mission_manager/strategy_module.hpp"
+#include "mission_manager/type.hpp"
 
 namespace mission_manager
 {
-    class StateTransition
-    {
-    public:
-        StateTransition();
-        void set_graph(const mission_graph_bin& input_graph);
-        void get_task_action_publisher(rclcpp::Publisher<rw_planning_msg::msg::TaskAction>::SharedPtr publisher);
-        void get_action_result(const rw_planning_msg::msg::ActionResult& action_result_msg);
-        debug_info state_transition_master();
-        bool is_end();
-    private:
-        mission_graph_bin node_graph;
-        void update_graph(uint32_t id);
-        void setting_callback();
+class StateTransition
+{
+public:
+  StateTransition();
+  void set_graph(const mission_graph_bin & input_graph);
+  void get_task_action_publisher(
+    rclcpp::Publisher<rw_planning_msg::msg::TaskAction>::SharedPtr publisher);
+  void get_action_result(const rw_planning_msg::msg::ActionResult & action_result_msg);
+  debug_info state_transition_master();
+  bool is_end();
 
-        //task modules
-        std::vector<strategy_module::RWStrategy*> strategies;
-        std::map<uint32_t, rw_planning_msg::msg::ActionResult> action_results;
-    };
-} // namespace mission_manager
+private:
+  mission_graph_bin node_graph;
+  void update_graph(uint32_t id);
+  void setting_callback();
+
+  //task modules
+  std::vector<strategy_module::RWStrategy *> strategies;
+  std::map<uint32_t, rw_planning_msg::msg::ActionResult> action_results;
+};
+}  // namespace mission_manager
 
 #endif

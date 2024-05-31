@@ -16,12 +16,11 @@
 
 namespace rw_common_util
 {
-    RWCommonUtilNode::RWCommonUtilNode(const rclcpp::NodeOptions &node_option)
-        : rclcpp::Node("RWCommonUtilNode", node_option)
-    {
-
-    }
+RWCommonUtilNode::RWCommonUtilNode(const rclcpp::NodeOptions & node_option)
+: rclcpp::Node("RWCommonUtilNode", node_option)
+{
 }
+}  // namespace rw_common_util
 
 #include "rclcpp_components/register_node_macro.hpp"
 RCLCPP_COMPONENTS_REGISTER_NODE(rw_common_util::RWCommonUtilNode)

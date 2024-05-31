@@ -15,28 +15,27 @@
 #ifndef LOCALIZATION_DEBUG_NODE_HPP
 #define LOCALIZATION_DEBUG_NODE_HPP
 
-#include <vector>
-#include <memory>
 #include <chrono>
-
+#include <memory>
 #include <rclcpp/rclcpp.hpp>
+#include <vector>
 #include <visualization_msgs/msg/marker.hpp>
 
 namespace localization_debug
 {
-    class localizationDebugNode : public rclcpp::Node
-    {
-    public:
-        explicit localizationDebugNode(const rclcpp::NodeOptions & node_options);
+class localizationDebugNode : public rclcpp::Node
+{
+public:
+  explicit localizationDebugNode(const rclcpp::NodeOptions & node_options);
 
-    private:
-        rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr pub_maker_;
-        rclcpp::TimerBase::SharedPtr pub_timer_;
+private:
+  rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr pub_maker_;
+  rclcpp::TimerBase::SharedPtr pub_timer_;
 
-        void timer_callback();
+  void timer_callback();
 
-        visualization_msgs::msg::Marker marker_msg;
-    };
-} // namespace localization_debug
+  visualization_msgs::msg::Marker marker_msg;
+};
+}  // namespace localization_debug
 
 #endif

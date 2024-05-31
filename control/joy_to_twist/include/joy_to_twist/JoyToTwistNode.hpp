@@ -15,25 +15,24 @@
 #ifndef JOY_TO_TWIST_NODE_HPP_
 #define JOY_TO_TWIST_NODE_HPP_
 
+#include <geometry_msgs/msg/twist.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/joy.hpp>
-#include <geometry_msgs/msg/twist.hpp>
 
 namespace joy_to_twist
 {
 
-    class JoyToTwistNode : public rclcpp::Node
-    {
-    public:
-        explicit JoyToTwistNode(const rclcpp::NodeOptions & node_options);
+class JoyToTwistNode : public rclcpp::Node
+{
+public:
+  explicit JoyToTwistNode(const rclcpp::NodeOptions & node_options);
 
-    private:
-        rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr pub_twist_;
-        rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr sub_joy_;
+private:
+  rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr pub_twist_;
+  rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr sub_joy_;
 
-        void subscriber_callback(const sensor_msgs::msg::Joy& msg);
-
-    };
-} // namespace joy_to_twist
+  void subscriber_callback(const sensor_msgs::msg::Joy & msg);
+};
+}  // namespace joy_to_twist
 
 #endif

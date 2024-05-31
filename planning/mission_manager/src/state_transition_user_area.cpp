@@ -16,10 +16,10 @@
 
 namespace mission_manager
 {
-    void StateTransition::setting_callback()
-    {
-        strategies.push_back(new strategy_module::StartStrategy());
-        strategies.push_back(new strategy_module::EndStrategy());
-        strategies.push_back(new strategy_module::SetPoseStrategy());
-    }
+void StateTransition::setting_callback()
+{
+  strategies.push_back(new strategy_module::StartStrategy());
+  strategies.push_back(new strategy_module::EndStrategy());
+  strategies.push_back(new strategy_module::SetPoseStrategy());
 }
+}  // namespace mission_manager

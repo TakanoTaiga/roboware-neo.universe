@@ -15,70 +15,54 @@
 #ifndef PATH_PLANNING_HPP_
 #define PATH_PLANNING_HPP_
 
-#include <cmath>
-
-#include <rclcpp/rclcpp.hpp>
-#include <nav_msgs/msg/path.hpp>
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
-#include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Matrix3x3.h>
-#include <rw_common_util/geometry.hpp>
+#include <tf2/LinearMath/Quaternion.h>
 
-#include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
+#include <boost/geometry/geometry.hpp>
+#include <cmath>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <nav_msgs/msg/path.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <rw_common_util/geometry.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 #include "wp2wp_planner/planning_util.hpp"
 
 namespace wp2wp_planner
 {
-    enum status
-    {
-        outside_pose,
-        non_error
-    };
+enum status { outside_pose, non_error };
 
-    class PathPlanning
-    {
-    public:
-        explicit PathPlanning();
+class PathPlanning
+{
+public:
+  explicit PathPlanning();
 
-        status global_path_init(
-            const geometry_msgs::msg::PoseStamped& pose_current,
-            const geometry_msgs::msg::PoseStamped& pose_goal,
-            const boost_type::polygon_2d_lf& map,
-            const boost_type::polygon_2d_lf& robot,
-            nav_msgs::msg::Path& result_path,
-            rclcpp::Logger logger
-        );
+  status global_path_init(
+    const geometry_msgs::msg::PoseStamped & pose_current,
+    const geometry_msgs::msg::PoseStamped & pose_goal, const boost_type::polygon_2d_lf & map,
+    const boost_type::polygon_2d_lf & robot, nav_msgs::msg::Path & result_path,
+    rclcpp::Logger logger);
 
-        status check_pose_in_map(
-            const geometry_msgs::msg::PoseStamped& pose,
-            const boost_type::polygon_2d_lf& map,
-            const boost_type::polygon_2d_lf& robot
-        );
+  status check_pose_in_map(
+    const geometry_msgs::msg::PoseStamped & pose, const boost_type::polygon_2d_lf & map,
+    const boost_type::polygon_2d_lf & robot);
 
-        void init_path_generator(
-            const geometry_msgs::msg::PoseStamped& pose_current,
-            const geometry_msgs::msg::PoseStamped& pose_goal,
-            nav_msgs::msg::Path& result_path
-        );
+  void init_path_generator(
+    const geometry_msgs::msg::PoseStamped & pose_current,
+    const geometry_msgs::msg::PoseStamped & pose_goal, nav_msgs::msg::Path & result_path);
 
-        status check_path_in_map(
-            const nav_msgs::msg::Path& result_path,
-            const boost_type::polygon_2d_lf& map,
-            const boost_type::polygon_2d_lf& robot
-        );
+  status check_path_in_map(
+    const nav_msgs::msg::Path & result_path, const boost_type::polygon_2d_lf & map,
+    const boost_type::polygon_2d_lf & robot);
 
-        status map_avoidance_planner(
-            nav_msgs::msg::Path& move_path,
-            const boost_type::polygon_2d_lf& map,
-            const boost_type::polygon_2d_lf& robot
-        );
+  status map_avoidance_planner(
+    nav_msgs::msg::Path & move_path, const boost_type::polygon_2d_lf & map,
+    const boost_type::polygon_2d_lf & robot);
 
-    private:
-    };
-}
+private:
+};
+}  // namespace wp2wp_planner
 
 #endif

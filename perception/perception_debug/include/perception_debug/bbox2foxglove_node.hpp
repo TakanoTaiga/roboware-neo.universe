@@ -15,11 +15,10 @@
 #ifndef BBOX2FOXGLOVE_NODE_HPP_
 #define BBOX2FOXGLOVE_NODE_HPP_
 
-#include <vector>
-
-#include <rclcpp/rclcpp.hpp>
 #include <bboxes_ex_msgs/msg/bounding_boxes.hpp>
 #include <foxglove_msgs/msg/image_annotations.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <vector>
 
 namespace perception_debug
 {
@@ -27,14 +26,14 @@ namespace perception_debug
 class bbox2foxgloveNode : public rclcpp::Node
 {
 public:
-    explicit bbox2foxgloveNode(const rclcpp::NodeOptions & node_options);
+  explicit bbox2foxgloveNode(const rclcpp::NodeOptions & node_options);
 
 private:
-    rclcpp::Publisher<foxglove_msgs::msg::ImageAnnotations>::SharedPtr pub_foxglove_2d_bbox_;
-    rclcpp::Subscription<bboxes_ex_msgs::msg::BoundingBoxes>::SharedPtr sub_yolox_ex_2d_bbox_;
+  rclcpp::Publisher<foxglove_msgs::msg::ImageAnnotations>::SharedPtr pub_foxglove_2d_bbox_;
+  rclcpp::Subscription<bboxes_ex_msgs::msg::BoundingBoxes>::SharedPtr sub_yolox_ex_2d_bbox_;
 
-    void subscriber_callback(const bboxes_ex_msgs::msg::BoundingBoxes msg);
+  void subscriber_callback(const bboxes_ex_msgs::msg::BoundingBoxes msg);
 };
-} // namespace perception_debug
+}  // namespace perception_debug
 
 #endif

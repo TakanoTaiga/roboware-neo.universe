@@ -16,72 +16,63 @@
 
 namespace mission_manager
 {
-    StateTransition::StateTransition()
-    {
-        setting_callback();
-    }
+StateTransition::StateTransition() { setting_callback(); }
 
-    void StateTransition::set_graph(const mission_graph_bin& input_graph)
-    {
-        node_graph = input_graph;
-    }
+void StateTransition::set_graph(const mission_graph_bin & input_graph) { node_graph = input_graph; }
 
-    void StateTransition::get_task_action_publisher(rclcpp::Publisher<rw_planning_msg::msg::TaskAction>::SharedPtr publisher)
-    {
-        for(auto& strategy : strategies)
-        {
-            strategy->get_action_publisher(publisher);
-        }
-    }
-
-    void StateTransition::get_action_result(const rw_planning_msg::msg::ActionResult& action_result_msg)
-    {
-        action_results[action_result_msg.task_id] = action_result_msg;
-    }
-
-    debug_info StateTransition::state_transition_master()
-    {
-        mission_manager::debug_info info;
-
-        for (auto& [id, node] : node_graph)
-        {
-            if (!node.now_transitioning) continue;
-
-            for (const auto& strategy : strategies)
-            {
-                if (strategy->is_match_strategy_label(node.strategy_label))
-                {
-                    strategy->get_action_result(action_results[node.id]);
-                    strategy->update(node, info);
-                }
-            }
-            update_graph(id);
-            return info;
-        }
-        return info;
-    }
-
-    void StateTransition::update_graph(uint32_t id)
-    {
-        if(node_graph[id].state.get_state() != state_transition_label::end) return;
-
-        node_graph[id].now_transitioning = false;
-        for(const auto& start_node_id : node_graph[id].connections)
-        {
-            node_graph[start_node_id].now_transitioning = true;
-            node_graph[start_node_id].state.change_state(state_transition_label::start);
-        }
-    }
-
-    bool StateTransition::is_end()
-    {
-        for (const auto& [id, node] : node_graph)
-        {
-            if (node.strategy_label.find("END") != std::string::npos && node.state.get_state() == state_transition_label::end)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
+void StateTransition::get_task_action_publisher(
+  rclcpp::Publisher<rw_planning_msg::msg::TaskAction>::SharedPtr publisher)
+{
+  for (auto & strategy : strategies) {
+    strategy->get_action_publisher(publisher);
+  }
 }
+
+void StateTransition::get_action_result(
+  const rw_planning_msg::msg::ActionResult & action_result_msg)
+{
+  action_results[action_result_msg.task_id] = action_result_msg;
+}
+
+debug_info StateTransition::state_transition_master()
+{
+  mission_manager::debug_info info;
+
+  for (auto & [id, node] : node_graph) {
+    if (!node.now_transitioning) continue;
+
+    for (const auto & strategy : strategies) {
+      if (strategy->is_match_strategy_label(node.strategy_label)) {
+        strategy->get_action_result(action_results[node.id]);
+        strategy->update(node, info);
+      }
+    }
+    update_graph(id);
+    return info;
+  }
+  return info;
+}
+
+void StateTransition::update_graph(uint32_t id)
+{
+  if (node_graph[id].state.get_state() != state_transition_label::end) return;
+
+  node_graph[id].now_transitioning = false;
+  for (const auto & start_node_id : node_graph[id].connections) {
+    node_graph[start_node_id].now_transitioning = true;
+    node_graph[start_node_id].state.change_state(state_transition_label::start);
+  }
+}
+
+bool StateTransition::is_end()
+{
+  for (const auto & [id, node] : node_graph) {
+    if (
+      node.strategy_label.find("END") != std::string::npos &&
+      node.state.get_state() == state_transition_label::end) {
+      return true;
+    }
+  }
+  return false;
+}
+}  // namespace mission_manager

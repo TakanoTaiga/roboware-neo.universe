@@ -16,37 +16,32 @@
 
 namespace wp2wp_planner
 {
-    PlanningUtil::PlanningUtil()
-    {
+PlanningUtil::PlanningUtil() {}
 
-    }
+visualization_msgs::msg::Marker PlanningUtil::polygon_to_ros(
+  std::string frame_id, builtin_interfaces::msg::Time stamp, boost_type::polygon_2d_lf & poly,
+  int32_t id)
+{
+  auto marker_msg = visualization_msgs::msg::Marker();
+  marker_msg.header.stamp = stamp;
+  marker_msg.header.frame_id = frame_id;
+  marker_msg.ns = "polygon";
+  marker_msg.id = id;
+  marker_msg.type = visualization_msgs::msg::Marker::LINE_STRIP;
+  marker_msg.action = visualization_msgs::msg::Marker::ADD;
+  marker_msg.scale.x = 0.05;
+  marker_msg.color.r = 0.0;
+  marker_msg.color.g = 1.0;
+  marker_msg.color.b = 0.0;
+  marker_msg.color.a = 1.0;
 
-    visualization_msgs::msg::Marker PlanningUtil::polygon_to_ros(
-        std::string frame_id,
-        builtin_interfaces::msg::Time stamp,
-        boost_type::polygon_2d_lf& poly,
-        int32_t id
-    ){
-        auto marker_msg = visualization_msgs::msg::Marker();
-        marker_msg.header.stamp = stamp;
-        marker_msg.header.frame_id = frame_id;
-        marker_msg.ns = "polygon";
-        marker_msg.id = id;
-        marker_msg.type = visualization_msgs::msg::Marker::LINE_STRIP;
-        marker_msg.action = visualization_msgs::msg::Marker::ADD;
-        marker_msg.scale.x = 0.05;
-        marker_msg.color.r = 0.0;
-        marker_msg.color.g = 1.0;
-        marker_msg.color.b = 0.0;
-        marker_msg.color.a = 1.0;
+  for (const auto & point : poly.outer()) {
+    auto ros_point = geometry_msgs::msg::Point();
+    ros_point.x = point.x();
+    ros_point.y = point.y();
+    marker_msg.points.push_back(ros_point);
+  }
 
-        for(const auto& point : poly.outer()){
-            auto ros_point = geometry_msgs::msg::Point();
-            ros_point.x = point.x();
-            ros_point.y = point.y();
-            marker_msg.points.push_back(ros_point);
-        }
-
-        return marker_msg;
-    }
+  return marker_msg;
 }
+}  // namespace wp2wp_planner

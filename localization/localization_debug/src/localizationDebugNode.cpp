@@ -16,49 +16,51 @@
 
 namespace localization_debug
 {
-    localizationDebugNode::localizationDebugNode(const rclcpp::NodeOptions &node_option)
-        : rclcpp::Node("localization_debug_node", node_option)
-    {   
-        pub_maker_ = create_publisher<visualization_msgs::msg::Marker>(
-            "output/maker", 0);
+localizationDebugNode::localizationDebugNode(const rclcpp::NodeOptions & node_option)
+: rclcpp::Node("localization_debug_node", node_option)
+{
+  pub_maker_ = create_publisher<visualization_msgs::msg::Marker>("output/maker", 0);
 
-        marker_msg = visualization_msgs::msg::Marker();
+  marker_msg = visualization_msgs::msg::Marker();
 
-        marker_msg.header.frame_id = declare_parameter<std::string>("frame_id" , "object");
+  marker_msg.header.frame_id = declare_parameter<std::string>("frame_id", "object");
 
-        marker_msg.ns = declare_parameter<std::string>("marker.namespace" , "object");
-        marker_msg.id = declare_parameter<int>("marker.id" , 0);
-        marker_msg.type = visualization_msgs::msg::Marker::MESH_RESOURCE;
-        marker_msg.action = visualization_msgs::msg::Marker::ADD; 
+  marker_msg.ns = declare_parameter<std::string>("marker.namespace", "object");
+  marker_msg.id = declare_parameter<int>("marker.id", 0);
+  marker_msg.type = visualization_msgs::msg::Marker::MESH_RESOURCE;
+  marker_msg.action = visualization_msgs::msg::Marker::ADD;
 
-        marker_msg.scale.x = declare_parameter<double>("marker.scale" , 1.0);
-        marker_msg.scale.y = marker_msg.scale.x;
-        marker_msg.scale.z = marker_msg.scale.x;
+  marker_msg.scale.x = declare_parameter<double>("marker.scale", 1.0);
+  marker_msg.scale.y = marker_msg.scale.x;
+  marker_msg.scale.z = marker_msg.scale.x;
 
-        marker_msg.color.r = declare_parameter<double>("marker.color.r" , 1.0);
-        marker_msg.color.g = declare_parameter<double>("marker.color.g" , 1.0);
-        marker_msg.color.b = declare_parameter<double>("marker.color.b" , 1.0);
-        marker_msg.color.a = declare_parameter<double>("marker.color.a" , 1.0);
+  marker_msg.color.r = declare_parameter<double>("marker.color.r", 1.0);
+  marker_msg.color.g = declare_parameter<double>("marker.color.g", 1.0);
+  marker_msg.color.b = declare_parameter<double>("marker.color.b", 1.0);
+  marker_msg.color.a = declare_parameter<double>("marker.color.a", 1.0);
 
-        marker_msg.lifetime.sec = declare_parameter<double>("marker.lifetime.sec" , 0.0);
-        marker_msg.lifetime.nanosec = declare_parameter<double>("marker.lifetime.nanosec" , 0.0);
+  marker_msg.lifetime.sec = declare_parameter<double>("marker.lifetime.sec", 0.0);
+  marker_msg.lifetime.nanosec = declare_parameter<double>("marker.lifetime.nanosec", 0.0);
 
-        marker_msg.frame_locked = false;
- 
-        marker_msg.mesh_resource = "file://" + declare_parameter<std::string>("marker.meshpath" , "/path/to/object");
-        marker_msg.mesh_use_embedded_materials = false;
+  marker_msg.frame_locked = false;
 
-        const auto period = declare_parameter<int>("publsih_rate_ms" , 1000);
-        pub_timer_  = create_wall_timer(std::chrono::milliseconds(period), std::bind(&localizationDebugNode::timer_callback, this));
+  marker_msg.mesh_resource =
+    "file://" + declare_parameter<std::string>("marker.meshpath", "/path/to/object");
+  marker_msg.mesh_use_embedded_materials = false;
 
-        RCLCPP_INFO_STREAM(get_logger(),  "Initialize Task Done");
-    }
+  const auto period = declare_parameter<int>("publsih_rate_ms", 1000);
+  pub_timer_ = create_wall_timer(
+    std::chrono::milliseconds(period), std::bind(&localizationDebugNode::timer_callback, this));
 
-    void localizationDebugNode::timer_callback(){
-        marker_msg.header.stamp = get_clock()->now();
-        pub_maker_->publish(marker_msg);
-    }
+  RCLCPP_INFO_STREAM(get_logger(), "Initialize Task Done");
 }
+
+void localizationDebugNode::timer_callback()
+{
+  marker_msg.header.stamp = get_clock()->now();
+  pub_maker_->publish(marker_msg);
+}
+}  // namespace localization_debug
 
 #include "rclcpp_components/register_node_macro.hpp"
 RCLCPP_COMPONENTS_REGISTER_NODE(localization_debug::localizationDebugNode)

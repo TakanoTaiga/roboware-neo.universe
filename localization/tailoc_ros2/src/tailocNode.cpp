@@ -13,109 +13,95 @@
 // limitations under the License.
 
 #include "tailoc_ros2/tailocNode.hpp"
+
 #include "tailoc_ros2/ndt_cpp.hpp"
 #include "tailoc_ros2/tailoc_util.hpp"
 
 namespace tailoc_ros2
 {
-    tailocNode::tailocNode(const rclcpp::NodeOptions &node_option)
-        : rclcpp::Node("tailoc_node", node_option)
-    {   
-        // Publisher and Subscriber
-        sub_laser_scan_ = create_subscription<sensor_msgs::msg::LaserScan>(
-            "input/scan", 0, std::bind(&tailocNode::subscriber_callback, this, std::placeholders::_1));
+tailocNode::tailocNode(const rclcpp::NodeOptions & node_option)
+: rclcpp::Node("tailoc_node", node_option)
+{
+  // Publisher and Subscriber
+  sub_laser_scan_ = create_subscription<sensor_msgs::msg::LaserScan>(
+    "input/scan", 0, std::bind(&tailocNode::subscriber_callback, this, std::placeholders::_1));
 
-        pub_current_pose_ = create_publisher<geometry_msgs::msg::PoseStamped>(
-            "output/current_pose", 0);
+  pub_current_pose_ = create_publisher<geometry_msgs::msg::PoseStamped>("output/current_pose", 0);
 
-        pub_path_ = create_publisher<nav_msgs::msg::Path>(
-            "output/path", 0);
+  pub_path_ = create_publisher<nav_msgs::msg::Path>("output/path", 0);
 
-        tf_broadcaster_ =
-            std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+  tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
-        // Parameter
-        ndt_param.enable_debug = declare_parameter<bool>("enable_debug" , false);
-        ndt_param.ndt_max_iteration = declare_parameter<int>("ndt_max_iteration" , 10);
-        ndt_param.ndt_precision = declare_parameter<double>("ndt_precision" , 1e-5);
-        ndt_param.ndt_matching_step = declare_parameter<int>("ndt_matching_step" , 10);
-        ndt_param.ndt_sample_num_point = declare_parameter<int>("ndt_sample_num_point" , 10);
+  // Parameter
+  ndt_param.enable_debug = declare_parameter<bool>("enable_debug", false);
+  ndt_param.ndt_max_iteration = declare_parameter<int>("ndt_max_iteration", 10);
+  ndt_param.ndt_precision = declare_parameter<double>("ndt_precision", 1e-5);
+  ndt_param.ndt_matching_step = declare_parameter<int>("ndt_matching_step", 10);
+  ndt_param.ndt_sample_num_point = declare_parameter<int>("ndt_sample_num_point", 10);
 
-        RCLCPP_INFO_STREAM(get_logger(),  "Initialize Task Done");
-    }
-
-    void tailocNode::subscriber_callback(const sensor_msgs::msg::LaserScan msg){
-        auto start_time = std::chrono::high_resolution_clock::now();
-
-        std::vector<ndt_cpp::point2> sensor_points;
-        tailoc_util::laserscan_to_ndtcpp_point2(msg, sensor_points);
-        
-        if(map_points.size() < 10){
-            std::copy(sensor_points.begin(), sensor_points.end(), std::back_inserter(map_points));
-            return;
-        }
-
-        auto delta_trans_mat = ndt_cpp::makeTransformationMatrix(0.0, 0.0, 0.0);
-        auto odom_trans_mat = ndt_cpp::makeTransformationMatrix(odom.x, odom.y, odom.z);
-
-        ndt_cpp::transformPointsZeroCopy(odom_trans_mat, sensor_points);
-
-        const auto computed_results = ndt_cpp::compute_ndt_points(ndt_param, map_points);
-
-        ndt_cpp::ndt_scan_matching(
-            ndt_param,
-            get_logger(),
-            delta_trans_mat,
-            sensor_points,
-            computed_results,
-            map_points
-        );
-
-        odom.x = delta_trans_mat.c + odom_trans_mat.c;
-        odom.y = delta_trans_mat.f + odom_trans_mat.f;
-        odom.z = atan((delta_trans_mat.d + odom_trans_mat.d) / (delta_trans_mat.a + odom_trans_mat.a));
-
-
-        odom_trans_mat = ndt_cpp::makeTransformationMatrix(odom.x, odom.y, odom.z);
-        ndt_cpp::modfiyMapFillter(map_points, sensor_points, odom_trans_mat);
-
-        if(ndt_param.enable_debug){
-            RCLCPP_INFO_STREAM(get_logger(), 
-                " X: " << odom.x << 
-                " Y: " << odom.y << 
-                " Z: " << odom.z * 57.295779 << "°"
-            );
-
-            RCLCPP_INFO_STREAM(get_logger(), 
-                "map size: " << map_points.size()
-            );
-        }
-
-        const auto stamp = get_clock()->now();
-
-        tf_broadcaster_->sendTransform(tailoc_util::point3_to_tf_stamp(odom, stamp));
-  
-        const auto pose = tailoc_util::point3_to_pose_stamp(odom, stamp);
-        pub_current_pose_->publish(pose);
-
-        path.header.stamp = stamp;
-        path.header.frame_id = "map";
-        path.poses.push_back(pose);
-        if(path.poses.size() > 100){
-            path.poses.erase(path.poses.begin());
-        }
-        pub_path_->publish(path);
-
-        auto end_time = std::chrono::high_resolution_clock::now(); 
-        double latency_ms = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count() / 1e6;
-
-        if(ndt_param.enable_debug){
-            RCLCPP_INFO_STREAM(get_logger(), 
-                "latency " << latency_ms << "ms"
-            );
-        }
-    }
+  RCLCPP_INFO_STREAM(get_logger(), "Initialize Task Done");
 }
+
+void tailocNode::subscriber_callback(const sensor_msgs::msg::LaserScan msg)
+{
+  auto start_time = std::chrono::high_resolution_clock::now();
+
+  std::vector<ndt_cpp::point2> sensor_points;
+  tailoc_util::laserscan_to_ndtcpp_point2(msg, sensor_points);
+
+  if (map_points.size() < 10) {
+    std::copy(sensor_points.begin(), sensor_points.end(), std::back_inserter(map_points));
+    return;
+  }
+
+  auto delta_trans_mat = ndt_cpp::makeTransformationMatrix(0.0, 0.0, 0.0);
+  auto odom_trans_mat = ndt_cpp::makeTransformationMatrix(odom.x, odom.y, odom.z);
+
+  ndt_cpp::transformPointsZeroCopy(odom_trans_mat, sensor_points);
+
+  const auto computed_results = ndt_cpp::compute_ndt_points(ndt_param, map_points);
+
+  ndt_cpp::ndt_scan_matching(
+    ndt_param, get_logger(), delta_trans_mat, sensor_points, computed_results, map_points);
+
+  odom.x = delta_trans_mat.c + odom_trans_mat.c;
+  odom.y = delta_trans_mat.f + odom_trans_mat.f;
+  odom.z = atan((delta_trans_mat.d + odom_trans_mat.d) / (delta_trans_mat.a + odom_trans_mat.a));
+
+  odom_trans_mat = ndt_cpp::makeTransformationMatrix(odom.x, odom.y, odom.z);
+  ndt_cpp::modfiyMapFillter(map_points, sensor_points, odom_trans_mat);
+
+  if (ndt_param.enable_debug) {
+    RCLCPP_INFO_STREAM(
+      get_logger(), " X: " << odom.x << " Y: " << odom.y << " Z: " << odom.z * 57.295779 << "°");
+
+    RCLCPP_INFO_STREAM(get_logger(), "map size: " << map_points.size());
+  }
+
+  const auto stamp = get_clock()->now();
+
+  tf_broadcaster_->sendTransform(tailoc_util::point3_to_tf_stamp(odom, stamp));
+
+  const auto pose = tailoc_util::point3_to_pose_stamp(odom, stamp);
+  pub_current_pose_->publish(pose);
+
+  path.header.stamp = stamp;
+  path.header.frame_id = "map";
+  path.poses.push_back(pose);
+  if (path.poses.size() > 100) {
+    path.poses.erase(path.poses.begin());
+  }
+  pub_path_->publish(path);
+
+  auto end_time = std::chrono::high_resolution_clock::now();
+  double latency_ms =
+    std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count() / 1e6;
+
+  if (ndt_param.enable_debug) {
+    RCLCPP_INFO_STREAM(get_logger(), "latency " << latency_ms << "ms");
+  }
+}
+}  // namespace tailoc_ros2
 
 #include "rclcpp_components/register_node_macro.hpp"
 RCLCPP_COMPONENTS_REGISTER_NODE(tailoc_ros2::tailocNode)
