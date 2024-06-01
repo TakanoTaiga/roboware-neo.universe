@@ -47,8 +47,8 @@ RWSimplePlanningSimulatorNode::RWSimplePlanningSimulatorNode(
 
 void RWSimplePlanningSimulatorNode::timer_callback()
 {
-  using rw_common_util::geometry::operator+=;
-  using rw_common_util::geometry::operator/=;
+  using rw_util::geometry::operator+=;
+  using rw_util::geometry::operator/=;
 
   twist_history.push_back(twist_msg);
   if (twist_history.size() >= 10) {
@@ -61,8 +61,8 @@ void RWSimplePlanningSimulatorNode::timer_callback()
     twist_avg.linear += twist.linear;
     twist_avg.angular += twist.angular;
   }
-  twist_avg.linear /= twist_history.size();
-  twist_avg.angular /= twist_history.size();
+  twist_avg.linear  /= static_cast<double>(twist_history.size());
+  twist_avg.angular /= static_cast<double>(twist_history.size());
 
   if (!std::isfinite(twist_avg.angular.z)) {
     twist_avg.angular.z = 0.0;
@@ -93,7 +93,7 @@ void RWSimplePlanningSimulatorNode::timer_callback()
           twist_avg.linear.x * 0.02 * dist_4r(engine) * rotation_tr_noise_strength +
           twist_avg.linear.y * 0.02 * dist_4r(engine) * rotation_tr_noise_strength;
 
-  tf_stamp.transform.rotation = rw_common_util::geometry::euler_to_rosquat(0.0, 0.0, roll);
+  tf_stamp.transform.rotation = rw_util::geometry::euler_to_rosquat(0.0, 0.0, roll);
 
   tf_broadcaster_->sendTransform(tf_stamp);
 

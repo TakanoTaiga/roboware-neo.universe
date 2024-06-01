@@ -12,15 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "rw_common_util/rw_common_util_node.hpp"
+#include "rw_common_util/geometry/quaternion/quaternion_util.hpp"
 
-namespace rw_common_util
+namespace rw_util {
+namespace geometry {
+
+template <std::floating_point T>
+auto quat_to_euler(const T & x, const T & y, const T & z, const T & w) -> std::tuple<T, T, T>
 {
-RWCommonUtilNode::RWCommonUtilNode(const rclcpp::NodeOptions & node_option)
-: rclcpp::Node("RWCommonUtilNode", node_option)
-{
+    tf2::Quaternion quat_pose;
+    quat_pose.setValue(x, y, z, w);
+    tf2::Matrix3x3 mat_pose(quat_pose);
+    T result_x, result_y, result_z;
+    mat_pose.getRPY(result_x, result_y, result_z);
+    return std::make_tuple(result_x, result_y, result_z);
 }
-}  // namespace rw_common_util
 
-#include "rclcpp_components/register_node_macro.hpp"
-RCLCPP_COMPONENTS_REGISTER_NODE(rw_common_util::RWCommonUtilNode)
+}  // namespace geometry
+}  // namespace rw_util

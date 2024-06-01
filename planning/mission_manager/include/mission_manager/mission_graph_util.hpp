@@ -19,6 +19,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <ranges>
 
 #include "mission_manager/type.hpp"
 

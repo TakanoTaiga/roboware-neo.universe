@@ -82,13 +82,13 @@ void PathFollowerNode::timer_callback()
 
   // RCLCPP_INFO_STREAM(get_logger(), "x: " << target_pose.x << " y: " << target_pose.y << " err: " << distance);
 
-  const auto rqy_current = rw_common_util::geometry::quat_to_euler(current_orientation);
-  const auto rqy_goal = rw_common_util::geometry::quat_to_euler(target_orientation);
+  const auto [current_x, current_y, current_z] = rw_util::geometry::quat_to_euler(current_orientation);
+  const auto [goal_x, goal_y, goal_z] =    rw_util::geometry::quat_to_euler(target_orientation);
 
-  // RCLCPP_INFO_STREAM(get_logger(), "c: " << rqy_current.yaw * 57.295 << " g: " << rqy_goal.yaw * 57.295 << " err: " << (rqy_current.yaw - rqy_goal.yaw) * 57.295);
+  // RCLCPP_INFO_STREAM(get_logger(), "c: " << current_z * 57.295 << " g: " << goal_z * 57.295 << " err: " << (current_z - goal_z) * 57.295);
   double vec_z = 0.0;
 
-  double err = std::abs(rqy_current.yaw - rqy_goal.yaw);
+  double err = std::abs(current_z - goal_z);
   if (err * 57.295 < 5) {
     flag2 = true;
     err = 0.0;
@@ -110,7 +110,7 @@ void PathFollowerNode::timer_callback()
     log_file.open("/tmp/rw.log", std::ios::app);
     log_file << "result , " << std::to_string(current_position.x) << ","
              << std::to_string(current_position.y) << ","
-             << std::to_string(rqy_current.yaw * 57.295779513) << std::endl;
+             << std::to_string(current_z * 57.295779513) << std::endl;
     log_file.close();
 
     pose_status = not_found;
@@ -128,7 +128,7 @@ void PathFollowerNode::timer_callback()
   if (std::signbit(twist_msg.linear.y) != std::signbit(dy)) {
     twist_msg.linear.y *= -1.0;
   }
-  if (std::signbit(twist_msg.angular.z) != std::signbit(rqy_current.yaw - rqy_goal.yaw)) {
+  if (std::signbit(twist_msg.angular.z) != std::signbit(current_z - goal_z)) {
     twist_msg.angular.z *= -1.0;
   }
 

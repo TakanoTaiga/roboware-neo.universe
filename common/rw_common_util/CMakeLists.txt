@@ -1,22 +1,16 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.8)
 project(rw_common_util)
 
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+add_definitions("-DBOOST_ALLOW_DEPRECATED_HEADERS")
+
 find_package(ament_cmake_auto REQUIRED)
+
 ament_auto_find_build_dependencies()
 
-ament_auto_add_library(target_rw_common_util SHARED
-  DIRECTORY src
-)
+ament_auto_add_library(rw_common_util SHARED DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-target_include_directories(target_rw_common_util
-  SYSTEM PUBLIC
-)
-
-rclcpp_components_register_node(target_rw_common_util
-  PLUGIN "rw_common_util::RWCommonUtilNode"
-  EXECUTABLE rw_common_util_node
-)
-
-ament_auto_package(
-  INSTALL_TO_SHARE
-)
+ament_auto_package()

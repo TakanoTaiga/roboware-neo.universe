@@ -49,8 +49,8 @@ std::string GraphUtil::get_key(const std::string & str_data)
 std::string GraphUtil::get_arrow(const std::string & str_data)
 {
   auto str = str_data;
-  char charToRemove = '-';
-  str.erase(std::remove(str.begin(), str.end(), charToRemove), str.end());
+  const auto itr = std::ranges::remove(str, '-');
+  str.erase(itr.begin(), itr.end());
   return str;
 }
 

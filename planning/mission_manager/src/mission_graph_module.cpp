@@ -75,10 +75,9 @@ void MissionGraph::get_str_graph(const std::string & file_path, mission_graph_st
     }
   }
   // add id
-  uint32_t id_iter = 0;
-  for (const auto & pair : graph_str) {
+  for (uint32_t id_iter = 0; const auto & pair : graph_str) {
     graph_str[pair.first].id = id_iter;
-    id_iter++;
+    ++id_iter;
   }
 }
 

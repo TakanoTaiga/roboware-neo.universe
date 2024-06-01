@@ -12,12 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef RW_COMMON_UTIL__GEOMETRY_HPP_
-#define RW_COMMON_UTIL__GEOMETRY_HPP_
+#ifndef RW_COMMON_UTIL__CONCEPT_HPP_
+#define RW_COMMON_UTIL__CONCEPT_HPP_
 
-#include "rw_common_util/geometry/geometry_concept.hpp"
-#include "rw_common_util/geometry/vector3/vector3_basic_operator.hpp"
-#include "rw_common_util/geometry/quaternion/quaternion_basic_operator.hpp"
-#include "rw_common_util/geometry/ros2/ros_geometry_util.hpp"
+#include <concepts>
+
+namespace rw_util {
+namespace geometry {
+
+template<typename T>
+concept HasMemberW = requires(T a) {
+  a.w;
+};
+
+template<typename T>
+concept LikeVector3 = requires(T a) {
+  a.x;
+  a.y;
+  a.z;
+} && !HasMemberW<T>;
+
+template <typename T>
+concept LikeQuaternion = requires(T a) {
+  a.x;
+  a.y;
+  a.z;
+  a.w;
+};
+
+}  // namespace geometry
+}  // namespace rw_util
 
 #endif

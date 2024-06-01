@@ -55,9 +55,9 @@ status PathPlanning::check_pose_in_map(
   const geometry_msgs::msg::PoseStamped & pose, const boost_type::polygon_2d_lf & map,
   const boost_type::polygon_2d_lf & robot)
 {
-  const auto rpy = rw_common_util::geometry::quat_to_euler(pose.pose.orientation);
+  const auto [x, y, z] = rw_util::geometry::quat_to_euler(pose.pose.orientation);
 
-  boost_type::r_tf rotate_translate(rpy.yaw);
+  boost_type::r_tf rotate_translate(z);
   boost_type::polygon_2d_lf pose_rotated_robot;
   boost::geometry::transform(robot, pose_rotated_robot, rotate_translate);
 
@@ -82,8 +82,8 @@ void PathPlanning::init_path_generator(
   const double ab_y = pose_goal.pose.position.y - pose_current.pose.position.y;
   const double length = std::sqrt(ab_x * ab_x + ab_y * ab_y);
 
-  const auto current_rpy = rw_common_util::geometry::quat_to_euler(pose_current.pose.orientation);
-  const auto goal_rpy = rw_common_util::geometry::quat_to_euler(pose_goal.pose.orientation);
+  const auto [current_x, current_y, current_z] = rw_util::geometry::quat_to_euler(pose_current.pose.orientation);
+  const auto [goal_x, goal_y, goal_z]    = rw_util::geometry::quat_to_euler(pose_goal.pose.orientation);
 
   for (double l = 0.0; l <= length; l += 0.1) {
     const double unit_x = ab_x / length;
@@ -91,13 +91,13 @@ void PathPlanning::init_path_generator(
     const double c_x = pose_current.pose.position.x + unit_x * l;
     const double c_y = pose_current.pose.position.y + unit_y * l;
 
-    const double interp_yaw = current_rpy.yaw + (goal_rpy.yaw - current_rpy.yaw) * (l / length);
+    const double interp_yaw = current_z + (goal_z - current_z) * (l / length);
 
     auto pose = geometry_msgs::msg::PoseStamped();
     pose.header = result_path.header;
     pose.pose.position.x = c_x;
     pose.pose.position.y = c_y;
-    pose.pose.orientation = rw_common_util::geometry::euler_to_rosquat(0.0, 0.0, interp_yaw);
+    pose.pose.orientation = rw_util::geometry::euler_to_rosquat(0.0, 0.0, interp_yaw);
 
     result_path.poses.push_back(pose);
   }
