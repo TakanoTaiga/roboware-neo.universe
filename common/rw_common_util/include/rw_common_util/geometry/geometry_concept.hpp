@@ -17,23 +17,29 @@
 
 #include <concepts>
 
-namespace rw_util {
-namespace geometry {
+namespace rw_util
+{
+namespace geometry
+{
 
-template<typename T>
-concept HasMemberW = requires(T a) {
+template <typename T>
+concept HasMemberW = requires(T a)
+{
   a.w;
 };
 
-template<typename T>
-concept LikeVector3 = requires(T a) {
+template <typename T>
+concept LikeVector3 = requires(T a)
+{
   a.x;
   a.y;
   a.z;
-} && !HasMemberW<T>;
+}
+&&!HasMemberW<T>;
 
 template <typename T>
-concept LikeQuaternion = requires(T a) {
+concept LikeQuaternion = requires(T a)
+{
   a.x;
   a.y;
   a.z;

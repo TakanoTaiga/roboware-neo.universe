@@ -15,15 +15,17 @@
 #ifndef RW_COMMON_UTIL__QUATERNION_UTILL_HPP_
 #define RW_COMMON_UTIL__QUATERNION_UTILL_HPP_
 
-#include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Matrix3x3.h>
+#include <tf2/LinearMath/Quaternion.h>
 
 #include <tuple>
 
 #include "rw_common_util/geometry/geometry_concept.hpp"
 
-namespace rw_util {
-namespace geometry {
+namespace rw_util
+{
+namespace geometry
+{
 
 template <std::floating_point T>
 auto quat_to_euler(const T & x, const T & y, const T & z, const T & w) -> std::tuple<T, T, T>;

@@ -82,8 +82,10 @@ void PathPlanning::init_path_generator(
   const double ab_y = pose_goal.pose.position.y - pose_current.pose.position.y;
   const double length = std::sqrt(ab_x * ab_x + ab_y * ab_y);
 
-  const auto [current_x, current_y, current_z] = rw_util::geometry::quat_to_euler(pose_current.pose.orientation);
-  const auto [goal_x, goal_y, goal_z]    = rw_util::geometry::quat_to_euler(pose_goal.pose.orientation);
+  const auto [current_x, current_y, current_z] =
+    rw_util::geometry::quat_to_euler(pose_current.pose.orientation);
+  const auto [goal_x, goal_y, goal_z] =
+    rw_util::geometry::quat_to_euler(pose_goal.pose.orientation);
 
   for (double l = 0.0; l <= length; l += 0.1) {
     const double unit_x = ab_x / length;

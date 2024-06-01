@@ -16,8 +16,8 @@
 #define RW_COMMON_UTIL__GEOMETRY_HPP_
 
 #include "rw_common_util/geometry/geometry_concept.hpp"
-#include "rw_common_util/geometry/vector3/vector3_basic_operator.hpp"
 #include "rw_common_util/geometry/quaternion/quaternion_basic_operator.hpp"
 #include "rw_common_util/geometry/ros2/ros_geometry_util.hpp"
+#include "rw_common_util/geometry/vector3/vector3_basic_operator.hpp"
 
 #endif

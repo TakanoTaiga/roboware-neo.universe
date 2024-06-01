@@ -23,75 +23,75 @@ namespace geometry
 {
 
 template <LikeVector3 T, LikeVector3 U>
-auto operator+(const T& a, const U& b)
+auto operator+(const T & a, const U & b)
 {
-    auto v = T();
-    v = a.x + b.x;
-    v = a.y + b.y;
-    v = a.z + b.z;
-    return v;
+  auto v = T();
+  v = a.x + b.x;
+  v = a.y + b.y;
+  v = a.z + b.z;
+  return v;
 }
 
 template <LikeVector3 T, LikeVector3 U>
-auto operator-(const T& a, const U& b)
+auto operator-(const T & a, const U & b)
 {
-    auto v = T();
-    v = a.x - b.x;
-    v = a.y - b.y;
-    v = a.z - b.z;
-    return v;
+  auto v = T();
+  v = a.x - b.x;
+  v = a.y - b.y;
+  v = a.z - b.z;
+  return v;
 }
 
 template <LikeVector3 T, std::floating_point U>
-auto operator*(const T& a, const U& b)
+auto operator*(const T & a, const U & b)
 {
-    auto v = T();
-    v = a.x * b;
-    v = a.y * b;
-    v = a.z * b;
-    return v;
+  auto v = T();
+  v = a.x * b;
+  v = a.y * b;
+  v = a.z * b;
+  return v;
 }
 
 template <LikeVector3 T, std::floating_point U>
-auto operator/(const T& a, const U& b)
+auto operator/(const T & a, const U & b)
 {
-    auto v = T();
-    v = a.x / b;
-    v = a.y / b;
-    v = a.z / b;
-    return v;
+  auto v = T();
+  v = a.x / b;
+  v = a.y / b;
+  v = a.z / b;
+  return v;
 }
 
 template <LikeVector3 T, LikeVector3 U>
-auto operator+=(T& a, const U& b)
+auto operator+=(T & a, const U & b)
 {
-    a.x += b.x;
-    a.y += b.y;
-    a.z += b.z;
+  a.x += b.x;
+  a.y += b.y;
+  a.z += b.z;
 }
 
 template <LikeVector3 T, LikeVector3 U>
-auto operator-=(T& a, const U& b)
+auto operator-=(T & a, const U & b)
 {
-    a.x -= b.x;
-    a.y -= b.y;
-    a.z -= b.z;
+  a.x -= b.x;
+  a.y -= b.y;
+  a.z -= b.z;
 }
 
 template <LikeVector3 T, std::floating_point U>
-auto operator*=(T& a, const U& b)
+auto operator*=(T & a, const U & b)
 {
-    a.x *= b;
-    a.y *= b;
-    a.z *= b;
+  a.x *= b;
+  a.y *= b;
+  a.z *= b;
 }
 
 template <LikeVector3 T, std::floating_point U>
-auto operator/=(T& a, const U& b)
+auto operator/=(T & a, const U & b)
 {
-    a.x /= b;
-    a.y /= b;
-    a.z /= b;
+  a.x /= b;
+  a.y /= b;
+  a.z /= b;
 }
 
 }  // namespace geometry

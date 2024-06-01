@@ -61,7 +61,7 @@ void RWSimplePlanningSimulatorNode::timer_callback()
     twist_avg.linear += twist.linear;
     twist_avg.angular += twist.angular;
   }
-  twist_avg.linear  /= static_cast<double>(twist_history.size());
+  twist_avg.linear /= static_cast<double>(twist_history.size());
   twist_avg.angular /= static_cast<double>(twist_history.size());
 
   if (!std::isfinite(twist_avg.angular.z)) {

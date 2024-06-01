@@ -82,8 +82,9 @@ void PathFollowerNode::timer_callback()
 
   // RCLCPP_INFO_STREAM(get_logger(), "x: " << target_pose.x << " y: " << target_pose.y << " err: " << distance);
 
-  const auto [current_x, current_y, current_z] = rw_util::geometry::quat_to_euler(current_orientation);
-  const auto [goal_x, goal_y, goal_z] =    rw_util::geometry::quat_to_euler(target_orientation);
+  const auto [current_x, current_y, current_z] =
+    rw_util::geometry::quat_to_euler(current_orientation);
+  const auto [goal_x, goal_y, goal_z] = rw_util::geometry::quat_to_euler(target_orientation);
 
   // RCLCPP_INFO_STREAM(get_logger(), "c: " << current_z * 57.295 << " g: " << goal_z * 57.295 << " err: " << (current_z - goal_z) * 57.295);
   double vec_z = 0.0;

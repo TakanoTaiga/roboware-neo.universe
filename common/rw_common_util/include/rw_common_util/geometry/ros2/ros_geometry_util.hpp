@@ -17,13 +17,12 @@
 
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <tf2/LinearMath/Quaternion.h>
-#include <geometry_msgs/msg/quaternion.hpp>
-#include <geometry_msgs/msg/vector3.hpp>
 
 #include <concepts>
-#include <tuple>
-
+#include <geometry_msgs/msg/quaternion.hpp>
+#include <geometry_msgs/msg/vector3.hpp>
 #include <rw_common_util/geometry/quaternion/quaternion_util.hpp>
+#include <tuple>
 
 namespace rw_util
 {
@@ -34,7 +33,8 @@ template <std::floating_point T>
 geometry_msgs::msg::Quaternion euler_to_rosquat(const T & x, const T & y, const T & z);
 geometry_msgs::msg::Quaternion euler_to_rosquat(const geometry_msgs::msg::Vector3 & input);
 
-auto quat_to_euler(const geometry_msgs::msg::Quaternion & input) -> std::tuple<double, double, double>;
+auto quat_to_euler(const geometry_msgs::msg::Quaternion & input)
+  -> std::tuple<double, double, double>;
 
 }  // namespace geometry
 }  // namespace rw_util

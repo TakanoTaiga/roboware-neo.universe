@@ -22,24 +22,25 @@ namespace geometry
 template <std::floating_point T>
 geometry_msgs::msg::Quaternion euler_to_rosquat(const T & x, const T & y, const T & z)
 {
-    tf2::Quaternion q;
-    q.setEuler(x, y, z);
-    geometry_msgs::msg::Quaternion result;
-    result.x = q.x();
-    result.y = q.y();
-    result.z = q.z();
-    result.w = q.w();
-    return result;
+  tf2::Quaternion q;
+  q.setEuler(x, y, z);
+  geometry_msgs::msg::Quaternion result;
+  result.x = q.x();
+  result.y = q.y();
+  result.z = q.z();
+  result.w = q.w();
+  return result;
 }
 
 geometry_msgs::msg::Quaternion euler_to_rosquat(const geometry_msgs::msg::Vector3 & input)
 {
-    return euler_to_rosquat(input.x, input.y, input.z);
+  return euler_to_rosquat(input.x, input.y, input.z);
 }
 
-auto quat_to_euler(const geometry_msgs::msg::Quaternion & input) -> std::tuple<double, double, double>
+auto quat_to_euler(const geometry_msgs::msg::Quaternion & input)
+  -> std::tuple<double, double, double>
 {
-    return quat_to_euler(input.x, input.y, input.z, input.w);
+  return quat_to_euler(input.x, input.y, input.z, input.w);
 }
 
 }  // namespace geometry
