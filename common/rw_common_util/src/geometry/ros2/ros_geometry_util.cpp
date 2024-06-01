@@ -37,8 +37,18 @@ geometry_msgs::msg::Quaternion euler_to_rosquat(const geometry_msgs::msg::Vector
   return euler_to_rosquat(input.x, input.y, input.z);
 }
 
-auto quat_to_euler(const geometry_msgs::msg::Quaternion & input)
-  -> std::tuple<double, double, double>
+template <std::floating_point T>
+std::tuple<double, double, double> quat_to_euler(const T & x, const T & y, const T & z, const T & w)
+{
+  tf2::Quaternion quat_pose;
+  quat_pose.setValue(x, y, z, w);
+  tf2::Matrix3x3 mat_pose(quat_pose);
+  T result_x, result_y, result_z;
+  mat_pose.getRPY(result_x, result_y, result_z);
+  return std::make_tuple(result_x, result_y, result_z);
+}
+
+std::tuple<double, double, double> quat_to_euler(const geometry_msgs::msg::Quaternion & input)
 {
   return quat_to_euler(input.x, input.y, input.z, input.w);
 }
