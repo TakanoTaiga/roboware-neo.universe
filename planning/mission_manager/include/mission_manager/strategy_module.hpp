@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef TASK_MODULE_HPP_
+#ifndef STRATEGY_MODULE_HPP_
 #define STRATEGY_MODULE_HPP_
 
 #include <string>
