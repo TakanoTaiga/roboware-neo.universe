@@ -16,12 +16,9 @@
 
 namespace wp2wp_planner
 {
-    PlanningUtil::PlanningUtil()
-    {
-
-    }
-
-    visualization_msgs::msg::Marker PlanningUtil::polygon_to_ros(
+namespace planning_util
+{
+    visualization_msgs::msg::Marker polygon_to_ros(
         std::string frame_id,
         builtin_interfaces::msg::Time stamp,
         boost_type::polygon_2d_lf& poly,
@@ -49,4 +46,5 @@ namespace wp2wp_planner
 
         return marker_msg;
     }
+}
 }

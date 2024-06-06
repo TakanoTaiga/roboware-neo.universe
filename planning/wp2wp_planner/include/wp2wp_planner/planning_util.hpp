@@ -35,20 +35,15 @@ namespace boost_type
 
 namespace wp2wp_planner
 {
-    class PlanningUtil
-    {
-    public:
-        explicit PlanningUtil();
-
-        visualization_msgs::msg::Marker polygon_to_ros(
-            std::string frame_id,
-            builtin_interfaces::msg::Time stamp,
-            boost_type::polygon_2d_lf& poly,
-            int32_t id
-        );
-    private:
-
-    };
+namespace planning_util
+{
+    visualization_msgs::msg::Marker polygon_to_ros(
+        std::string frame_id,
+        builtin_interfaces::msg::Time stamp,
+        boost_type::polygon_2d_lf& poly,
+        int32_t id
+    );
+}
 }
 
 #endif

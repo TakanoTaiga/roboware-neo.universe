@@ -19,7 +19,7 @@
 namespace wp2wp_planner
 {
     WP2WPPlannerNode::WP2WPPlannerNode(const rclcpp::NodeOptions &node_option)
-        : rclcpp::Node("wp_to_wp_planner_node", node_option), PathPlanning(), PlanningUtil()
+        : rclcpp::Node("wp_to_wp_planner_node", node_option)
     {   
         sub_current_pose_ = create_subscription<geometry_msgs::msg::PoseStamped>(
             "input/pose/current", 0, std::bind(&WP2WPPlannerNode::current_pose_subscriber_callback, this, std::placeholders::_1));
@@ -38,11 +38,18 @@ namespace wp2wp_planner
         pub_debug_robot_ = create_publisher<visualization_msgs::msg::Marker>(
             "visualize/debug/robot",0);
 
-        boost::geometry::exterior_ring(ply2d_map) = 
-            boost::assign::list_of<boost_type::point_2d_lf>(-0.150,0.150)(-5.150,0.150)(-5.150,3.150)(-0.150,3.150)(-0.150,0.150);
+        ply2d_map = polyload::polyload(
+            declare_parameter<std::string>("map.plypath" , "kill")
+        );
+        ply2d_robot = polyload::polyload(
+            declare_parameter<std::string>("robot.plypath" , "kill")
+        );
 
-        boost::geometry::exterior_ring(ply2d_robot) = 
-            boost::assign::list_of<boost_type::point_2d_lf>(-0.5,-0.5)(-0.5,0.5)(0.5,0.5)(0.5,-0.5)(-0.5,-0.5);
+        // boost::geometry::exterior_ring(ply2d_map) = 
+        //     boost::assign::list_of<boost_type::point_2d_lf>(-0.150,0.150)(-5.150,0.150)(-5.150,3.150)(-0.150,3.150)(-0.150,0.150);
+
+        // boost::geometry::exterior_ring(ply2d_robot) = 
+        //     boost::assign::list_of<boost_type::point_2d_lf>(-0.5,-0.5)(-0.5,0.5)(0.5,0.5)(0.5,-0.5)(-0.5,-0.5);
         map_pub_timer_  = 
             create_wall_timer(std::chrono::milliseconds(1000), std::bind(&WP2WPPlannerNode::map_pub_timer_callback, this));
 
@@ -52,13 +59,13 @@ namespace wp2wp_planner
     void WP2WPPlannerNode::current_pose_subscriber_callback(const geometry_msgs::msg::PoseStamped& msg){
         current_pose = msg;
 
-        const auto result = check_pose_in_map(
+        const auto result = path_planning::check_pose_in_map(
             msg,
             ply2d_map,
             ply2d_robot
         );
-        auto robot_msg = polygon_to_ros("base_link", get_clock()->now(), ply2d_robot, 0);
-        if(result == outside_pose){
+        auto robot_msg = planning_util::polygon_to_ros("base_link", get_clock()->now(), ply2d_robot, 0);
+        if(result == path_planning::status::outside_pose){
             robot_msg.color.g = 0.0;
             robot_msg.color.r = 1.0;
         }
@@ -70,7 +77,7 @@ namespace wp2wp_planner
         nav_path.header.frame_id = "map";
         nav_path.header.stamp = get_clock()->now();
 
-        const auto result = global_path_init(
+        const auto result = path_planning::global_path_init(
             current_pose,
             msg,
             ply2d_map,
@@ -91,7 +98,7 @@ namespace wp2wp_planner
 
     void WP2WPPlannerNode::map_pub_timer_callback()
     {
-        pub_debug_area_->publish(polygon_to_ros("map", get_clock()->now(), ply2d_map, 0));
+        pub_debug_area_->publish(planning_util::polygon_to_ros("map", get_clock()->now(), ply2d_map, 0));
     }
 }
 

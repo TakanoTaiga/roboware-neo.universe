@@ -17,4 +17,5 @@ ament_auto_package(
   params
   rviz
   state_graph
+  2dmodel
 )

@@ -42,6 +42,8 @@ namespace mission_manager
         void state_transition_callback();
         void action_result_subscriber_callback(const rw_planning_msg::msg::ActionResult& action_result);
 
+        bool is_end_killallnode;
+
     };
 } // namespace mission_manager
 

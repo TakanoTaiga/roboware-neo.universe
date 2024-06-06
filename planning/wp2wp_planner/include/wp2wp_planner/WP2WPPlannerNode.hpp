@@ -25,17 +25,16 @@
 #include <nav_msgs/msg/path.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <visualization_msgs/msg/marker.hpp>
-#include <tf2/LinearMath/Quaternion.h>
-#include <tf2/LinearMath/Matrix3x3.h>
 #include <rw_planning_msg/msg/action_result.hpp>
 #include <rw_planning_msg/msg/task_action.hpp>
 
 #include "wp2wp_planner/path_planning.hpp"
 #include "wp2wp_planner/planning_util.hpp"
+#include "wp2wp_planner/polyload.hpp"
 
 namespace wp2wp_planner
 {
-    class WP2WPPlannerNode : public rclcpp::Node, public PathPlanning, public PlanningUtil
+    class WP2WPPlannerNode : public rclcpp::Node
     {
     public:
         explicit WP2WPPlannerNode(const rclcpp::NodeOptions & node_options);

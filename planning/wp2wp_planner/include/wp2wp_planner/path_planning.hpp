@@ -33,52 +33,47 @@
 
 namespace wp2wp_planner
 {
-    enum status
+namespace path_planning
+{
+    enum class status
     {
         outside_pose,
         non_error
     };
 
-    class PathPlanning
-    {
-    public:
-        explicit PathPlanning();
+    status global_path_init(
+        const geometry_msgs::msg::PoseStamped& pose_current,
+        const geometry_msgs::msg::PoseStamped& pose_goal,
+        const boost_type::polygon_2d_lf& map,
+        const boost_type::polygon_2d_lf& robot,
+        nav_msgs::msg::Path& result_path,
+        rclcpp::Logger logger
+    );
 
-        status global_path_init(
-            const geometry_msgs::msg::PoseStamped& pose_current,
-            const geometry_msgs::msg::PoseStamped& pose_goal,
-            const boost_type::polygon_2d_lf& map,
-            const boost_type::polygon_2d_lf& robot,
-            nav_msgs::msg::Path& result_path,
-            rclcpp::Logger logger
-        );
+    status check_pose_in_map(
+        const geometry_msgs::msg::PoseStamped& pose,
+        const boost_type::polygon_2d_lf& map,
+        const boost_type::polygon_2d_lf& robot
+    );
 
-        status check_pose_in_map(
-            const geometry_msgs::msg::PoseStamped& pose,
-            const boost_type::polygon_2d_lf& map,
-            const boost_type::polygon_2d_lf& robot
-        );
+    void init_path_generator(
+        const geometry_msgs::msg::PoseStamped& pose_current,
+        const geometry_msgs::msg::PoseStamped& pose_goal,
+        nav_msgs::msg::Path& result_path
+    );
 
-        void init_path_generator(
-            const geometry_msgs::msg::PoseStamped& pose_current,
-            const geometry_msgs::msg::PoseStamped& pose_goal,
-            nav_msgs::msg::Path& result_path
-        );
+    status check_path_in_map(
+        const nav_msgs::msg::Path& result_path,
+        const boost_type::polygon_2d_lf& map,
+        const boost_type::polygon_2d_lf& robot
+    );
 
-        status check_path_in_map(
-            const nav_msgs::msg::Path& result_path,
-            const boost_type::polygon_2d_lf& map,
-            const boost_type::polygon_2d_lf& robot
-        );
-
-        status map_avoidance_planner(
-            nav_msgs::msg::Path& move_path,
-            const boost_type::polygon_2d_lf& map,
-            const boost_type::polygon_2d_lf& robot
-        );
-
-    private:
-    };
+    status map_avoidance_planner(
+        nav_msgs::msg::Path& move_path,
+        const boost_type::polygon_2d_lf& map,
+        const boost_type::polygon_2d_lf& robot
+    );
+}
 }
 
 #endif

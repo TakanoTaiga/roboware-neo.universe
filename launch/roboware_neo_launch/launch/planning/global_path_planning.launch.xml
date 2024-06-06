@@ -1,9 +1,15 @@
 <launch>  
+    <arg name="map_polygon_path" default="$(find-pkg-share roboware_neo_launch)/2dmodel/map.ply2d"/>
+    <arg name="robot_polygon_path" default="$(find-pkg-share roboware_neo_launch)/2dmodel/robot.ply2d"/>
+
     <node pkg="wp2wp_planner" exec="wp2wp_planner_node" >
         <remap from="input/pose/goal" to="/goal_pose"/>
         <remap from="input/pose/current" to="/localization/current_pose"/>
         <remap from="output/global_plan_path" to="/planning/global/path"/>
         <remap from="input/task_action" to="/planning/state_transition/task_action"/>
         <remap from="output/action_result" to="/planning/state_transition/action_result"/>
+
+        <param name="map.plypath" value="$(var map_polygon_path)"/>
+        <param name="robot.plypath" value="$(var robot_polygon_path)"/>
     </node>
 </launch>
