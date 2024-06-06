@@ -5,5 +5,6 @@
         <remap from="output/task_action" to="/planning/state_transition/task_action"/>
         <remap from="input/action_result" to="/planning/state_transition/action_result"/>
         <param name="graphpath" value="$(var graph_path)"/>
+        <param name="endmode" value="kill"/>
     </node>
 </launch>

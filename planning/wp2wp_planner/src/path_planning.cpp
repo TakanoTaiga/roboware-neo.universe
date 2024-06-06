@@ -16,12 +16,9 @@
 
 namespace wp2wp_planner
 {
-    PathPlanning::PathPlanning()
-    {
-
-    }
-
-    status PathPlanning::global_path_init(
+namespace path_planning
+{
+    status global_path_init(
         const geometry_msgs::msg::PoseStamped& pose_current,
         const geometry_msgs::msg::PoseStamped& pose_goal,
         const boost_type::polygon_2d_lf& map,
@@ -29,22 +26,22 @@ namespace wp2wp_planner
         nav_msgs::msg::Path& result_path,
         rclcpp::Logger logger
     ){
-        if(check_pose_in_map(pose_current, map, robot) == outside_pose){
+        if(check_pose_in_map(pose_current, map, robot) == status::outside_pose){
             RCLCPP_ERROR_STREAM(logger,  
                 "pose_current is outside map. " << 
                 pose_current.pose.position.y << 
                 " , " << 
                 pose_current.pose.position.y);
-            return outside_pose;
+            return status::outside_pose;
         }
 
-        if(check_pose_in_map(pose_goal, map, robot) == outside_pose){
+        if(check_pose_in_map(pose_goal, map, robot) == status::outside_pose){
             RCLCPP_ERROR_STREAM(logger,  
                 "pose_goal is outside map. " << 
                 pose_goal.pose.position.y << 
                 " , " << 
                 pose_goal.pose.position.y);
-            return outside_pose;
+            return status::outside_pose;
         }
 
         init_path_generator(
@@ -53,19 +50,19 @@ namespace wp2wp_planner
             result_path
         );
 
-        if(check_path_in_map(result_path, map, robot) == outside_pose){
+        if(check_path_in_map(result_path, map, robot) == status::outside_pose){
             map_avoidance_planner(result_path, map, robot);
         }
 
-         if(check_path_in_map(result_path, map, robot) == outside_pose){
+            if(check_path_in_map(result_path, map, robot) == status::outside_pose){
             RCLCPP_ERROR_STREAM(logger,  "path is outside map");
-            return outside_pose;
+            return status::outside_pose;
         }
 
-        return non_error;
+        return status::non_error;
     }
 
-    status PathPlanning::check_pose_in_map(
+    status check_pose_in_map(
         const geometry_msgs::msg::PoseStamped& pose,
         const boost_type::polygon_2d_lf& map,
         const boost_type::polygon_2d_lf& robot
@@ -83,13 +80,13 @@ namespace wp2wp_planner
 
         // check
         if(boost::geometry::within(pose_transed_robot, map)){
-            return non_error;
+            return status::non_error;
         }else{
-            return outside_pose;
+            return status::outside_pose;
         }
     }
 
-    void PathPlanning::init_path_generator(
+    void init_path_generator(
         const geometry_msgs::msg::PoseStamped& pose_current,
         const geometry_msgs::msg::PoseStamped& pose_goal,
         nav_msgs::msg::Path& result_path
@@ -119,21 +116,21 @@ namespace wp2wp_planner
         }
     }
 
-    status PathPlanning::check_path_in_map(
+    status check_path_in_map(
         const nav_msgs::msg::Path& result_path,
         const boost_type::polygon_2d_lf& map,
         const boost_type::polygon_2d_lf& robot
     ){
         for(const auto& point : result_path.poses){
             const auto result = check_pose_in_map(point, map, robot);
-            if(result == outside_pose){
-                return outside_pose;
+            if(result == status::outside_pose){
+                return status::outside_pose;
             }
         }
-        return non_error;
+        return status::non_error;
     }
 
-    status PathPlanning::map_avoidance_planner(
+    status map_avoidance_planner(
         nav_msgs::msg::Path& move_path,
         const boost_type::polygon_2d_lf& map,
         const boost_type::polygon_2d_lf& robot
@@ -141,7 +138,7 @@ namespace wp2wp_planner
         std::vector<std::pair<geometry_msgs::msg::PoseStamped, geometry_msgs::msg::PoseStamped>> error_poses;
         for (size_t i = 0; i < move_path.poses.size(); ++i) {
             const auto& point = move_path.poses[i];
-            if (check_pose_in_map(point, map, robot) == non_error) continue;
+            if (check_pose_in_map(point, map, robot) == status::non_error) continue;
 
             geometry_msgs::msg::PoseStamped next_point;
             if (i + 1 < move_path.poses.size()) {
@@ -152,7 +149,7 @@ namespace wp2wp_planner
 
             const auto vec_x = point.pose.position.x - next_point.pose.position.x;
             const auto vec_y = point.pose.position.y - next_point.pose.position.y;
-            const auto length = std::sqrt(vec_x * vec_x + vec_y * vec_y);
+            const auto length = std::hypot(vec_x, vec_y);
             const auto perp_vec_x = vec_y / length;
             const auto perp_vec_y = -vec_x / length;
 
@@ -161,19 +158,20 @@ namespace wp2wp_planner
                 auto point_ = point;
                 point_.pose.position.x += perp_vec_x * sc;
                 point_.pose.position.y += perp_vec_y * sc;
-                if(check_pose_in_map(point_, map, robot) == non_error){
+                if(check_pose_in_map(point_, map, robot) == status::non_error){
                     move_path.poses[i] = point_;
                     break;
                 }
 
                 point_.pose.position.x -= 2.0 * perp_vec_x * sc;
                 point_.pose.position.y -= 2.0 * perp_vec_y * sc;
-                if(check_pose_in_map(point_, map, robot) == non_error){
+                if(check_pose_in_map(point_, map, robot) == status::non_error){
                     move_path.poses[i] = point_;
                     break;
                 }
             }
         }
-        return non_error;
+        return status::non_error;
     }
+}
 }

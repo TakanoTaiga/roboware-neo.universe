@@ -24,11 +24,16 @@ namespace mission_manager
         log_file.open("/tmp/rw.log");
         log_file.close();
         // Graph initialize
-        std::string file_path = declare_parameter<std::string>("graphpath" , "./graph.md");;
+        const auto file_path = declare_parameter<std::string>("graphpath" , "./graph.md");
         auto gen_mission_graph = MissionGraph();
         gen_mission_graph.get_mission_graph(file_path);
         state_transition_handler.set_graph(gen_mission_graph.at_mgraph_bin());
 
+        // get end mode
+        const auto end_mode = declare_parameter<std::string>("endmode" , "kill"); //kill or safe
+        if(end_mode == "kill"){is_end_killallnode = true;}
+        else{is_end_killallnode = false;}
+        
         // Graph visualize
         RCLCPP_INFO_STREAM(logger, gen_mission_graph.str_graph_tostring(gen_mission_graph.at_mgraph_str()));
         RCLCPP_INFO_STREAM(logger, gen_mission_graph.bin_graph_tostring(gen_mission_graph.at_mgraph_bin()));
@@ -52,8 +57,11 @@ namespace mission_manager
         RCLCPP_INFO_STREAM(logger, info.debug_str);
 
         if(state_transition_handler.is_end()){
-            // rclcpp::shutdown();
-            const auto _ = system("ps aux | grep ros | grep -v grep | awk '{ print \"kill -9\", $2 }' | sh");
+            if(is_end_killallnode){
+                const auto _ = system("ps aux | grep ros | grep -v grep | awk '{ print \"kill -9\", $2 }' | sh");
+            }else{
+                rclcpp::shutdown();
+            }
 
         }
     }
