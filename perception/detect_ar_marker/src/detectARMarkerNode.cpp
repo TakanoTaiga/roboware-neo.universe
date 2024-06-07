@@ -49,9 +49,9 @@ namespace detect_ar_marker
       auto cv_image = cv_bridge::toCvShare(msg, msg->encoding);
       std::vector<int> markerIds;
       std::vector<std::vector<cv::Point2f>> markerCorners, rejectedCandidates;
-      auto detectorParams = cv::aruco::DetectorParameters::create();
       auto dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_100);
-      cv::aruco::detectMarkers(cv_image->image, dictionary, markerCorners, markerIds, detectorParams, rejectedCandidates);
+      cv::Ptr<cv::aruco::Dictionary> dictPtr = cv::makePtr<cv::aruco::Dictionary>(dictionary);
+      cv::aruco::detectMarkers(cv_image->image, dictPtr, markerCorners, markerIds);
 
       std::vector<cv::Vec3d> rvecs, tvecs;
       if(markerIds.size() > 0){

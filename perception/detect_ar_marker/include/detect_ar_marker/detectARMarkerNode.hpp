@@ -25,7 +25,7 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Matrix3x3.h>
 
-#include <opencv2/opencv.hpp>
+#include <opencv4/opencv2/opencv.hpp>
 #include <opencv4/opencv2/aruco.hpp>
 #include "cv_bridge/cv_bridge.h"
 
