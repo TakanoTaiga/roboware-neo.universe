@@ -12,14 +12,10 @@
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
   <depend>sensor_msgs</depend>
-  <depend>pcl_ros</depend>
   <depend>nav_msgs</depend>
-  <!-- <depend>sensor_msgs</depend>
-  <depend>bboxes_ex_msgs</depend>
-  <depend>visualization_msgs</depend>
-  <depend>cv_bridge</depend>
-  <depend>tf2</depend>
-  <depend>tf2_ros</depend> -->
+  <depend>pcl_ros</depend>
+  <depend>PCL</depend>
+  <depend>pcl_conversions</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
