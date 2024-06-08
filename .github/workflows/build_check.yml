@@ -33,7 +33,7 @@ jobs:
         run: |
           rosdep update && 
           apt-get update && 
-          rosdep install --from-path . -i -y --rosdistro ${{ matrix.rosdistro }} --skip-keys=OpenCV PCL
+          rosdep install --from-path . -i -y --rosdistro ${{ matrix.rosdistro }} --skip-keys=OpenCV --skip-keys=PCL
 
       - name: Install diagnostic-updater
         run: apt-get install ros-${{ matrix.rosdistro }}-diagnostic-updater
