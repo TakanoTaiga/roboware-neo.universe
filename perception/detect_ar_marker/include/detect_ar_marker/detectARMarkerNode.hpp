@@ -17,6 +17,7 @@
 
 #include <vector>
 #include <memory>
+#include <map>
 
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
@@ -50,7 +51,7 @@ private:
 
     cv::Mat cameraMatrix;
     cv::Mat distCoeffs;
-    double markerLength;
+    std::map<int, float> markerSizes;
 };
 } // namespace detect_ar_marker
 
