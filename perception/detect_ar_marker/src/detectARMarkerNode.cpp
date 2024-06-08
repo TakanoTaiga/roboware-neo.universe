@@ -32,8 +32,11 @@ namespace detect_ar_marker
       tf_broadcaster_ =
         std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
-      markerLength = declare_parameter<double>("marker_length" , 0.1);
-
+      for(auto i = 0; i < 100; ++i)
+      {
+        auto param_name = "marker_length." + std::to_string(i);
+        markerSizes[i] = declare_parameter<double>(param_name, 0.1);
+      }
 
       cameraMatrix = (cv::Mat_<double>(3, 3) << 0.0, 0.0, 0.0,
                                                 0.0, 0.0, 0.0,
@@ -48,54 +51,67 @@ namespace detect_ar_marker
     {
       auto cv_image = cv_bridge::toCvShare(msg, msg->encoding);
       std::vector<int> markerIds;
-      std::vector<std::vector<cv::Point2f>> markerCorners, rejectedCandidates;
+      std::vector<std::vector<cv::Point2f>> markerCorners;
       auto dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_100);
       cv::Ptr<cv::aruco::Dictionary> dictPtr = cv::makePtr<cv::aruco::Dictionary>(dictionary);
       cv::aruco::detectMarkers(cv_image->image, dictPtr, markerCorners, markerIds);
 
       std::vector<cv::Vec3d> rvecs, tvecs;
       if(markerIds.size() > 0){
-        cv::aruco::drawDetectedMarkers(cv_image->image, markerCorners, markerIds);
-        cv::aruco::estimatePoseSingleMarkers(markerCorners, markerLength, cameraMatrix, distCoeffs, rvecs, tvecs);
+          cv::aruco::drawDetectedMarkers(cv_image->image, markerCorners, markerIds);
 
-        for(size_t i = 0; i < markerIds.size(); i++) {
-            geometry_msgs::msg::TransformStamped transformStamped;
+          // マーカーごとに姿勢推定を行うためのループ
+          for(size_t i = 0; i < markerIds.size(); i++) {
+              int id = markerIds[i];
+              
+              // マーカーの大きさを取得
+              if (markerSizes.find(id) == markerSizes.end()) {
+                  markerSizes[id] = 0.1;
+              }
+              float markerLength = markerSizes[id];
 
-            transformStamped.header.stamp = now();
-            transformStamped.header.frame_id = msg->header.frame_id;
-            transformStamped.child_frame_id = "marker_" + std::to_string(markerIds[i]);
-            transformStamped.transform.translation.x = tvecs[i][0];
-            transformStamped.transform.translation.y = tvecs[i][1];
-            transformStamped.transform.translation.z = tvecs[i][2];
+              std::vector<std::vector<cv::Point2f>> singleMarkerCorners = { markerCorners[i] };
+              std::vector<cv::Vec3d> singleRvecs, singleTvecs;
 
-            // rvecsをロドリゲスの回転ベクトルから回転行列に変換
-            cv::Mat rotMat;
-            cv::Rodrigues(rvecs[i], rotMat);
+              cv::aruco::estimatePoseSingleMarkers(singleMarkerCorners, markerLength, cameraMatrix, distCoeffs, singleRvecs, singleTvecs);
 
-            // 回転行列からtf2::Matrix3x3を作成
-            tf2::Matrix3x3 tfRotMat(
-                rotMat.at<double>(0, 0), rotMat.at<double>(0, 1), rotMat.at<double>(0, 2),
-                rotMat.at<double>(1, 0), rotMat.at<double>(1, 1), rotMat.at<double>(1, 2),
-                rotMat.at<double>(2, 0), rotMat.at<double>(2, 1), rotMat.at<double>(2, 2)
-            );
+              rvecs.push_back(singleRvecs[0]);
+              tvecs.push_back(singleTvecs[0]);
+              
+              geometry_msgs::msg::TransformStamped transformStamped;
 
-            // tf2::Quaternionに変換
-            tf2::Quaternion q;
-            tfRotMat.getRotation(q);
+              transformStamped.header.stamp = now();
+              transformStamped.header.frame_id = msg->header.frame_id;
+              transformStamped.child_frame_id = "marker_" + std::to_string(id);
+              transformStamped.transform.translation.x = singleTvecs[0][0];
+              transformStamped.transform.translation.y = singleTvecs[0][1];
+              transformStamped.transform.translation.z = singleTvecs[0][2];
 
-            transformStamped.transform.rotation.x = q.x();
-            transformStamped.transform.rotation.y = q.y();
-            transformStamped.transform.rotation.z = q.z();
-            transformStamped.transform.rotation.w = q.w();
+              cv::Mat rotMat;
+              cv::Rodrigues(singleRvecs[0], rotMat);
 
-            tf_broadcaster_->sendTransform(transformStamped);
-        }
+              tf2::Matrix3x3 tfRotMat(
+                  rotMat.at<double>(0, 0), rotMat.at<double>(0, 1), rotMat.at<double>(0, 2),
+                  rotMat.at<double>(1, 0), rotMat.at<double>(1, 1), rotMat.at<double>(1, 2),
+                  rotMat.at<double>(2, 0), rotMat.at<double>(2, 1), rotMat.at<double>(2, 2)
+              );
 
+              tf2::Quaternion q;
+              tfRotMat.getRotation(q);
+
+              transformStamped.transform.rotation.x = q.x();
+              transformStamped.transform.rotation.y = q.y();
+              transformStamped.transform.rotation.z = q.z();
+              transformStamped.transform.rotation.w = q.w();
+
+              tf_broadcaster_->sendTransform(transformStamped);
+          }
       }
 
       auto ros_img_msg = sensor_msgs::msg::Image();
       cv_image->toImageMsg(ros_img_msg);
       pub_debug_image_->publish(ros_img_msg);
+
     }
 
     void detectARMarkerNode::cam_info_subscriber_callback(const sensor_msgs::msg::CameraInfo::SharedPtr msg){
