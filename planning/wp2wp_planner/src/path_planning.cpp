@@ -104,7 +104,14 @@ namespace path_planning
             const double c_x = pose_current.pose.position.x + unit_x * l;
             const double c_y = pose_current.pose.position.y + unit_y * l;
 
-            const double interp_yaw = current_rpy.yaw + (goal_rpy.yaw - current_rpy.yaw) * (l / length);
+            double yaw_diff = goal_rpy.yaw - current_rpy.yaw;
+            if (yaw_diff > M_PI) {
+                yaw_diff -= 2 * M_PI;
+            } else if (yaw_diff < -M_PI) {
+                yaw_diff += 2 * M_PI;
+            }
+
+            const double interp_yaw = current_rpy.yaw + yaw_diff * (l / length);
 
             auto pose = geometry_msgs::msg::PoseStamped();
             pose.header = result_path.header;
