@@ -45,11 +45,6 @@ namespace wp2wp_planner
             declare_parameter<std::string>("robot.plypath" , "kill")
         );
 
-        // boost::geometry::exterior_ring(ply2d_map) = 
-        //     boost::assign::list_of<boost_type::point_2d_lf>(-0.150,0.150)(-5.150,0.150)(-5.150,3.150)(-0.150,3.150)(-0.150,0.150);
-
-        // boost::geometry::exterior_ring(ply2d_robot) = 
-        //     boost::assign::list_of<boost_type::point_2d_lf>(-0.5,-0.5)(-0.5,0.5)(0.5,0.5)(0.5,-0.5)(-0.5,-0.5);
         map_pub_timer_  = 
             create_wall_timer(std::chrono::milliseconds(1000), std::bind(&WP2WPPlannerNode::map_pub_timer_callback, this));
 

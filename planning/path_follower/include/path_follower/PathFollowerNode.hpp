@@ -17,6 +17,8 @@
 
 #include <memory>
 #include <fstream>
+#include <vector>
+#include <utility>
 
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
@@ -28,6 +30,8 @@
 #include <rw_planning_msg/msg/action_result.hpp>
 #include <rw_planning_msg/msg/task_action.hpp>
 #include <rw_common_util/geometry.hpp>
+
+#include "path_follower/point_state_transition.hpp"
 
 namespace path_follower
 {
@@ -52,16 +56,9 @@ namespace path_follower
 
         rclcpp::TimerBase::SharedPtr control_timer_;
 
-        geometry_msgs::msg::PoseStamped current_pose;
-        nav_msgs::msg::Path global_path;
-        planner_status pose_status;
-        planner_status path_status;
-        size_t start_pose_index;
-        size_t target_pose_index;
-        geometry_msgs::msg::PoseStamped start_pose;
-        geometry_msgs::msg::PoseStamped goal_pose;
-
         int32_t task_id;
+
+        point_state_transion::state_manager point_state_manager;
 
         void timer_callback();
         void current_pose_subscriber_callback(const geometry_msgs::msg::PoseStamped& sub_msg_pose);

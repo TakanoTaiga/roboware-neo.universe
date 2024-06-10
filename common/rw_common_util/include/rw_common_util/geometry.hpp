@@ -25,6 +25,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef RW_COMMON_UTIL__GEOMETRY_HPP_
+#define RW_COMMON_UTIL__GEOMETRY_HPP_
+
 #include <type_traits>
 #include <utility>
 
@@ -307,3 +310,6 @@ namespace rw_common_util
     }
   }  // namespace geometry
 }  // namespace rw_common_util
+
+
+#endif

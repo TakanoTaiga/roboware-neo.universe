@@ -19,6 +19,7 @@ namespace path_follower
     PathFollowerNode::PathFollowerNode(const rclcpp::NodeOptions &node_option)
         : rclcpp::Node("PathFollowerNode", node_option)
     {   
+        point_state_manager.paramset(0.2, 0.0872665);
         sub_current_pose_ = create_subscription<geometry_msgs::msg::PoseStamped>(
             "input/current_pose", 0, std::bind(&PathFollowerNode::current_pose_subscriber_callback, this, std::placeholders::_1));
         sub_nav_path_ = create_subscription<nav_msgs::msg::Path>(
@@ -33,74 +34,91 @@ namespace path_follower
 
         control_timer_ = create_wall_timer(
             std::chrono::milliseconds(10), std::bind(&PathFollowerNode::timer_callback, this));
-
-        pose_status = not_found;
-        path_status = not_found;
     }
 
     void PathFollowerNode::timer_callback()
     {
-        if(pose_status != ready || path_status != ready)
-        {
+        if (!point_state_manager.isReady()) {
             return;
         }
 
-        bool flag1 = false;
-        bool flag2 = false;
+        auto twist_msg = geometry_msgs::msg::Twist();
+        auto& current_pose = point_state_manager.current_pose;
+        auto& current_path = point_state_manager.current_path;
 
-        bool is_end = false;
-        if (target_pose_index >= global_path.poses.size()) {
-            target_pose_index = global_path.poses.size() - 1;
-            is_end = true;
+        // PurePursuit 
+        if (current_path.poses.empty()) {
+            RCLCPP_WARN_STREAM(get_logger(), "current_path is empty");
+            return;
         }
 
-        const auto &target_pose = global_path.poses[target_pose_index].pose.position;
-        const auto &target_orientation = global_path.poses[target_pose_index].pose.orientation;
-        const auto &current_position = current_pose.pose.position;
-        const auto &current_orientation = current_pose.pose.orientation;
+        std::vector<std::pair<double, size_t>> distances;
+        std::vector<std::pair<double, size_t>> near_distances;
+        distances.reserve(current_path.poses.size());
+        near_distances.reserve(current_path.poses.size());
 
-        double dx = target_pose.x - current_position.x;
-        double dy = target_pose.y - current_position.y;
-        double distance = std::sqrt(dx * dx + dy * dy);
-        const double threshold = 0.05;
-
-        double vec_x = 0.0;
-        double vec_y = 0.0;
-
-        if (distance >= threshold) {
-            double rad = std::atan2(dy, dx);
-            vec_x = std::cos(rad);
-            vec_y = std::sin(rad);
-        } else {
-            flag1 = true;
-            if (is_end) {
-                vec_x = 0.0;
-                vec_y = 0.0;
+        for (size_t i = 0; i < current_path.poses.size(); ++i) {
+            const auto norm = point_state_manager.norm2(current_path.poses[i].pose.position, current_pose.pose.position);
+            if (norm >= point_state_manager.param_pos_err_max) {
+                distances.emplace_back(norm, i);
+            }else{
+                near_distances.emplace_back(norm, i);
             }
         }
 
-        // RCLCPP_INFO_STREAM(get_logger(), "x: " << target_pose.x << " y: " << target_pose.y << " err: " << distance);
+        if (distances.empty()) {
+            distances = near_distances;
+        }
+        const auto target_iter = std::min_element(distances.begin(), distances.end());
 
-        const auto rqy_current = rw_common_util::geometry::quat_to_euler(current_orientation);
-        const auto rqy_goal = rw_common_util::geometry::quat_to_euler(target_orientation);
+        auto erase_end = current_path.poses.begin() + target_iter->second;
+        current_path.poses.erase(current_path.poses.begin(), erase_end);
 
-        // RCLCPP_INFO_STREAM(get_logger(), "c: " << rqy_current.yaw * 57.295 << " g: " << rqy_goal.yaw * 57.295 << " err: " << (rqy_current.yaw - rqy_goal.yaw) * 57.295);
-        double vec_z = 0.0;
+        const auto& target_position = current_path.poses.front().pose.position;
+        const auto& current_position = current_pose.pose.position;
 
-        double err = std::abs(rqy_current.yaw - rqy_goal.yaw);
-        if(err * 57.295 < 5)
+        using rw_common_util::geometry::operator-;
+        const auto delta_position = target_position - current_position;
+
+        double angle = std::atan2(delta_position.y, delta_position.x);
+        const double speed = -0.4; // todo: ここにpathの高さから速度を入力する形にする。
+        
+        twist_msg.linear.x = speed * std::cos(angle);
+        twist_msg.linear.y = speed * std::sin(angle);
+        twist_msg.angular.z = 0.0;
+
+        const auto is_ok_pos_x = std::abs(delta_position.x) < 0.01;
+        if(is_ok_pos_x){
+            twist_msg.linear.x = 0.0;
+        }
+
+        const auto is_ok_pos_y = std::abs(delta_position.y) < 0.01;
+        if(is_ok_pos_y){
+            twist_msg.linear.y = 0.0;
+        }
+
+        if (std::signbit(twist_msg.linear.x) != std::signbit(delta_position.x)) {
+            twist_msg.linear.x *= -1.0;
+        }
+        if (std::signbit(twist_msg.linear.y) != std::signbit(delta_position.y)) {
+            twist_msg.linear.y *= -1.0;
+        }
+
+        // PurePursuit end.
+
+        // angle p control
+        double err = point_state_manager.norm2(current_pose.pose.orientation, current_path.poses.front().pose.orientation); 
+        const auto is_ok_angle = std::abs(err * 57.295) < 1;
+        if(is_ok_angle)
         {
-            flag2 = true;
             err = 0.0;
         }
+        twist_msg.angular.z = err * 2.0;
+        // angle p control end.
 
-        if(flag1 && flag2)
-        {
-            target_pose_index++;
-        }
+        pub_twist_->publish(twist_msg);
 
-        if(flag1 && flag2 && is_end)
-        {
+        if(is_ok_pos_x && is_ok_pos_y && is_ok_angle){
             auto action_result_msg = rw_planning_msg::msg::ActionResult();
             action_result_msg.status.code = rw_common_msgs::msg::Status::SUCCESS;
             action_result_msg.status.success = true;
@@ -108,60 +126,25 @@ namespace path_follower
             action_result_msg.task_id = task_id;
             pub_action_result->publish(action_result_msg);
 
+            const auto rqy_current = rw_common_util::geometry::quat_to_euler(current_pose.pose.orientation);
             std::ofstream log_file;
             log_file.open("/tmp/rw.log", std::ios::app);
             log_file << "result , " << std::to_string(current_position.x) << "," << std::to_string(current_position.y) << "," << std::to_string(rqy_current.yaw * 57.295779513) << std::endl;
             log_file.close();
-
-            pose_status = not_found;
-            path_status = not_found;
+            
+            point_state_manager.setWait();
         }
-
-        auto twist_msg = geometry_msgs::msg::Twist();
-        twist_msg.linear.x = vec_x * -0.2;
-        twist_msg.linear.y = vec_y * -0.2;
-        twist_msg.angular.z = err * 1.5;
-
-        if(std::signbit(twist_msg.linear.x)  != std::signbit(dx)){twist_msg.linear.x *= -1.0;}
-        if(std::signbit(twist_msg.linear.y)  != std::signbit(dy)){twist_msg.linear.y *= -1.0;}
-        if(std::signbit(twist_msg.angular.z) != std::signbit(rqy_current.yaw - rqy_goal.yaw)){twist_msg.angular.z *= -1.0;}
-
-        pub_twist_->publish(twist_msg);
     }
+
 
     void PathFollowerNode::current_pose_subscriber_callback(const geometry_msgs::msg::PoseStamped& sub_msg_pose)
     {
-        current_pose = sub_msg_pose;
-        pose_status = ready;
+        point_state_manager.setCurrentPose(sub_msg_pose);
     }
 
     void PathFollowerNode::nav_path_subscriber_callback(const nav_msgs::msg::Path& sub_msg_path)
     {
-        global_path = sub_msg_path;
-        const auto path_size = global_path.poses.size();
-
-        if(path_size == 0){
-            path_status = not_found;
-            return;
-        }else{
-            path_status = ready;
-            RCLCPP_INFO_STREAM(get_logger(),  "Get global path");
-        }
-
-        std::vector<std::pair<float, size_t>> distances(path_size);
-        for(size_t i = 0; i < path_size; i++ ){
-            const auto dx = global_path.poses[i].pose.position.x - current_pose.pose.position.x;
-            const auto dy = global_path.poses[i].pose.position.y - current_pose.pose.position.y;
-            distances[i] = {dx * dx + dy * dy, i};
-        }
-        auto min_iter = std::min_element(distances.begin(), distances.end());
-        start_pose_index = min_iter->second;
-        start_pose = global_path.poses[start_pose_index];
-        goal_pose = global_path.poses.back();
-            
-        RCLCPP_INFO_STREAM(get_logger(),  "Control NOW:" << start_pose.pose.position.x << "," <<  start_pose.pose.position.y << "," << start_pose_index);
-
-        target_pose_index = start_pose_index;
+        point_state_manager.setpath(sub_msg_path);
     }
 
     void PathFollowerNode::task_action_subscriber_callback(const rw_planning_msg::msg::TaskAction& action_msg)
