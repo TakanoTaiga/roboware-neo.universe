@@ -67,7 +67,8 @@ namespace path_follower
         }
 
         if (distances.empty()) {
-            distances = near_distances;
+            distances.emplace_back(0.0, current_path.poses.size() - 1);
+            // distances = near_distances;
         }
         const auto target_iter = std::min_element(distances.begin(), distances.end());
 
@@ -108,6 +109,7 @@ namespace path_follower
 
         // angle p control
         double err = point_state_manager.norm2(current_pose.pose.orientation, current_path.poses.front().pose.orientation); 
+        // RCLCPP_INFO_STREAM(get_logger(), "angle err: " << err * 57.295);
         const auto is_ok_angle = std::abs(err * 57.295) < 1;
         if(is_ok_angle)
         {
