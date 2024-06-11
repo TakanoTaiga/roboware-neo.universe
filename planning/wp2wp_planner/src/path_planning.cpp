@@ -98,7 +98,7 @@ namespace path_planning
         const auto current_rpy = rw_common_util::geometry::quat_to_euler(pose_current.pose.orientation);
         const auto goal_rpy = rw_common_util::geometry::quat_to_euler(pose_goal.pose.orientation);
 
-        for(double l = 0.0; l <= length; l+= 0.1){
+        for(double l = 0.0; l < length; l+= 0.1){
             const double unit_x = ab_x / length;
             const double unit_y = ab_y / length;
             const double c_x = pose_current.pose.position.x + unit_x * l;
@@ -121,6 +121,10 @@ namespace path_planning
 
             result_path.poses.push_back(pose);
         }
+        auto final_pose = geometry_msgs::msg::PoseStamped();
+        final_pose.header = result_path.header;
+        final_pose.pose = pose_goal.pose;
+        result_path.poses.push_back(final_pose);
     }
 
     status check_path_in_map(
