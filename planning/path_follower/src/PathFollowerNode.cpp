@@ -88,10 +88,10 @@ namespace path_follower
         const auto delta_position = target_position - current_position;
 
         double angle = std::atan2(delta_position.y, delta_position.x);
-        const double speed = -0.4; // todo: ここにpathの高さから速度を入力する形にする。
+        const double speed = target_position.z + 0.15;
         
-        twist_msg.linear.x = speed * std::cos(angle);
-        twist_msg.linear.y = speed * std::sin(angle);
+        twist_msg.linear.x = -1.0 * speed * std::cos(angle);
+        twist_msg.linear.y = -1.0 * speed * std::sin(angle);
         twist_msg.angular.z = 0.0;
 
         const auto is_ok_pos_x = std::abs(delta_position.x) < 0.01;
@@ -127,6 +127,10 @@ namespace path_follower
         pub_twist_->publish(twist_msg);
 
         const auto rqy_current = rw_common_util::geometry::quat_to_euler(current_pose.pose.orientation);
+
+
+        RCLCPP_INFO_STREAM(get_logger(), "x: " << std::abs(delta_position.x) << "y: " << std::abs(delta_position.y) << "angle: " << std::abs(err * 57.295));
+
 
         if(is_ok_pos_x && is_ok_pos_y && is_ok_angle){
             auto action_result_msg = rw_planning_msg::msg::ActionResult();

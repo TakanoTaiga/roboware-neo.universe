@@ -47,14 +47,14 @@ namespace mission_manager
             "input/action_result", 0, std::bind(&MissionManagerNode::action_result_subscriber_callback, this, std::placeholders::_1));
 
         st_timer_  = 
-            create_wall_timer(std::chrono::milliseconds(1000), std::bind(&MissionManagerNode::state_transition_callback, this));
+            create_wall_timer(std::chrono::milliseconds(100), std::bind(&MissionManagerNode::state_transition_callback, this));
 
     }
 
     void MissionManagerNode::state_transition_callback()
     {
         const auto info = state_transition_handler.state_transition_master();
-        RCLCPP_INFO_STREAM(logger, info.debug_str);
+        // RCLCPP_INFO_STREAM(logger, info.debug_str);
 
         if(state_transition_handler.is_end()){
             if(is_end_killallnode){
