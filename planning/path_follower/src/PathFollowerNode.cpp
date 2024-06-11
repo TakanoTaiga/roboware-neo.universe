@@ -32,6 +32,12 @@ namespace path_follower
         pub_action_result = create_publisher<rw_planning_msg::msg::ActionResult>(
             "output/action_result", 0);
 
+        pub_debug_current_angle = create_publisher<geometry_msgs::msg::Vector3>(
+            "debug/current_angle_rpy", 0);
+
+        pub_debug_control_angle = create_publisher<geometry_msgs::msg::Vector3>(
+            "debug/control_angle_rpy", 0);
+
         control_timer_ = create_wall_timer(
             std::chrono::milliseconds(10), std::bind(&PathFollowerNode::timer_callback, this));
     }
@@ -120,6 +126,8 @@ namespace path_follower
 
         pub_twist_->publish(twist_msg);
 
+        const auto rqy_current = rw_common_util::geometry::quat_to_euler(current_pose.pose.orientation);
+
         if(is_ok_pos_x && is_ok_pos_y && is_ok_angle){
             auto action_result_msg = rw_planning_msg::msg::ActionResult();
             action_result_msg.status.code = rw_common_msgs::msg::Status::SUCCESS;
@@ -128,7 +136,6 @@ namespace path_follower
             action_result_msg.task_id = task_id;
             pub_action_result->publish(action_result_msg);
 
-            const auto rqy_current = rw_common_util::geometry::quat_to_euler(current_pose.pose.orientation);
             std::ofstream log_file;
             log_file.open("/tmp/rw.log", std::ios::app);
             log_file << "result , " << std::to_string(current_position.x) << "," << std::to_string(current_position.y) << "," << std::to_string(rqy_current.yaw * 57.295779513) << std::endl;
@@ -136,6 +143,17 @@ namespace path_follower
             
             point_state_manager.setWait();
         }
+
+        //debug
+        auto vec3_current = geometry_msgs::msg::Vector3();
+        vec3_current.x = rqy_current.roll  * 57.295779513;
+        vec3_current.y = rqy_current.pitch * 57.295779513;
+        vec3_current.z = rqy_current.yaw   * 57.295779513;
+        pub_debug_current_angle->publish(vec3_current);
+
+        auto vec3_control = geometry_msgs::msg::Vector3();
+        vec3_current.z = twist_msg.angular.z;
+        pub_debug_control_angle->publish(vec3_current);
     }
 
 

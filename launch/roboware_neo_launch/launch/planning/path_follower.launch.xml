@@ -5,5 +5,7 @@
         <remap from="output/cmd_vel" to="/control/cmd_vel"/>
         <remap from="input/task_action" to="/planning/state_transition/task_action"/>
         <remap from="output/action_result" to="/planning/state_transition/action_result"/>
+        <remap from="debug/current_angle_rpy" to="/planning/debug/current_angle_rpy"/>
+        <remap from="debug/control_angle_rpy" to="/planning/debug/control_angle_rpy"/>
     </node>
 </launch>

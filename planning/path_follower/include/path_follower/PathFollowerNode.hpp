@@ -23,6 +23,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/twist.hpp>
+#include <geometry_msgs/msg/vector3.hpp>
 #include <nav_msgs/msg/path.hpp>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Matrix3x3.h>
@@ -53,6 +54,8 @@ namespace path_follower
 
         rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr pub_twist_;
         rclcpp::Publisher<rw_planning_msg::msg::ActionResult>::SharedPtr pub_action_result;
+        rclcpp::Publisher<geometry_msgs::msg::Vector3>::SharedPtr pub_debug_current_angle;
+        rclcpp::Publisher<geometry_msgs::msg::Vector3>::SharedPtr pub_debug_control_angle;
 
         rclcpp::TimerBase::SharedPtr control_timer_;
 

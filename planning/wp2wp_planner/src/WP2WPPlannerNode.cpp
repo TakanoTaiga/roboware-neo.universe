@@ -34,9 +34,9 @@ namespace wp2wp_planner
             "output/action_result", 0);
 
         pub_debug_area_ = create_publisher<visualization_msgs::msg::Marker>(
-            "visualize/debug/area",0);
+            "debug/area",0);
         pub_debug_robot_ = create_publisher<visualization_msgs::msg::Marker>(
-            "visualize/debug/robot",0);
+            "debug/robot",0);
 
         ply2d_map = polyload::polyload(
             declare_parameter<std::string>("map.plypath" , "kill")
