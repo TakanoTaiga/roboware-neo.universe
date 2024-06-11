@@ -8,6 +8,8 @@
         <remap from="output/global_plan_path" to="/planning/global/path"/>
         <remap from="input/task_action" to="/planning/state_transition/task_action"/>
         <remap from="output/action_result" to="/planning/state_transition/action_result"/>
+        <remap from="debug/area" to="/planning/debug/viz_vec_area"/>
+        <remap from="debug/robot" to="/planning/debug/viz_vec_robot"/>
 
         <param name="map.plypath" value="$(var map_polygon_path)"/>
         <param name="robot.plypath" value="$(var robot_polygon_path)"/>

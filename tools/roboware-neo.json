@@ -1,0 +1,538 @@
+{
+  "configById": {
+    "3D!zvs0j9": {
+      "cameraState": {
+        "perspective": true,
+        "distance": 6.27180502828676,
+        "phi": 46.815987170011205,
+        "thetaOffset": 61.61204268292764,
+        "targetOffset": [
+          1.8467014755112046,
+          -0.26780217220531044,
+          1.596209176208181e-18
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "fovy": 45,
+        "near": 0.5,
+        "far": 5000
+      },
+      "followMode": "follow-pose",
+      "scene": {
+        "syncCamera": false,
+        "meshUpAxis": "z_up"
+      },
+      "transforms": {},
+      "topics": {
+        "/path": {
+          "visible": true,
+          "lineWidth": 0.1
+        },
+        "/scan": {
+          "visible": true,
+          "colorField": "intensity",
+          "colorMode": "colormap",
+          "colorMap": "turbo",
+          "pointSize": 6
+        },
+        "/current_pose": {
+          "visible": true,
+          "type": "arrow",
+          "color": "#97fffdff"
+        },
+        "/output/path": {
+          "visible": true
+        },
+        "/output/current_pose": {
+          "visible": true,
+          "type": "arrow"
+        },
+        "/sensing/laser_scan": {
+          "visible": true,
+          "colorField": "intensity",
+          "colorMode": "colormap",
+          "colorMap": "turbo",
+          "pointSize": 4
+        },
+        "/localization/tailoc_ros2/path": {
+          "visible": true,
+          "lineWidth": 0.05
+        },
+        "/localization/tailoc_ros2/current_pose": {
+          "visible": true,
+          "type": "arrow"
+        },
+        "/sensing/realsense/aligned_depth_to_color/camera_info": {
+          "visible": false
+        },
+        "/sensing/realsense/depth/color/points": {
+          "visible": true,
+          "colorField": "rgb",
+          "colorMode": "rgb",
+          "colorMap": "turbo"
+        },
+        "/perception/debug/bbox3d/marker": {
+          "visible": true
+        },
+        "/perception/debug/ar_marker/image": {
+          "visible": false
+        }
+      },
+      "layers": {},
+      "publish": {
+        "type": "point",
+        "poseTopic": "/move_base_simple/goal",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {},
+      "followTf": "map"
+    },
+    "Image!2h1ukpw": {
+      "cameraState": {
+        "distance": 20,
+        "perspective": true,
+        "phi": 60,
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOffset": [
+          0,
+          0,
+          0
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "thetaOffset": 45,
+        "fovy": 45,
+        "near": 0.5,
+        "far": 5000
+      },
+      "followMode": "follow-pose",
+      "scene": {},
+      "transforms": {},
+      "topics": {
+        "/perception/debug/bbox3d/marker": {
+          "visible": true
+        },
+        "/sensing/realsense/depth/color/points": {
+          "visible": false,
+          "colorField": "rgb",
+          "colorMode": "rgb",
+          "colorMap": "turbo"
+        }
+      },
+      "layers": {},
+      "publish": {
+        "type": "point",
+        "poseTopic": "/move_base_simple/goal",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {
+        "imageTopic": "/sensing/realsense/color/image_raw",
+        "calibrationTopic": "/sensing/realsense/color/camera_info",
+        "annotations": {
+          "/perception/debug/rt_detr/image_markers": {
+            "visible": true
+          },
+          "/output/image_annotation": {
+            "visible": true
+          }
+        }
+      }
+    },
+    "Image!27l2gnv": {
+      "cameraState": {
+        "distance": 20,
+        "perspective": true,
+        "phi": 60,
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOffset": [
+          0,
+          0,
+          0
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "thetaOffset": 45,
+        "fovy": 45,
+        "near": 0.5,
+        "far": 5000
+      },
+      "followMode": "follow-pose",
+      "scene": {},
+      "transforms": {},
+      "topics": {},
+      "layers": {},
+      "publish": {
+        "type": "point",
+        "poseTopic": "/move_base_simple/goal",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {
+        "imageTopic": "/sensing/realsense/aligned_depth_to_color/image_raw",
+        "calibrationTopic": "/sensing/realsense/aligned_depth_to_color/camera_info",
+        "annotations": {
+          "/perception/debug/rt_detr/image_markers": {
+            "visible": true
+          },
+          "/output/image_annotation": {
+            "visible": true
+          }
+        },
+        "colorMode": "colormap"
+      }
+    },
+    "Image!2jzvgun": {
+      "cameraState": {
+        "distance": 20,
+        "perspective": true,
+        "phi": 60,
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOffset": [
+          0,
+          0,
+          0
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "thetaOffset": 45,
+        "fovy": 45,
+        "near": 0.5,
+        "far": 5000
+      },
+      "followMode": "follow-pose",
+      "scene": {},
+      "transforms": {},
+      "topics": {},
+      "layers": {},
+      "publish": {
+        "type": "point",
+        "poseTopic": "/move_base_simple/goal",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {
+        "imageTopic": "/perception/debug/ar_marker/image",
+        "calibrationTopic": "/sensing/realsense/aligned_depth_to_color/camera_info",
+        "annotations": {
+          "/perception/debug/rt_detr/image_markers": {
+            "visible": false
+          },
+          "/output/image_annotation": {
+            "visible": true
+          }
+        },
+        "colorMode": "colormap"
+      }
+    },
+    "3D!1g79n6d": {
+      "cameraState": {
+        "distance": 4.756537705104907,
+        "perspective": false,
+        "phi": 37.096270161288885,
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOffset": [
+          -2.7893129275973116,
+          1.591854693159864,
+          7.482690143025864e-18
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "thetaOffset": 0,
+        "fovy": 45,
+        "near": 0.5,
+        "far": 5000
+      },
+      "followMode": "follow-pose",
+      "followTf": "map",
+      "scene": {
+        "meshUpAxis": "z_up"
+      },
+      "transforms": {
+        "frame:base_link": {
+          "visible": false
+        },
+        "frame:mesh_robot": {
+          "visible": false
+        },
+        "frame:mesh_field": {
+          "visible": false
+        },
+        "frame:map": {
+          "visible": false
+        }
+      },
+      "topics": {
+        "/planning/global/path": {
+          "visible": true,
+          "type": "axis"
+        },
+        "/visualize/debug/robot": {
+          "visible": false,
+          "namespaces": {
+            "polygon": {
+              "visible": true
+            },
+            "robocon2024_robot": {
+              "visible": false
+            }
+          }
+        },
+        "/visualize/debug/field": {
+          "visible": false
+        },
+        "/visualize/debug/area": {
+          "visible": true
+        },
+        "/localization/current_pose": {
+          "visible": true
+        },
+        "/planning/debug/viz_vec_area": {
+          "visible": true
+        },
+        "/planning/debug/viz_vec_robot": {
+          "visible": true
+        }
+      },
+      "layers": {},
+      "publish": {
+        "type": "point",
+        "poseTopic": "/move_base_simple/goal",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {}
+    },
+    "Plot!3a1qgbr": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/planning/debug/control_angle_rpy.z",
+          "enabled": true,
+          "color": "#4e98e2"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": false,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "timestamp",
+      "sidebarDimension": 240,
+      "foxglovePanelTitle": "Angle Control"
+    },
+    "Plot!21nn9u8": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/planning/debug/current_angle_rpy.z",
+          "enabled": true,
+          "color": "#4e98e2"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": false,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "timestamp",
+      "sidebarDimension": 240,
+      "foxglovePanelTitle": "Angle Real"
+    },
+    "Plot!1uxoxzu": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/control/cmd_vel.linear.x",
+          "enabled": true,
+          "color": "#4e98e2"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": false,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "timestamp",
+      "sidebarDimension": 240,
+      "foxglovePanelTitle": "X Control"
+    },
+    "Plot!1cpwfyx": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/control/cmd_vel.linear.y",
+          "enabled": true,
+          "color": "#f5774d"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": false,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "timestamp",
+      "sidebarDimension": 240,
+      "foxglovePanelTitle": "Y Control"
+    },
+    "Plot!3k1ngif": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/localization/current_pose.pose.position.x",
+          "enabled": true,
+          "color": "#4e98e2"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": false,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "timestamp",
+      "sidebarDimension": 240,
+      "foxglovePanelTitle": "X Real"
+    },
+    "Plot!wetmo9": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/localization/current_pose.pose.position.y",
+          "enabled": true,
+          "color": "#f5774d"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": false,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "timestamp",
+      "sidebarDimension": 240,
+      "foxglovePanelTitle": "Y Real"
+    },
+    "Tab!25seuc1": {
+      "activeTabIdx": 1,
+      "tabs": [
+        {
+          "title": "Perception",
+          "layout": {
+            "first": "3D!zvs0j9",
+            "second": {
+              "first": "Image!2h1ukpw",
+              "second": {
+                "first": "Image!27l2gnv",
+                "second": "Image!2jzvgun",
+                "direction": "column"
+              },
+              "direction": "column",
+              "splitPercentage": 34.47867298578199
+            },
+            "direction": "row",
+            "splitPercentage": 74.59421312632321
+          }
+        },
+        {
+          "title": "Planning",
+          "layout": {
+            "first": {
+              "first": "3D!1g79n6d",
+              "second": {
+                "first": "Plot!3a1qgbr",
+                "second": "Plot!21nn9u8",
+                "direction": "column"
+              },
+              "direction": "column"
+            },
+            "second": {
+              "first": {
+                "first": "Plot!1uxoxzu",
+                "second": "Plot!1cpwfyx",
+                "direction": "column",
+                "splitPercentage": 50.756579807580295
+              },
+              "second": {
+                "first": "Plot!3k1ngif",
+                "second": "Plot!wetmo9",
+                "direction": "column"
+              },
+              "direction": "column",
+              "splitPercentage": 50.06501950585176
+            },
+            "direction": "row",
+            "splitPercentage": 55.04587155963303
+          }
+        }
+      ]
+    }
+  },
+  "globalVariables": {},
+  "userNodes": {},
+  "playbackConfig": {
+    "speed": 1
+  },
+  "layout": "Tab!25seuc1"
+}
