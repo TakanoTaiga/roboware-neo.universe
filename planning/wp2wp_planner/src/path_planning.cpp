@@ -121,10 +121,12 @@ namespace path_planning
 
             double interp_velocity;
             const auto v_max = 0.8;
+            const auto acc_length = 0.1 * length;
+
             if (progress < 0.1) {
-                interp_velocity = v_max * sigmoid(10.0 * (progress - 0.05));
+                interp_velocity = v_max * (progress / 0.1);
             } else if (progress > 0.9) {
-                interp_velocity = v_max * sigmoid(10.0 * (0.95 - progress));
+                interp_velocity = v_max * ((1.0 - progress) / 0.1);
             } else {
                 interp_velocity = v_max;
             }
