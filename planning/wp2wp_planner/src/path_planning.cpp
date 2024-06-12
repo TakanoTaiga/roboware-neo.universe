@@ -90,7 +90,7 @@ namespace path_planning
         const geometry_msgs::msg::PoseStamped& pose_current,
         const geometry_msgs::msg::PoseStamped& pose_goal,
         nav_msgs::msg::Path& result_path
-    ){
+    ) {
         const double ab_x = pose_goal.pose.position.x - pose_current.pose.position.x;
         const double ab_y = pose_goal.pose.position.y - pose_current.pose.position.y;
         const double length = std::sqrt(ab_x * ab_x + ab_y * ab_y);
@@ -98,7 +98,11 @@ namespace path_planning
         const auto current_rpy = rw_common_util::geometry::quat_to_euler(pose_current.pose.orientation);
         const auto goal_rpy = rw_common_util::geometry::quat_to_euler(pose_goal.pose.orientation);
 
-        for(double l = 0.0; l < length; l+= 0.1){
+        auto sigmoid = [](double x) {
+            return 1.0 / (1.0 + std::exp(-x));
+        };
+
+        for(double l = 0.0; l < length; l += 0.05) {
             const double unit_x = ab_x / length;
             const double unit_y = ab_y / length;
             const double c_x = pose_current.pose.position.x + unit_x * l;
@@ -111,12 +115,27 @@ namespace path_planning
                 yaw_diff += 2 * M_PI;
             }
 
-            const double interp_yaw = current_rpy.yaw + yaw_diff * (l / length);
+            double progress = l / length;
+            double smooth_progress = sigmoid(8.0 * (progress - 0.5));
+            const double interp_yaw = current_rpy.yaw + yaw_diff * smooth_progress;
+
+            double interp_velocity;
+            const auto v_max = 0.8;
+            const auto acc_length = 0.1 * length;
+
+            if (progress < 0.1) {
+                interp_velocity = v_max * (progress / 0.1);
+            } else if (progress > 0.9) {
+                interp_velocity = v_max * ((1.0 - progress) / 0.1);
+            } else {
+                interp_velocity = v_max;
+            }
 
             auto pose = geometry_msgs::msg::PoseStamped();
             pose.header = result_path.header;
             pose.pose.position.x = c_x;
             pose.pose.position.y = c_y;
+            pose.pose.position.z = interp_velocity;
             pose.pose.orientation = rw_common_util::geometry::euler_to_rosquat(0.0, 0.0, interp_yaw);
 
             result_path.poses.push_back(pose);
