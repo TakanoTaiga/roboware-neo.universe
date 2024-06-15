@@ -1,0 +1,14 @@
+<launch>    
+    <node pkg="mcu_ros_driver" exec="mcu_ros_driver_node" >
+        <remap from="output/udp_packet" to="/control/mcu/send_udp_packet"/>
+        <remap from="output/device_list" to="/control/mcu/device_list"/>
+        <remap from="input/udp_packet" to="/control/mcu/receive_udp_packet"/>
+        <remap from="input/mcu_order" to="/control/mcu/order"/>
+    </node>
+    <node pkg="ros_udp_python_driver" exec="udp_receive" >
+        <remap from="output/udp_packet_binary" to="/control/mcu/receive_udp_packet"/>
+    </node>
+    <node pkg="ros_udp_python_driver" exec="udp_send" >
+        <remap from="input/udp_packet_binary" to="/control/mcu/send_udp_packet"/>
+    </node>
+</launch>

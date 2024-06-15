@@ -24,7 +24,7 @@ namespace mcu_ros_driver
         pub_device_list_ = create_publisher<rw_common_msgs::msg::MCUDeviceLists>(
             "output/device_list", 0);
         sub_udp_packet = create_subscription<rw_common_msgs::msg::UDPPacketBinary>(
-            "udp_uint8", 0, std::bind(&mcu_ros_driver_node::udp_subscriber_callback, this, std::placeholders::_1));
+            "input/udp_packet", 0, std::bind(&mcu_ros_driver_node::udp_subscriber_callback, this, std::placeholders::_1));
         sub_mcu_device = create_subscription<rw_common_msgs::msg::MCUDeviceLists>(
             "input/mcu_order", 0, std::bind(&mcu_ros_driver_node::mcu_subscriber_callback, this, std::placeholders::_1));
 
