@@ -10,3 +10,5 @@
 
     frameid.map: map
     frameid.base_link: base_link
+
+    enable_marker_id.5: true

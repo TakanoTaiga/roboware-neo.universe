@@ -23,10 +23,14 @@
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <rw_common_util/geometry.hpp>
+
+#include "rw_simple_planning_simulator/planning_simulator_util.hpp"
+#include "rw_simple_planning_simulator/ar_marker_simulation.hpp"
 
 namespace rw_simple_planning_simulator
 {
@@ -38,25 +42,26 @@ namespace rw_simple_planning_simulator
     private:
         rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr sub_twist_;
         rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_pose_;
+        rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_debug_;
         std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
         rclcpp::TimerBase::SharedPtr tf_timer_;
 
-        std::vector<geometry_msgs::msg::Twist> twist_history;
+        std::vector<geometry_msgs::msg::Twist> twist_history_;
 
         geometry_msgs::msg::Twist twist_msg;
         geometry_msgs::msg::TransformStamped tf_stamp;
-        double roll{0.0};
+        double roll;
 
         double transform_noise_strength;
-        double transform_noise_sd;
         double rotation_noise_strength;
         double rotation_tr_noise_strength;
-        double rotation_noise_sd;
 
         std::random_device seed_gen;
         std::default_random_engine engine;
-        std::normal_distribution<> dist_tf;
-        std::normal_distribution<> dist_4r;
+        std::normal_distribution<> dist_transform;
+        std::normal_distribution<> dist_rotation;
+
+        ar_marker_simulation armkr_sim;
 
         void timer_callback();
         void subscriber_callback(const geometry_msgs::msg::Twist& msg);

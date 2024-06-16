@@ -154,6 +154,18 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /planning/debug/viz_vec_robot
       Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: SimulatorDebug
+      Namespaces:
+        polygon: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /planning/debug/simulator
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -200,7 +212,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/ThirdPersonFollower
-      Distance: 6.331827163696289
+      Distance: 10.34618854522705
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
