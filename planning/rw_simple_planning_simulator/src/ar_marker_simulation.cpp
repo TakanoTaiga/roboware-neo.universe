@@ -78,7 +78,7 @@ namespace rw_simple_planning_simulator
 
         boost::geometry::exterior_ring(ar_maker_model) = boost::assign::list_of<point_2d>(-0.05, 0)(0.05, 0);
 
-        start_time = std::chrono::high_resolution_clock::now();
+        start_time = std::chrono::system_clock::now();
     }
 
     void ar_marker_simulation::set_param(const std::string& path, const int& id)
@@ -102,7 +102,7 @@ namespace rw_simple_planning_simulator
             std::unique_ptr<tf2_ros::TransformBroadcaster>& tf_broadcaster, 
             const builtin_interfaces::msg::Time& time
     ){
-        const auto end_time = std::chrono::high_resolution_clock::now();
+        const auto end_time = std::chrono::system_clock::now();
         auto sec = (double)(std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count()) / 1000;
 
         auto arry_msg = visualization_msgs::msg::MarkerArray();
