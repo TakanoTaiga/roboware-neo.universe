@@ -1,9 +1,12 @@
 <launch>  
     <arg name="simple_planning_simulator_param_path" default="$(find-pkg-share roboware_neo_launch)/config/simple_palnning_simulator.pram.yaml"/>
+    <arg name="marker_param_id5" default="$(find-pkg-share roboware_neo_launch)/config/p-sim-ar/id.5.csv"/>
 
-    <node pkg="rw_simple_planning_simulator" exec="rw_simple_planning_simulator_node" >
+    <node pkg="rw_simple_planning_simulator" exec="rw_simple_planning_simulator_node" output="screen" >
         <remap from="input/cmd_vel" to="/control/cmd_vel"/>
         <remap from="output/pose" to="/localization/current_pose"/>
+        <remap from="output/debug" to="/planning/debug/simulator"/>
         <param from="$(var simple_planning_simulator_param_path)"/>
+        <param name="armarker.5" value="$(var marker_param_id5)"/>
     </node>
 </launch>
