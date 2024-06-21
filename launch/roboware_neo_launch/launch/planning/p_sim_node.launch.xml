@@ -6,6 +6,7 @@
         <remap from="input/cmd_vel" to="/control/cmd_vel"/>
         <remap from="output/pose" to="/localization/current_pose"/>
         <remap from="output/debug" to="/planning/debug/simulator"/>
+        <remap from="output/marker" to="/perception/ar_marker/marker"/>
         <param from="$(var simple_planning_simulator_param_path)"/>
         <param name="armarker.5" value="$(var marker_param_id5)"/>
     </node>

@@ -17,6 +17,11 @@ rclcpp_components_register_node(target_mission_manager
   EXECUTABLE mission_manager_node
 )
 
+rclcpp_components_register_node(target_mission_manager
+  PLUGIN "mission_manager::ARMarkerStrategyNode"
+  EXECUTABLE ar_marker_strategy_node
+)
+
 ament_auto_package(
   INSTALL_TO_SHARE
 )

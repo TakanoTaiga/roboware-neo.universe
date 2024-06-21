@@ -29,6 +29,4 @@ int32 id
 geometry_msgs/PoseStamped pose
 
 # Only used if the type specified has some use for them (eg. FIND etc.)
-int32[] object_ids
-string[] object_labels
-
+rw_planning_msg/FindObject[] object

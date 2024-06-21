@@ -12,14 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Header for timestamp and frame id.
-std_msgs/Header header
-
-rw_common_msgs/Status status
-int32 task_id
-
-# Only used if the type specified has some use for them (eg. SETPOSE, ADDPOSE etc.)
-geometry_msgs/PoseStamped result_pose
-
-# Only used if the type specified has some use for them (eg. FIND etc.)
-rw_planning_msg/FindObject[] result_object
+string object_type
+string object_name
+geometry_msgs/TransformStamped[] pose

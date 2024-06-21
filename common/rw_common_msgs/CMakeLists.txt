@@ -12,7 +12,8 @@ endif()
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   ${_all_msg_files}
-  ADD_LINTER_TESTS
+  DEPENDENCIES
+    geometry_msgs
 )
 
 ament_auto_package()

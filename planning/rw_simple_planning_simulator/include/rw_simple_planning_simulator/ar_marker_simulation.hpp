@@ -20,10 +20,11 @@
 #include <fstream>
 #include <sstream>
 
-#include <tf2_ros/transform_broadcaster.h>
+#include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
-#include <rclcpp/rclcpp.hpp>
+#include <rw_common_msgs/msg/transform_array.hpp>
+#include <tf2_ros/transform_broadcaster.h>
 #include <rw_common_util/geometry.hpp>
 
 #include <boost/geometry/geometry.hpp>
@@ -56,6 +57,7 @@ namespace rw_simple_planning_simulator
         void set_current_pose(const geometry_msgs::msg::Pose& pose);
         visualization_msgs::msg::MarkerArray pub_pose(
             std::unique_ptr<tf2_ros::TransformBroadcaster>& tf_broadcaster, 
+            rclcpp::Publisher<rw_common_msgs::msg::TransformArray>::SharedPtr& pub_marker_realtime_,
             const builtin_interfaces::msg::Time& time
         );
         void set_param(const std::string& path, const int& id);

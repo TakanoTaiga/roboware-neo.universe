@@ -74,7 +74,6 @@ namespace path_follower
 
         if (distances.empty()) {
             distances.emplace_back(0.0, current_path.poses.size() - 1);
-            // distances = near_distances;
         }
         const auto target_iter = std::min_element(distances.begin(), distances.end());
 
@@ -127,9 +126,6 @@ namespace path_follower
         pub_twist_->publish(twist_msg);
 
         const auto rqy_current = rw_common_util::geometry::quat_to_euler(current_pose.pose.orientation);
-
-
-        RCLCPP_INFO_STREAM(get_logger(), "x: " << std::abs(delta_position.x) << "y: " << std::abs(delta_position.y) << "angle: " << std::abs(err * 57.295));
 
 
         if(is_ok_pos_x && is_ok_pos_y && is_ok_angle){

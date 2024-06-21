@@ -38,7 +38,7 @@ namespace mission_manager
     struct node_str {
         std::string name;
         std::string infomation;
-        std::vector<std::string> connections;
+        std::vector<std::pair<std::string, std::string>> connections; // connection , if state
         uint32_t id;
     };
 
@@ -56,13 +56,20 @@ namespace mission_manager
             std::map<state_transition_label, state_transition_label> allowed_transitions;
     };
 
+    enum class if_statement {
+        True,
+        False,
+        Unknown
+    };
+
     struct node_bin{
         uint32_t id;
         std::string strategy_label;
         std::string mission_infomation;
         State state;
         bool now_transitioning;
-        std::vector<uint32_t> connections;
+        if_statement if_result;
+        std::vector<std::pair<uint32_t, if_statement>> connections;
     };
 
     struct point3{

@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <sstream>
 #include <iostream>
+#include <cctype>
 
 #include "mission_manager/type.hpp"
 
@@ -28,12 +29,16 @@ namespace mission_manager
     {
         public:
             void erase_space(std::string& input);
+            void to_lower_case(std::string& str);
             bool get_information(const std::string& input, std::string& result);
             std::string get_key(const std::string& str_data);
             std::string get_arrow(const std::string& str_data);
+            if_statement str_to_ifstatement(const std::string& str_data);
 
             std::string str_graph_tostring(mission_graph_str graph);
             std::string bin_graph_tostring(mission_graph_bin graph);
+
+            std::string enum_to_string(if_statement input);
 
         private:
             static bool isSpace(unsigned char c);
