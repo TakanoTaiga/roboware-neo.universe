@@ -47,6 +47,8 @@ namespace mission_manager
         {
             if (!node.now_transitioning) continue;
 
+            node.if_result = if_statement::Unknown;
+
             for (const auto& strategy : strategies)
             {
                 if (strategy->is_match_strategy_label(node.strategy_label))
@@ -66,8 +68,9 @@ namespace mission_manager
         if(node_graph[id].state.get_state() != state_transition_label::end) return;
 
         node_graph[id].now_transitioning = false;
-        for(const auto& start_node_id : node_graph[id].connections)
+        for(const auto& [start_node_id, ifstate] : node_graph[id].connections)
         {
+            if(ifstate != node_graph[id].if_result){ continue; }
             node_graph[start_node_id].now_transitioning = true;
             node_graph[start_node_id].state.change_state(state_transition_label::start);
         }

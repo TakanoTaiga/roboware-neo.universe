@@ -73,7 +73,7 @@ namespace mission_manager
                 const auto formatted_arrow = get_arrow(arrow);
 
                 graph_str[source_key].name = source_key;
-                graph_str[source_key].connections.push_back(target_key);
+                graph_str[source_key].connections.push_back(std::make_pair(target_key, formatted_arrow));
 
                 graph_str[target_key].name = target_key;
 
@@ -103,9 +103,11 @@ namespace mission_manager
             result_mgraph[pair.second.id].now_transitioning = false;
 
             // set connections
-            for (const auto &connection : pair.second.connections)
+            for (const auto &[connection , ifstate] : pair.second.connections)
             {
-                result_mgraph[pair.second.id].connections.push_back(graph_str[connection].id);
+                // std::cout << ifstate << std::endl;
+                result_mgraph[pair.second.id].connections.push_back(
+                   std::make_pair((graph_str[connection].id), str_to_ifstatement(ifstate)));
             }
 
             result_mgraph[pair.second.id].strategy_label = pair.second.infomation;

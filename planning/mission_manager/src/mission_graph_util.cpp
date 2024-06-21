@@ -16,14 +16,21 @@
 
 namespace mission_manager
 {
+    // private
     bool GraphUtil::isSpace(unsigned char c)
     {
         return std::isspace(c);
     }
 
+    // public
     void GraphUtil::erase_space(std::string &input)
     {
         input.erase(std::remove_if(input.begin(), input.end(), isSpace), input.end());
+    }
+
+    void GraphUtil::to_lower_case(std::string& str) {
+        std::transform(str.begin(), str.end(), str.begin(),
+                    [](unsigned char c) { return std::tolower(c); });
     }
 
     auto GraphUtil::get_information(const std::string &input, std::string &result) -> bool
@@ -59,15 +66,36 @@ namespace mission_manager
         return str;
     }
 
+    if_statement GraphUtil::str_to_ifstatement(const std::string& str_data)
+    {
+        auto data = str_data;
+        erase_space(data);
+        to_lower_case(data);
+
+        std::cout << "str_to_ifstatement: " << data  << std::endl;
+
+        if(data.find("true") != std::string::npos)
+        {
+            return if_statement::True;
+        }
+            
+        if(data.find("false") != std::string::npos)
+        {
+            return if_statement::False;
+        }
+
+        return if_statement::Unknown;
+    }
+
     std::string GraphUtil::str_graph_tostring(mission_graph_str graph)
     {
         std::string out_show = "show_str_graph\n";
         for (const auto &pair : graph)
         {
             out_show +=  pair.first + "(" + pair.second.infomation + ")-" + std::to_string(pair.second.id) + " connects to: ";
-            for (const auto &conn : pair.second.connections)
+            for (const auto &[connection, ifstate] : pair.second.connections)
             {
-                out_show += conn + "; ";
+                out_show += "(" + connection + ", " + ifstate + "), ";
             }
             out_show += "\n";
         }
@@ -81,12 +109,22 @@ namespace mission_manager
         for (const auto &pair : graph)
         {
             out_show += std::to_string(pair.second.id) + "-" + pair.second.strategy_label + " connects to: ";
-            for (const auto &conn : pair.second.connections)
+            for (const auto &[connection, ifstate] : pair.second.connections)
             {
-                out_show += std::to_string(conn) + "; ";
+                out_show += std::to_string(connection) + "(" + enum_to_string(ifstate) +"); ";
             }
             out_show += "\n";
         }
         return out_show;
+    }
+
+    std::string GraphUtil::enum_to_string(if_statement input)
+    {
+        if(input == if_statement::True)
+            return "true";
+        else if(input == if_statement::False)
+            return "false";
+        else
+            return "unknown";
     }
 } // namespace mission_manager

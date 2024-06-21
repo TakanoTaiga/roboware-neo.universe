@@ -99,13 +99,15 @@ namespace rw_simple_planning_simulator
     }
 
     visualization_msgs::msg::MarkerArray ar_marker_simulation::pub_pose(
-            std::unique_ptr<tf2_ros::TransformBroadcaster>& tf_broadcaster, 
+            std::unique_ptr<tf2_ros::TransformBroadcaster>& tf_broadcaster,
+            rclcpp::Publisher<rw_common_msgs::msg::TransformArray>::SharedPtr& pub_marker_realtime_,
             const builtin_interfaces::msg::Time& time
     ){
         const auto end_time = std::chrono::system_clock::now();
         auto sec = (double)(std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count()) / 1000;
 
         auto arry_msg = visualization_msgs::msg::MarkerArray();
+        auto marker_msg = rw_common_msgs::msg::TransformArray();
 
         for(const auto& [id, data] : param_data)
         {
@@ -148,14 +150,19 @@ namespace rw_simple_planning_simulator
 
             transformStamped.header.stamp = time;
             transformStamped.header.frame_id = "map";
-            transformStamped.child_frame_id = "marker_" + std::to_string(id);
+            transformStamped.child_frame_id = std::to_string(id);
             transformStamped.transform.translation.x = x;
             transformStamped.transform.translation.y = y;
             transformStamped.transform.translation.z =  0.5;
             transformStamped.transform.rotation = rw_common_util::geometry::euler_to_rosquat(0.0, 0.0, angle);
             tf_broadcaster->sendTransform(transformStamped);
             arry_msg.markers.push_back(message);
+
+            marker_msg.transforms.push_back(transformStamped);
         }
+
+        pub_marker_realtime_->publish(marker_msg);
+
         return arry_msg;
     }
 

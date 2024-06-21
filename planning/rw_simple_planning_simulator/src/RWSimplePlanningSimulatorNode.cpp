@@ -45,9 +45,12 @@ namespace rw_simple_planning_simulator
         pub_pose_ = create_publisher<geometry_msgs::msg::PoseStamped>(
             "output/pose", 10);
 
+        pub_marker_realtime_ = create_publisher<rw_common_msgs::msg::TransformArray>(
+            "output/marker", 10);
+
         pub_debug_ = create_publisher<visualization_msgs::msg::MarkerArray>(
             "output/debug", 10);
-    
+
         tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
         tf_timer_ = create_wall_timer(std::chrono::milliseconds(20), std::bind(&RWSimplePlanningSimulatorNode::timer_callback, this));
@@ -94,7 +97,7 @@ namespace rw_simple_planning_simulator
 
         armkr_sim.set_current_pose(pose_msg.pose);
 
-        auto viz_msg = armkr_sim.pub_pose(tf_broadcaster_, now());
+        auto viz_msg = armkr_sim.pub_pose(tf_broadcaster_, pub_marker_realtime_, now());
         viz_msg.markers.push_back(polygon_to_ros("map", now(), armkr_sim.detection_area, 1));
         pub_debug_->publish(viz_msg);
     }

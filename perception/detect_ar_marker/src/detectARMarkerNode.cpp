@@ -82,7 +82,7 @@ namespace detect_ar_marker
 
               transformStamped.header.stamp = now();
               transformStamped.header.frame_id = msg->header.frame_id;
-              transformStamped.child_frame_id = "marker_" + std::to_string(id);
+              transformStamped.child_frame_id = std::to_string(id);
               transformStamped.transform.translation.x = singleTvecs[0][0];
               transformStamped.transform.translation.y = singleTvecs[0][1];
               transformStamped.transform.translation.z = singleTvecs[0][2];

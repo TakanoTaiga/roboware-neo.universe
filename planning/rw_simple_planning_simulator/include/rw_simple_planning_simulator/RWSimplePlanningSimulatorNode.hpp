@@ -24,6 +24,7 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
+#include <rw_common_msgs/msg/transform_array.hpp>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Matrix3x3.h>
@@ -42,6 +43,7 @@ namespace rw_simple_planning_simulator
     private:
         rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr sub_twist_;
         rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_pose_;
+        rclcpp::Publisher<rw_common_msgs::msg::TransformArray>::SharedPtr pub_marker_realtime_;
         rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_debug_;
         std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
         rclcpp::TimerBase::SharedPtr tf_timer_;

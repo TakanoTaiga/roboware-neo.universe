@@ -17,9 +17,11 @@
 
 #include <string>
 #include <map>
+#include <tuple>
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <chrono>
 
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <rw_planning_msg/msg/task_action.hpp>
@@ -56,19 +58,16 @@ namespace strategy_module
         point3 infomation_to_point3(const std::string& setpose_cmd);
     };
 
-    // class AddPoseStrategy : public RWStrategy
-    // {
-    // public:
-         
-    // private:
-    // };
-
-    // class FindStrategy : public RWStrategy
-    // {
-    // public:
-         
-    // private:
-    // };
+    class FindStrategy : public RWStrategy
+    {
+    public:
+        FindStrategy();
+        void update(node_bin& node, debug_info& info) override;
+    private:
+        std::tuple<std::string, std::string, std::string> infomation_to_findorder(const std::string& findcmd);
+        std::string param_type, param_name, param_var;
+        std::chrono::system_clock::time_point start_time;
+    };
 }
 } // namespace mission_manager
 
