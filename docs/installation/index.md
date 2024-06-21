@@ -2,7 +2,7 @@
 
 ## Prerequisites
 - OS
-    - Ubuntu 22.04 LTS
+    - Ubuntu 22.04 LTS or macOS Sonoma
 - ROS
     - ROS 2 Humble
 - Git
@@ -50,10 +50,18 @@ sudo apt install git curl python3-pip
     cd ~/ros_ws/src
     git clone https://github.com/hakoroboken/roboware-neo.universe.git
     cd ~/ros_ws
-    rosdep install -y --from-paths src --ignore-src --skip-keys=OpenCV --rosdistro $ROS_DISTRO
+    rosdep install -y --from-paths src --ignore-src --skip-keys=OpenCV --skip-keys=PCL --rosdistro humble
     ```
 6. Compile
 
     ```bash
     colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
+    ```
+
+## Additional Component Setup
+
+1. Install Foxglove and MCAP.
+
+    ```bash
+    sudo apt install ros-humble-foxglove-bridge ros-humble-rosbag2-storage-mcap
     ```

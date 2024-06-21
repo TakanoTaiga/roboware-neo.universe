@@ -19,7 +19,7 @@ theme:
   icon:
     logo: material/file-document
 
-  language: ja
+  language: en
   palette:
     - scheme: default
       primary: white
