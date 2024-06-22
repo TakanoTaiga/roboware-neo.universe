@@ -68,6 +68,16 @@ namespace strategy_module
         std::string param_type, param_name, param_var;
         std::chrono::system_clock::time_point start_time;
     };
+
+    class WaitStrategy : public RWStrategy
+    {
+    public:
+        WaitStrategy();
+        void update(node_bin& node, debug_info& info) override;
+    private:
+        std::chrono::system_clock::time_point start_time;
+        int64_t infomation_to_millsec(const std::string& wait_cmd);
+    };
 }
 } // namespace mission_manager
 

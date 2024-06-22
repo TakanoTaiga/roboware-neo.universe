@@ -194,5 +194,53 @@ namespace mission_manager
             return std::make_tuple(param_type, param_name, param_var);
         }
 
+        WaitStrategy::WaitStrategy()
+        {
+            strategy_label = "WAIT";
+        }
+
+        void WaitStrategy::update(node_bin& node, debug_info& info)
+        {
+            if(node.state.get_state() == state_transition_label::start)
+            {
+                start_time = std::chrono::system_clock::now();
+                node.state.change_state(state_transition_label::working_in_progress);
+            }
+            else if(node.state.get_state() == state_transition_label::working_in_progress)
+            {
+                const auto end_time = std::chrono::system_clock::now();
+                const auto millsec = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+                const auto param_time = infomation_to_millsec(node.mission_infomation);
+                if(millsec < param_time){return;}
+                node.state.change_state(state_transition_label::end);
+            }
+        }
+
+        int64_t WaitStrategy::infomation_to_millsec(const std::string& wait_cmd)
+        {
+            std::string param_time;
+            std::istringstream iss(wait_cmd.substr(wait_cmd.find(':') + 1));
+            std::string token;
+
+            std::map<std::string, std::string*> coord_map = {
+                {"millsec", &param_time}
+            };
+
+            while (std::getline(iss, token, ',')) {
+                size_t pos = token.find('=');
+                if (pos != std::string::npos) {
+                    std::string key = token.substr(0, pos);
+                    std::string value = token.substr(pos + 1);
+                    auto it = coord_map.find(key);
+                    if (it != coord_map.end()) {
+                        *(it->second) = value;
+                    } else {
+                        throw std::runtime_error("Unknown Key Error: " + key);
+                    }
+                }
+            }
+
+            return std::stoll(param_time);
+        }
     }
 }
