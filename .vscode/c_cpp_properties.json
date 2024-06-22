@@ -4,14 +4,25 @@
             "name": "Linux",
             "includePath": [
                 "${default}",
-                "/home/taiga/ros_ws/install/include/**",
-                "/home/taiga/ros_ws/src/**"
+                "${workspaceFolder}/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c17",
             "cppStandard": "gnu++17",
             "intelliSenseMode": "linux-gcc-x64"
+        },
+        {
+            "name": "Mac",
+            "includePath": [
+                "${default}",
+                "${workspaceFolder}/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "macos-clang-x64"
         }
     ],
     "version": 4
