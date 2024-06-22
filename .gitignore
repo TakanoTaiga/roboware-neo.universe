@@ -1,3 +1,7 @@
 *.pyc
 *.pt
 *.DS_Store
+build/
+install/
+log/
+rosbag*/
