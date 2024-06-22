@@ -127,4 +127,58 @@ namespace mission_manager
         else
             return "unknown";
     }
+}
+
+namespace mission_util
+{
+    info_decode::info_decode(const std::string& infomation)
+    {
+        infomation_ = infomation;
+    }
+
+    std::map<std::string, std::string> info_decode::decode_str()
+    {
+        std::string param_type, param_name, param_var;
+        std::istringstream iss(infomation_.substr(infomation_.find(':') + 1));
+        std::string token;
+
+        std::map<std::string, std::string> results;
+
+        while (std::getline(iss, token, ',')) {
+            size_t pos = token.find('=');
+            if (pos != std::string::npos) {
+                std::string key = token.substr(0, pos);
+                std::string value = token.substr(pos + 1);
+                results[key] = value;
+            }
+        }
+
+        return results;
+    }
+    
+    std::map<std::string, double> info_decode::decode_double()
+    {
+        std::map<std::string, double> results;
+
+        const auto data_str = decode_str();
+        for(const auto& [key, value] : data_str)
+        {
+            results[key] = std::stod(value);
+        }
+
+        return results;
+    }
+
+    std::map<std::string, int> info_decode::decode_int()
+    {
+        std::map<std::string, int> results;
+
+        const auto data_str = decode_str();
+        for(const auto& [key, value] : data_str)
+        {
+            results[key] = std::stoi(value);
+        }
+
+        return results;
+    }
 } // namespace mission_manager

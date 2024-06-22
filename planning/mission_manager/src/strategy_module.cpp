@@ -49,10 +49,14 @@ namespace mission_manager
 
         void SetPoseStrategy::update(node_bin& node, debug_info& info)
         {
+            auto decoded_info_double = mission_util::info_decode(node.mission_infomation).decode_double();
+            const auto point_x = decoded_info_double["x"];
+            const auto point_y = decoded_info_double["y"];
+            const auto point_z = decoded_info_double["z"];
+
             if(node.state.get_state() == state_transition_label::start)
             {
-                const auto p3 = infomation_to_point3(node.mission_infomation);
-                info.debug_str = std::to_string(p3.x) + "," + std::to_string(p3.y) + "," + std::to_string(p3.z);
+                info.debug_str = std::to_string(point_x) + "," + std::to_string(point_y) + "," + std::to_string(point_z);
 
                 auto pub_msg = rw_planning_msg::msg::TaskAction();
                 pub_msg.header.frame_id = "map";
@@ -60,11 +64,11 @@ namespace mission_manager
                 pub_msg.task = rw_planning_msg::msg::TaskAction::SETPOSE;
                 pub_msg.id = node.id;
 
-                pub_msg.pose.pose.position.x = p3.x;
-                pub_msg.pose.pose.position.y = p3.y;
+                pub_msg.pose.pose.position.x = point_x;
+                pub_msg.pose.pose.position.y = point_y;
                 pub_msg.pose.pose.position.z = 0.0;
 
-                const auto rad = p3.z * 0.017453292519;
+                const auto rad = point_z * 0.017453292519;
                 pub_msg.pose.pose.orientation = rw_common_util::geometry::euler_to_rosquat(0.0, 0.0, rad);
 
                 pub_task_action_->publish(pub_msg);
@@ -76,43 +80,13 @@ namespace mission_manager
                 info.debug_str = "working in progress";
                 if(action_result.status.code == rw_common_msgs::msg::Status::SUCCESS && action_result.status.success)
                 {
-                    const auto p3 = infomation_to_point3(node.mission_infomation);
                     node.state.change_state(state_transition_label::end);
                     std::ofstream log_file;
                     log_file.open("/tmp/rw.log", std::ios::app);
-                    log_file << "target , " << std::to_string(p3.x) << "," << std::to_string(p3.y) << "," << std::to_string(p3.z) << std::endl;
+                    log_file << "target , " << std::to_string(point_x) << "," << std::to_string(point_y) << "," << std::to_string(point_z) << std::endl;
                     log_file.close();
                 }
             }
-        }
-
-        point3 SetPoseStrategy::infomation_to_point3(const std::string& setpose_cmd)
-        {
-            point3 result_point;
-            std::istringstream iss(setpose_cmd.substr(setpose_cmd.find(':') + 1));
-            std::string token;
-
-            std::map<std::string, double*> coord_map = {
-                {"x", &result_point.x},
-                {"y", &result_point.y},
-                {"z", &result_point.z}
-            };
-
-            while (std::getline(iss, token, ',')) {
-                size_t pos = token.find('=');
-                if (pos != std::string::npos) {
-                    std::string key = token.substr(0, pos);
-                    double value = std::stod(token.substr(pos + 1));
-                    auto it = coord_map.find(key);
-                    if (it != coord_map.end()) {
-                        *(it->second) = value;
-                    } else {
-                        throw std::runtime_error("Unknown Key Error: " + key);
-                    }
-                }
-            }
-        
-            return result_point;
         }
 
         FindStrategy::FindStrategy()
@@ -122,9 +96,13 @@ namespace mission_manager
 
         void FindStrategy::update(node_bin& node, debug_info& info)
         {
+            auto decoded_info_double = mission_util::info_decode(node.mission_infomation).decode_str();
+            const auto param_type = decoded_info_double["type"];
+            const auto param_name = decoded_info_double["name"];
+            const auto param_var  = decoded_info_double["var"];
+
             if(node.state.get_state() == state_transition_label::start)
             {
-                std::tie(param_type, param_name, param_var) = infomation_to_findorder(node.mission_infomation);
                 std::cout << param_type << ", " << param_name << ", " << param_var << std::endl;
 
                 auto pub_msg = rw_planning_msg::msg::TaskAction();
@@ -165,35 +143,6 @@ namespace mission_manager
             }
         }
 
-        std::tuple<std::string, std::string, std::string> FindStrategy::infomation_to_findorder(const std::string& findcmd)
-        {
-            std::string param_type, param_name, param_var;
-            std::istringstream iss(findcmd.substr(findcmd.find(':') + 1));
-            std::string token;
-
-            std::map<std::string, std::string*> coord_map = {
-                {"type", &param_type},
-                {"name", &param_name},
-                {"var", &param_var}
-            };
-
-            while (std::getline(iss, token, ',')) {
-                size_t pos = token.find('=');
-                if (pos != std::string::npos) {
-                    std::string key = token.substr(0, pos);
-                    std::string value = token.substr(pos + 1);
-                    auto it = coord_map.find(key);
-                    if (it != coord_map.end()) {
-                        *(it->second) = value;
-                    } else {
-                        throw std::runtime_error("Unknown Key Error: " + key);
-                    }
-                }
-            }
-
-            return std::make_tuple(param_type, param_name, param_var);
-        }
-
         WaitStrategy::WaitStrategy()
         {
             strategy_label = "WAIT";
@@ -201,6 +150,9 @@ namespace mission_manager
 
         void WaitStrategy::update(node_bin& node, debug_info& info)
         {
+            auto decoded_info_double = mission_util::info_decode(node.mission_infomation).decode_int();
+            const auto param_time = decoded_info_double["millsec"];
+
             if(node.state.get_state() == state_transition_label::start)
             {
                 start_time = std::chrono::system_clock::now();
@@ -210,37 +162,9 @@ namespace mission_manager
             {
                 const auto end_time = std::chrono::system_clock::now();
                 const auto millsec = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
-                const auto param_time = infomation_to_millsec(node.mission_infomation);
                 if(millsec < param_time){return;}
                 node.state.change_state(state_transition_label::end);
             }
-        }
-
-        int64_t WaitStrategy::infomation_to_millsec(const std::string& wait_cmd)
-        {
-            std::string param_time;
-            std::istringstream iss(wait_cmd.substr(wait_cmd.find(':') + 1));
-            std::string token;
-
-            std::map<std::string, std::string*> coord_map = {
-                {"millsec", &param_time}
-            };
-
-            while (std::getline(iss, token, ',')) {
-                size_t pos = token.find('=');
-                if (pos != std::string::npos) {
-                    std::string key = token.substr(0, pos);
-                    std::string value = token.substr(pos + 1);
-                    auto it = coord_map.find(key);
-                    if (it != coord_map.end()) {
-                        *(it->second) = value;
-                    } else {
-                        throw std::runtime_error("Unknown Key Error: " + key);
-                    }
-                }
-            }
-
-            return std::stoll(param_time);
         }
     }
 }

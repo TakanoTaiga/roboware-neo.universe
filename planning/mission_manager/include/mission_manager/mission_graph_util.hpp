@@ -20,6 +20,7 @@
 #include <sstream>
 #include <iostream>
 #include <cctype>
+#include <map>
 
 #include "mission_manager/type.hpp"
 
@@ -44,5 +45,21 @@ namespace mission_manager
             static bool isSpace(unsigned char c);
     };
 } // namespace mission_manager
+
+namespace mission_util
+{
+    class info_decode
+    {
+    public:
+        info_decode(const std::string& infomation);
+        std::map<std::string, std::string> decode_str();
+        std::map<std::string, double> decode_double();
+        std::map<std::string, int> decode_int();
+    private:
+        std::string infomation_;
+    };
+} // namespace name
+
+
 
 #endif

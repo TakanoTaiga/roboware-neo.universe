@@ -30,6 +30,7 @@
 #include <rw_common_util/geometry.hpp>
 
 #include "mission_manager/type.hpp"
+#include "mission_manager/mission_graph_util.hpp"
 
 namespace mission_manager
 {
@@ -54,8 +55,6 @@ namespace strategy_module
     public:
         SetPoseStrategy();
         void update(node_bin& node, debug_info& info) override;
-    private:
-        point3 infomation_to_point3(const std::string& setpose_cmd);
     };
 
     class FindStrategy : public RWStrategy
@@ -64,8 +63,6 @@ namespace strategy_module
         FindStrategy();
         void update(node_bin& node, debug_info& info) override;
     private:
-        std::tuple<std::string, std::string, std::string> infomation_to_findorder(const std::string& findcmd);
-        std::string param_type, param_name, param_var;
         std::chrono::system_clock::time_point start_time;
     };
 
@@ -76,7 +73,6 @@ namespace strategy_module
         void update(node_bin& node, debug_info& info) override;
     private:
         std::chrono::system_clock::time_point start_time;
-        int64_t infomation_to_millsec(const std::string& wait_cmd);
     };
 }
 } // namespace mission_manager
