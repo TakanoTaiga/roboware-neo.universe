@@ -68,6 +68,8 @@ namespace mission_manager
         if(node_graph[id].state.get_state() != state_transition_label::end) return;
 
         node_graph[id].now_transitioning = false;
+        action_results[id] = rw_planning_msg::msg::ActionResult();
+        
         for(const auto& [start_node_id, ifstate] : node_graph[id].connections)
         {
             if(ifstate != node_graph[id].if_result){ continue; }
