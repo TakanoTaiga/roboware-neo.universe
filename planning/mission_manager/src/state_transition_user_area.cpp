@@ -23,5 +23,6 @@ namespace mission_manager
         strategies.push_back(new strategy_module::SetPoseStrategy());
         strategies.push_back(new strategy_module::FindStrategy());
         strategies.push_back(new strategy_module::WaitStrategy());
+        strategies.push_back(new strategy_module::LoopStrategy());
     }
 }
