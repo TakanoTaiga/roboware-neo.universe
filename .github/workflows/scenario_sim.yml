@@ -71,12 +71,8 @@ jobs:
         shell: bash
 
       - name: Result output
-        env:
-          PR_NUMBER: ${{ github.event.number }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python3 ./tools/ss_action.py comment simple_scenario && 
-          gh pr comment "${PR_NUMBER}" -F ./comment
+          python3 ./tools/ss_action.py comment simple_scenario
         shell: bash
 
       - name: Scenario Simulation -> Avoidance
@@ -88,12 +84,8 @@ jobs:
         shell: bash
 
       - name: Result output
-        env:
-          PR_NUMBER: ${{ github.event.number }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python3 ./tools/ss_action.py comment simple_avoidance && 
-          gh pr comment "${PR_NUMBER}" -F ./comment
+          python3 ./tools/ss_action.py comment simple_avoidance
         shell: bash
 
       - name: Scenario Simulation -> rotation
@@ -105,10 +97,14 @@ jobs:
         shell: bash
 
       - name: Result output
+        run: |
+          python3 ./tools/ss_action.py comment simple_rotation
+        shell: bash
+
+      - name: Comment to PR
         env:
           PR_NUMBER: ${{ github.event.number }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python3 ./tools/ss_action.py comment simple_rotation && 
           gh pr comment "${PR_NUMBER}" -F ./comment
         shell: bash
