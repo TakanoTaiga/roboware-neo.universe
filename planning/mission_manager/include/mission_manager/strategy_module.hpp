@@ -74,6 +74,15 @@ namespace strategy_module
     private:
         std::chrono::system_clock::time_point start_time;
     };
+
+    class LoopStrategy : public RWStrategy
+    {
+    public:
+        LoopStrategy();
+        void update(node_bin& node, debug_info& info) override;
+    private:
+        uint64_t count;
+    };
 }
 } // namespace mission_manager
 

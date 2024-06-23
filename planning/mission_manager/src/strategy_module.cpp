@@ -96,10 +96,10 @@ namespace mission_manager
 
         void FindStrategy::update(node_bin& node, debug_info& info)
         {
-            auto decoded_info_double = mission_util::info_decode(node.mission_infomation).decode_str();
-            const auto param_type = decoded_info_double["type"];
-            const auto param_name = decoded_info_double["name"];
-            const auto param_var  = decoded_info_double["var"];
+            auto decoded_info = mission_util::info_decode(node.mission_infomation).decode_str();
+            const auto param_type = decoded_info["type"];
+            const auto param_name = decoded_info["name"];
+            const auto param_var  = decoded_info["var"];
 
             if(node.state.get_state() == state_transition_label::start)
             {
@@ -150,8 +150,8 @@ namespace mission_manager
 
         void WaitStrategy::update(node_bin& node, debug_info& info)
         {
-            auto decoded_info_double = mission_util::info_decode(node.mission_infomation).decode_int();
-            const auto param_time = decoded_info_double["millsec"];
+            auto decoded_info = mission_util::info_decode(node.mission_infomation).decode_int();
+            const auto param_time = decoded_info["millsec"];
 
             if(node.state.get_state() == state_transition_label::start)
             {
@@ -163,6 +163,25 @@ namespace mission_manager
                 const auto end_time = std::chrono::system_clock::now();
                 const auto millsec = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
                 if(millsec < param_time){return;}
+                node.state.change_state(state_transition_label::end);
+            }
+        }
+
+        LoopStrategy::LoopStrategy()
+        {
+            strategy_label = "LOOP";
+        }
+
+        void LoopStrategy::update(node_bin& node, debug_info& info)
+        {
+            auto decoded_info = mission_util::info_decode(node.mission_infomation).decode_int();
+            const auto param_iter_count = decoded_info["iter"];
+
+            if(node.state.get_state() == state_transition_label::start)
+            {
+                count++;
+                node.if_result = count <= param_iter_count ? if_statement::True : if_statement::False;
+                node.state.change_state(state_transition_label::working_in_progress);
                 node.state.change_state(state_transition_label::end);
             }
         }
