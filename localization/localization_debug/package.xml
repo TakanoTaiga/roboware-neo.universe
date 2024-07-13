@@ -12,6 +12,7 @@
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
   <depend>visualization_msgs</depend>
+  <depend>rw_common_util</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
