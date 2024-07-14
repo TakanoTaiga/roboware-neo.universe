@@ -56,6 +56,8 @@ namespace path_follower
         rclcpp::Publisher<rw_planning_msg::msg::ActionResult>::SharedPtr pub_action_result;
         rclcpp::Publisher<geometry_msgs::msg::Vector3>::SharedPtr pub_debug_current_angle;
         rclcpp::Publisher<geometry_msgs::msg::Vector3>::SharedPtr pub_debug_control_angle;
+        rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_debug_target_pose;
+
 
         rclcpp::TimerBase::SharedPtr control_timer_;
 
@@ -68,7 +70,8 @@ namespace path_follower
         void nav_path_subscriber_callback(const nav_msgs::msg::Path& sub_msg_path);
         void task_action_subscriber_callback(const rw_planning_msg::msg::TaskAction& action_msg);
 
-
+        double position_tolerance;
+        double angle_tolerance;
     };
 } // namespace path_follower
 

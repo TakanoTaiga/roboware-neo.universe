@@ -7,5 +7,6 @@
         <remap from="output/action_result" to="/planning/state_transition/action_result"/>
         <remap from="debug/current_angle_rpy" to="/planning/debug/current_angle_rpy"/>
         <remap from="debug/control_angle_rpy" to="/planning/debug/control_angle_rpy"/>
+        <remap from="debug/target_pose" to="/planning/debug/pp_target_pose"/>
     </node>
 </launch>

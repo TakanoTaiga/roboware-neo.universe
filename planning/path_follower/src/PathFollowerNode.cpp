@@ -31,12 +31,15 @@ namespace path_follower
             "output/cmd_vel", 0);
         pub_action_result = create_publisher<rw_planning_msg::msg::ActionResult>(
             "output/action_result", 0);
-
         pub_debug_current_angle = create_publisher<geometry_msgs::msg::Vector3>(
             "debug/current_angle_rpy", 0);
-
         pub_debug_control_angle = create_publisher<geometry_msgs::msg::Vector3>(
             "debug/control_angle_rpy", 0);
+        pub_debug_target_pose = create_publisher<geometry_msgs::msg::PoseStamped>(
+            "debug/target_pose", 0);
+
+        position_tolerance = declare_parameter<double>("position_tolerance" , 0.01);
+        angle_tolerance = declare_parameter<double>("angle_tolerance" , 1.0);
 
         control_timer_ = create_wall_timer(
             std::chrono::milliseconds(10), std::bind(&PathFollowerNode::timer_callback, this));
@@ -93,12 +96,12 @@ namespace path_follower
         twist_msg.linear.y = -1.0 * speed * std::sin(angle);
         twist_msg.angular.z = 0.0;
 
-        const auto is_ok_pos_x = std::abs(delta_position.x) < 0.01;
+        const auto is_ok_pos_x = std::abs(delta_position.x) < position_tolerance;
         if(is_ok_pos_x){
             twist_msg.linear.x = 0.0;
         }
 
-        const auto is_ok_pos_y = std::abs(delta_position.y) < 0.01;
+        const auto is_ok_pos_y = std::abs(delta_position.y) < position_tolerance;
         if(is_ok_pos_y){
             twist_msg.linear.y = 0.0;
         }
@@ -115,7 +118,7 @@ namespace path_follower
         // angle p control
         double err = point_state_manager.norm2(current_pose.pose.orientation, current_path.poses.front().pose.orientation); 
         // RCLCPP_INFO_STREAM(get_logger(), "angle err: " << err * 57.295);
-        const auto is_ok_angle = std::abs(err * 57.295) < 1;
+        const auto is_ok_angle = std::abs(err * 57.295) < angle_tolerance;
         if(is_ok_angle)
         {
             err = 0.0;
@@ -154,6 +157,11 @@ namespace path_follower
         auto vec3_control = geometry_msgs::msg::Vector3();
         vec3_current.z = twist_msg.angular.z;
         pub_debug_control_angle->publish(vec3_current);
+
+        if(!current_path.poses.empty())
+        {
+            pub_debug_target_pose->publish(current_path.poses.front());
+        }
     }
 
 
