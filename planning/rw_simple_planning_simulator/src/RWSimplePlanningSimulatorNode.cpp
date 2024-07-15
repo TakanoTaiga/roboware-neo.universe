@@ -23,6 +23,7 @@ namespace rw_simple_planning_simulator
           transform_noise_strength(declare_parameter<double>("noise.transform.strength", 0.02)),
           rotation_noise_strength(declare_parameter<double>("noise.rotation.strength", 0.002)),
           rotation_tr_noise_strength(declare_parameter<double>("noise.rotation_tr.strength", 0.01)),
+          real_mode(declare_parameter<bool>("sim.realmode", false)),
           tf_stamp(),
           roll(0.0),
           armkr_sim(
@@ -104,7 +105,15 @@ namespace rw_simple_planning_simulator
 
     void RWSimplePlanningSimulatorNode::subscriber_callback(const geometry_msgs::msg::Twist& msg)
     {
-        twist_msg = msg;
+        if(real_mode)
+        {
+            twist_msg.linear.x = msg.linear.x * cos(roll) - msg.linear.y * sin(roll);
+            twist_msg.linear.y = msg.linear.x * sin(roll) + msg.linear.y * cos(roll);
+            twist_msg.angular.z = msg.angular.z;
+        }else
+        {
+            twist_msg = msg;
+        }
     }
 }
 

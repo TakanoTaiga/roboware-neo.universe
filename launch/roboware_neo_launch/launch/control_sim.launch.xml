@@ -1,0 +1,45 @@
+<launch>
+    <!-- simulation -->
+    <arg name="simple_planning_simulator_param_path" default="$(find-pkg-share roboware_neo_launch)/config/simple_palnning_simulator.pram.yaml"/>
+    <arg name="marker_param_id5" default="$(find-pkg-share roboware_neo_launch)/config/p-sim-ar/id.5.csv"/>
+
+    <node pkg="rw_simple_planning_simulator" exec="rw_simple_planning_simulator_node" output="screen" >
+        <remap from="input/cmd_vel" to="/control/cmd_vel"/>
+        <remap from="output/pose" to="/localization/current_pose"/>
+        <remap from="output/debug" to="/planning/debug/simulator"/>
+        <remap from="output/marker" to="/perception/ar_marker/marker"/>
+        <param from="$(var simple_planning_simulator_param_path)"/>
+        <param name="armarker.5" value="$(var marker_param_id5)"/>
+        <param name="sim.realmode" value="true"/>
+    </node>
+
+    <node pkg="attitude_controller" exec="attitude_controller_node" output="screen">
+        <remap from="output/twist" to="/control/cmd_vel"/>
+        <remap from="input/sensor_pose" to="/localization/current_pose"/>
+        <remap from="input/cmd_pose" to="/control/cmd_pose"/>
+        <param name="p_gain" value="1.0"/>
+    </node>
+
+    <node pkg="joy" exec="joy_node" >
+        <remap from="/joy" to="/control/joy/data"/>
+        <remap from="/joy/set_feedback" to="/control/joy/set_feedback"/>
+    </node>
+    <node pkg="joy_to_twist" exec="joy_to_twist_node" >
+        <remap from="output/twist" to="/control/unknown"/>
+        <remap from="output/cmd_pose" to="/control/cmd_pose"/>
+        <remap from="input/joy" to="/control/joy/data"/>
+    </node>
+
+
+    <!-- Visualize -->
+    <include file="$(find-pkg-share roboware_neo_launch)/launch/localization/viz_field.launch.xml"/>
+    <include file="$(find-pkg-share roboware_neo_launch)/launch/localization/viz_robot.launch.xml"/>
+
+    <node
+      pkg="rviz2"
+      exec="rviz2"
+      name="rviz2"
+      args="-d $(find-pkg-share roboware_neo_launch)/rviz/rw-p.rviz"
+      output="screen"
+    />
+</launch>

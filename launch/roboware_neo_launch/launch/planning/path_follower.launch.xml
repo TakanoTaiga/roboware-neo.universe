@@ -2,11 +2,13 @@
     <node pkg="path_follower" exec="path_follower_node" >
         <remap from="input/current_pose" to="/localization/current_pose"/>
         <remap from="input/nav_path" to="/planning/global/path"/>
-        <remap from="output/cmd_vel" to="/control/cmd_vel"/>
         <remap from="input/task_action" to="/planning/state_transition/task_action"/>
+        <remap from="output/cmd_vel" to="/control/map_cmd_vel"/>
+        <remap from="output/cmd_pose" to="/control/cmd_pose"/>
         <remap from="output/action_result" to="/planning/state_transition/action_result"/>
         <remap from="debug/current_angle_rpy" to="/planning/debug/current_angle_rpy"/>
         <remap from="debug/control_angle_rpy" to="/planning/debug/control_angle_rpy"/>
         <remap from="debug/target_pose" to="/planning/debug/pp_target_pose"/>
+        <param name="position_tolerance" value="0.01"/>
     </node>
 </launch>
