@@ -12,4 +12,7 @@
         <remap from="input/action_result" to="/planning/state_transition/action_result"/>
         <param name="graphpath" value="$(var graph_path)"/>
     </node>
+    
+    <!-- Control -->
+    <include file="$(find-pkg-share roboware_neo_launch)/launch/control.launch.xml"/>
 </launch>
