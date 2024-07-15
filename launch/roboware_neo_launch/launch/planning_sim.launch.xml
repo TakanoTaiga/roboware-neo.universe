@@ -5,6 +5,9 @@
     <!-- planning -->
     <include file="$(find-pkg-share roboware_neo_launch)/launch/planning.launch.xml"/>
 
+    <!-- Control -->
+    <include file="$(find-pkg-share roboware_neo_launch)/launch/control.launch.xml"/>
+
     <!-- Visualize -->
     <include file="$(find-pkg-share roboware_neo_launch)/launch/localization/viz_field.launch.xml"/>
     <include file="$(find-pkg-share roboware_neo_launch)/launch/localization/viz_robot.launch.xml"/>

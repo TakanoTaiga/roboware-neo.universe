@@ -9,5 +9,6 @@
         <remap from="output/marker" to="/perception/ar_marker/marker"/>
         <param from="$(var simple_planning_simulator_param_path)"/>
         <param name="armarker.5" value="$(var marker_param_id5)"/>
+        <param name="sim.realmode" value="true"/>
     </node>
 </launch>

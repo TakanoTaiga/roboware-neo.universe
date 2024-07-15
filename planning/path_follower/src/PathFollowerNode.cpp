@@ -31,6 +31,9 @@ namespace path_follower
             "output/cmd_vel", 0);
         pub_action_result = create_publisher<rw_planning_msg::msg::ActionResult>(
             "output/action_result", 0);
+        pub_cmd_pose = create_publisher<geometry_msgs::msg::Pose>(
+            "output/cmd_pose", 0);
+
         pub_debug_current_angle = create_publisher<geometry_msgs::msg::Vector3>(
             "debug/current_angle_rpy", 0);
         pub_debug_control_angle = create_publisher<geometry_msgs::msg::Vector3>(
@@ -57,7 +60,7 @@ namespace path_follower
 
         // PurePursuit 
         if (current_path.poses.empty()) {
-            RCLCPP_WARN_STREAM(get_logger(), "current_path is empty");
+            // RCLCPP_WARN_STREAM(get_logger(), "current_path is empty");
             return;
         }
 
@@ -115,21 +118,16 @@ namespace path_follower
 
         // PurePursuit end.
 
-        // angle p control
-        double err = point_state_manager.norm2(current_pose.pose.orientation, current_path.poses.front().pose.orientation); 
-        // RCLCPP_INFO_STREAM(get_logger(), "angle err: " << err * 57.295);
-        const auto is_ok_angle = std::abs(err * 57.295) < angle_tolerance;
-        if(is_ok_angle)
-        {
-            err = 0.0;
-        }
-        twist_msg.angular.z = err * 2.0;
-        // angle p control end.
-
-        pub_twist_->publish(twist_msg);
+        auto cmd_pose = geometry_msgs::msg::Pose();
+        cmd_pose.position.x = twist_msg.linear.x;
+        cmd_pose.position.y = twist_msg.linear.y;
+        cmd_pose.orientation = current_path.poses.front().pose.orientation;
+        pub_cmd_pose->publish(cmd_pose);
 
         const auto rqy_current = rw_common_util::geometry::quat_to_euler(current_pose.pose.orientation);
 
+        double err = point_state_manager.norm2(current_pose.pose.orientation, current_path.poses.front().pose.orientation); 
+        const auto is_ok_angle = std::abs(err * 57.295) < angle_tolerance;
 
         if(is_ok_pos_x && is_ok_pos_y && is_ok_angle){
             auto action_result_msg = rw_planning_msg::msg::ActionResult();

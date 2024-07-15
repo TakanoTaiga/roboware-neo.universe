@@ -57,6 +57,7 @@ namespace rw_simple_planning_simulator
         double transform_noise_strength;
         double rotation_noise_strength;
         double rotation_tr_noise_strength;
+        bool real_mode;
 
         std::random_device seed_gen;
         std::default_random_engine engine;

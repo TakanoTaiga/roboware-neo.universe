@@ -1,0 +1,8 @@
+<launch>    
+    <node pkg="attitude_controller" exec="attitude_controller_node" output="screen">
+        <remap from="output/twist" to="/control/cmd_vel"/>
+        <remap from="input/sensor_pose" to="/localization/current_pose"/>
+        <remap from="input/cmd_pose" to="/control/cmd_pose"/>
+        <param name="p_gain" value="2.0"/>
+    </node>
+</launch>

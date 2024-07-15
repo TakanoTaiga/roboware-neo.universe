@@ -6,6 +6,7 @@
     </node>
     <node pkg="joy_to_twist" exec="joy_to_twist_node" >
         <remap from="output/twist" to="/control/cmd_vel"/>
+        <remap from="output/cmd_pose" to="/control/cmd_pose"/>
         <remap from="input/joy" to="/control/joy/data"/>
     </node>
 </launch>
