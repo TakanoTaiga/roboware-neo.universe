@@ -52,12 +52,9 @@ namespace path_follower
         rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr sub_nav_path_;
         rclcpp::Subscription<rw_planning_msg::msg::TaskAction>::SharedPtr sub_task_action_;
 
-        rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr pub_twist_;
         rclcpp::Publisher<rw_planning_msg::msg::ActionResult>::SharedPtr pub_action_result;
         rclcpp::Publisher<geometry_msgs::msg::Pose>::SharedPtr pub_cmd_pose;
 
-        rclcpp::Publisher<geometry_msgs::msg::Vector3>::SharedPtr pub_debug_current_angle;
-        rclcpp::Publisher<geometry_msgs::msg::Vector3>::SharedPtr pub_debug_control_angle;
         rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_debug_target_pose;
 
         rclcpp::TimerBase::SharedPtr control_timer_;
