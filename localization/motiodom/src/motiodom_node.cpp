@@ -4,12 +4,14 @@ namespace motiodom
 {
     MotiOdom::MotiOdom(const rclcpp::NodeOptions & node_options): rclcpp::Node("motiodom_node", node_options)
     {
+        rclcpp::QoS qos_settings = rclcpp::QoS(rclcpp::KeepLast(10)).best_effort();
         imu_subscriber_ = this->create_subscription<sensor_msgs::msg::Imu>(
             "/imu",
-            0,
+            qos_settings,
             std::bind(&MotiOdom::imu_callback, this, _1));
 
         tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+        pose_publisher_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("/pose_stamped", 0);
 
         this->declare_parameter("enable_magnet", false);
         this->get_parameter("enable_magnet", enable_magnet_);
@@ -24,6 +26,12 @@ namespace motiodom
         this->get_parameter("child_frame_id", child_id_);
 
         imu_flag_ = false;
+
+        ekf6_ = std::make_shared<Axis6EKF>();
+        ekf9_ = std::make_shared<Axis9EKF>();
+        prev_input_ = Vector3();
+        prev_output_ = Vector3();
+        RCLCPP_INFO(this->get_logger(), "Initialized EKF");
 
         if(enable_magnet_)
         {
@@ -41,6 +49,8 @@ namespace motiodom
         }
 
         RCLCPP_INFO(this->get_logger(), "Start MotiOdom delta_time: 10ms");
+
+        
     }
 
     void MotiOdom::imu_callback(const sensor_msgs::msg::Imu::SharedPtr msg)
@@ -62,13 +72,13 @@ namespace motiodom
             
             auto linear_accel = Vector3(
                 get_imu_->linear_acceleration.x,
-                get_imu_->linear_acceleration.y,
-                get_imu_->linear_acceleration.z);
+                get_imu_->linear_acceleration.z,
+                get_imu_->linear_acceleration.y);
 
             auto angular_velocity = Vector3(
-                to_radian<float>(get_imu_->angular_velocity.x),
-                to_radian<float>(get_imu_->angular_velocity.y),
-                to_radian<float>(get_imu_->angular_velocity.z));
+                get_imu_->angular_velocity.x,
+                get_imu_->angular_velocity.z,
+                get_imu_->angular_velocity.y);
 
             auto input_matrix = Vector3(
                 angular_velocity.x*0.01,
@@ -76,40 +86,25 @@ namespace motiodom
                 angular_velocity.z*0.01);
 
 
-            auto jacob = calc_jacob(input_matrix, ekf6_.est);
-
-            ekf6_.est = predict_x(input_matrix, ekf6_.est);
-
-            ekf6_.cov = predict_cov(jacob, ekf6_.cov, ekf6_.est_noise);
-
-            auto z = obs_model_6(linear_accel);
-
-            auto residual = update_residual(z, ekf6_.est);
-
-            auto s = update_s(ekf6_.cov, ekf6_.obs_noise);
-
-            ekf6_.k_gain = update_kalman_gain(s, ekf6_.cov);
-
-            ekf6_.est = update_x(ekf6_.est, ekf6_.k_gain, residual);
-
-            ekf6_.cov = update_cov(ekf6_.k_gain, ekf6_.cov);
-
-            auto estimated = Vector3(ekf6_.est.x, ekf6_.est.y, ekf6_.est.z);
+            auto estimated = ekf6_->run_ekf6(input_matrix, linear_accel);
 
             geometry_msgs::msg::TransformStamped t;
+            geometry_msgs::msg::PoseStamped pose;
 
             t.header.frame_id = frame_id_;
             t.header.stamp = this->get_clock()->now();
             t.child_frame_id = child_id_;
 
             tf2::Quaternion q;
-            q.setRPY(estimated.x /2.0, estimated.y/2.0, estimated.z/2.0);
+            q.setRPY(estimated.x, estimated.y, estimated.z);
             t.transform.rotation.w = q.w();
             t.transform.rotation.x = q.x();
             t.transform.rotation.y = q.y();
             t.transform.rotation.z = q.z();
 
             tf_broadcaster_->sendTransform(t);
+            pose.pose.orientation = t.transform.rotation;
+            pose_publisher_->publish(pose);
         }
     }
 
@@ -123,59 +118,25 @@ namespace motiodom
                 get_imu_->linear_acceleration.z);
 
             auto angular_velocity = Vector3(
-                to_radian<float>(get_imu_->angular_velocity.x),
-                to_radian<float>(get_imu_->angular_velocity.y),
-                to_radian<float>(get_imu_->angular_velocity.z));
+                to_radian(get_imu_->angular_velocity.x),
+                to_radian(get_imu_->angular_velocity.y),
+                to_radian(get_imu_->angular_velocity.z));
 
             auto mag = Vector3(
                 get_magnet_->x,
                 get_magnet_->y,
                 get_magnet_->z);
 
-            predict_x(ekf9_, angular_velocity);
-
-            auto obs = observation_model(linear_accel, mag);
-
-            auto a = estimation_jacob(ekf9_, angular_velocity);
-
-            auto c = Matrix3x3(
-                1.0, 0.0, 0.0,
-                0.0, 1.0, 0.0,
-                0.0, 0.0, 1.0);
-
-            auto pre_cov = estimation_cov(ekf9_, a);
-            auto obs_cov = observation_cov(ekf9_, pre_cov, c);
-
-            kalman_gain(ekf9_, pre_cov, c, obs_cov);
-
-            update_x(ekf9_, obs);
-            update_cov(ekf9_, pre_cov);
-
             auto input_matrix = Vector3(
                 angular_velocity.x*0.01,
                 angular_velocity.y*0.01,
                 angular_velocity.z*0.01);
 
+            auto est6 = ekf6_->run_ekf6(input_matrix, linear_accel);
+            auto est9 =ekf9_->run_ekf9(angular_velocity, linear_accel, mag);
 
-            auto jacob = calc_jacob(input_matrix, ekf6_.est);
-
-            ekf6_.est = predict_x(input_matrix, ekf6_.est);
-
-            ekf6_.cov = predict_cov(jacob, ekf6_.cov, ekf6_.est_noise);
-
-            auto z = obs_model_6(linear_accel);
-
-            auto residual = update_residual(z, ekf6_.est);
-
-            auto s = update_s(ekf6_.cov, ekf6_.obs_noise);
-
-            ekf6_.k_gain = update_kalman_gain(s, ekf6_.cov);
-
-            ekf6_.est = update_x(ekf6_.est, ekf6_.k_gain, residual);
-
-            ekf6_.cov = update_cov(ekf6_.k_gain, ekf6_.cov);
-
-            auto estimated = Vector3(ekf6_.est.x, ekf9_.est.y, ekf6_.est.z/2.0);
+            
+            auto estimated = Vector3(est6.x*2.0, est9.y/2.0, est6.z);
 
             auto g_removed = remove_gravity(linear_accel, estimated, 0.981);
 
@@ -186,7 +147,7 @@ namespace motiodom
             t.child_frame_id = child_id_;
 
             tf2::Quaternion q;
-            q.setRPY(-estimated.x, -estimated.y, estimated.z);
+            q.setRPY(estimated.x, estimated.y, estimated.z);
 
             t.transform.rotation.w = q.w();
             t.transform.rotation.x = q.x();
@@ -194,16 +155,22 @@ namespace motiodom
             t.transform.rotation.z = q.z();
 
             auto now_vel = Vector3(
-                prev_vel.x + (g_removed.x+prev_accel_.x)*0.01 *0.5,
-                prev_vel.y + (g_removed.y+prev_accel_.y)*0.01 *0.5,
-                prev_vel.z + (g_removed.z+prev_accel_.z)*0.01 *0.5
+                (g_removed.x+prev_accel_.x)*0.01 *0.5,
+                (g_removed.y+prev_accel_.y)*0.01 *0.5,
+                (g_removed.z+prev_accel_.z)*0.01 *0.5
             );
 
             if(enable_position_)
             {
-                t.transform.translation.x -= noise_filter((now_vel.x+prev_vel.x)*0.01*0.5, 0.1);
-                t.transform.translation.y -= noise_filter((now_vel.y+prev_vel.y)*0.01*0.5, 0.1);
-                // t.transform.translation.z = (now_vel.z+prev_vel.z)*0.01*0.5;
+                Vector3 calc_pos;
+                calc_pos.x = (now_vel.x + prev_vel.x)*0.01*0.5;
+                calc_pos.y = (now_vel.y + prev_vel.y)*0.01*0.5;
+                calc_pos.z = (now_vel.z + prev_vel.z)*0.01*0.5;
+
+                auto filtered = noise_filter(calc_pos, 0.3);
+                t.transform.translation.x += filtered.x;
+                t.transform.translation.y += filtered.y;
+                // t.transform.translation.z = filtered.z;
             }
 
             tf_broadcaster_->sendTransform(t);
@@ -229,16 +196,41 @@ namespace motiodom
         return g_removed;
     }
 
-    float MotiOdom::noise_filter(float value, float alpha)
+    Vector3 MotiOdom::noise_filter(Vector3 value, float alpha)
     {
-        if(abs(value) > alpha)
-        {
-            return value*1000.0;
-        }
-        else
-        {
-            return 0.0;
-        }
+        Vector3 output;
+        output.x = alpha * (prev_output_.x + value.x - prev_output_.x);
+        output.y = alpha * (prev_output_.y + value.y - prev_output_.y);
+        output.z = alpha * (prev_output_.z + value.z - prev_output_.z);
+
+        prev_output_ = output;
+        prev_input_ = value;
+
+        return output;
+
+    }
+
+    float MotiOdom::to_radian(float degree)
+    {
+        auto pi = acos(-1.0);
+
+
+        return (degree*pi)/180.0;
+    }
+
+    Matrix3x3 MotiOdom::rotation_from_euler(Vector3 euler)
+    {
+        auto sin_x = sin(euler.x);
+        auto sin_y = sin(euler.y);
+        auto sin_z = sin(euler.z);
+        auto cos_x = cos(euler.x);
+        auto cos_y = cos(euler.y);
+        auto cos_z = cos(euler.z);
+        return Matrix3x3(
+            cos_y*cos_z, -1.0*cos_y*sin_z, sin_y,
+            sin_x*sin_y*cos_z+cos_x*sin_z, -1.0*sin_x*sin_y*sin_z + cos_x*cos_z, -1.0*sin_x*cos_y,
+            -1.0*cos_x*sin_y*cos_z + sin_x*sin_z, cos_x*sin_y*sin_z + sin_x*cos_z, cos_x*cos_y
+        );
     }
 }
 
