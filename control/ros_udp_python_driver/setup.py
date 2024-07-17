@@ -22,6 +22,7 @@ setup(
         'console_scripts': [
             'udp_receive=ros_udp_python_driver.udp_receive:main',
             'udp_send=ros_udp_python_driver.udp_send:main',
+            'serial_read=ros_udp_python_driver.serial_read:main'
         ],
     },
 )

@@ -1,0 +1,10 @@
+<launch>    
+    <node pkg="otos_driver" exec="otos_driver_node"  output="screen">
+        <remap from="input/sensor_data" to="/sensing/otos/sensor_data"/>
+        <remap from="output/current_pose" to="/localization/otos/current_pose"/>
+    </node>
+
+    <node pkg="ros_udp_python_driver" exec="serial_read" >
+        <remap from="output/data" to="/sensing/otos/sensor_data"/>
+    </node>
+</launch>

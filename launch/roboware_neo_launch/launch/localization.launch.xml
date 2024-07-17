@@ -1,0 +1,3 @@
+<launch>
+    <include file="$(find-pkg-share roboware_neo_launch)/launch/localization/otos.launch.xml"/>
+</launch>
