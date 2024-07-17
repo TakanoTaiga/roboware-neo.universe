@@ -64,4 +64,24 @@ namespace map_maker
             map.data[index] = 100;
         }
     }
+
+    cv::Mat occupancy_grid_to_cv_image(const nav_msgs::msg::OccupancyGrid& map) {
+        int width = map.info.width;
+        int height = map.info.height;
+
+        cv::Mat image(height, width, CV_8UC1);
+
+        for (int y = 0; y < height; ++y) {
+            for (int x = 0; x < width; ++x) {
+                int index = y * width + x;
+                int value = map.data[index];
+                if (value == -1) {
+                    image.at<uchar>(y, x) = 127;
+                } else {
+                    image.at<uchar>(y, x) = static_cast<uchar>(value * 255 / 100);
+                }
+            }
+        }
+        return image;
+    }
 }

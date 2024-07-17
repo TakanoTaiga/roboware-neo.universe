@@ -23,8 +23,7 @@
 
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
-// #include <pcl_conversions/pcl_conversions.h>
-
+#include "cv_bridge/cv_bridge.h"
 
 namespace map_maker
 {
@@ -37,6 +36,8 @@ namespace map_maker
         const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud,
         const float cut_z
     );
+
+    cv::Mat occupancy_grid_to_cv_image(const nav_msgs::msg::OccupancyGrid& map);
 } // namespace map_maker
 
 #endif

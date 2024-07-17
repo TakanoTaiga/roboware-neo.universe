@@ -20,6 +20,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
+#include <sensor_msgs/msg/image.hpp>
 #include <nav_msgs/msg/occupancy_grid.hpp>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -37,6 +38,7 @@ namespace occupancy_grid_map_maker_node
 
     private:
         rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr pub_occupancy_map;
+        rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_debug_image_;
         rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_pointcloud_;
 
         void subscriber_callback(const sensor_msgs::msg::PointCloud2::SharedPtr msg_);
