@@ -21,8 +21,10 @@ namespace occupancy_grid_map_maker_node
     {   
         pub_occupancy_map = create_publisher<nav_msgs::msg::OccupancyGrid>(
         "output/occupancy_map", 0);
+        pub_debug_image_ = create_publisher<sensor_msgs::msg::Image>(
+            "debug/image", 0);
         sub_pointcloud_ = create_subscription<sensor_msgs::msg::PointCloud2>(
-        "/velodyne_points", 0, std::bind(&OccupancyGridMapMakerNode::subscriber_callback, this, std::placeholders::_1));
+        "/sensing/velodyne/velodyne_points", 0, std::bind(&OccupancyGridMapMakerNode::subscriber_callback, this, std::placeholders::_1));
     
         param_cut_z = declare_parameter<float>("cut_z" , -0.2);
         param_map_res = declare_parameter<float>("map.res" , 0.1);
@@ -38,6 +40,7 @@ namespace occupancy_grid_map_maker_node
         auto map_msg = map_maker::make_occupancy_msg(param_map_width, param_map_height, param_map_res);
         map_maker::point_to_map(map_msg, clouds, param_cut_z);
         map_msg.header.frame_id = msg_->header.frame_id;
+        map_msg.header.stamp = get_clock()->now();
         pub_occupancy_map->publish(map_msg);
     }
 }
