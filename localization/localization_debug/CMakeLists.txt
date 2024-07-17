@@ -22,6 +22,11 @@ rclcpp_components_register_node(target_localization_debug
   EXECUTABLE quat_to_euler_node
 )
 
+rclcpp_components_register_node(target_localization_debug
+  PLUGIN "localization_debug::model_debugger_node"
+  EXECUTABLE model_debugger_node
+)
+
 ament_auto_package(
   INSTALL_TO_SHARE
 )
