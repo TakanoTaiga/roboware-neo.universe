@@ -28,16 +28,40 @@ namespace depth_merge_node
         sub_cam_info_ = create_subscription<sensor_msgs::msg::CameraInfo>(
             "input/camera_info", 0, std::bind(&DepthMergerNode::cam_info_subscriber_callback, this, std::placeholders::_1));
 
-        pub_debug_marker_ = create_publisher<visualization_msgs::msg::MarkerArray>(
-            "debug/marker", 0);
+        pub_poses_ = create_publisher<rw_common_msgs::msg::TransformArray>(
+            "output/poses", 0);
 
         tf_broadcaster_ =
             std::make_unique<tf2_ros::TransformBroadcaster>(*this);
     }
 
-    void DepthMergerNode::image_subscriber_callback(const sensor_msgs::msg::Image::SharedPtr msg)
+    void DepthMergerNode::image_subscriber_callback(const sensor_msgs::msg::Image& msg)
     {
-        image_cache = msg;
+
+        image_cache[util::get_key(msg.header)] = msg;
+
+        auto convertTimestampToDouble = [](builtin_interfaces::msg::Time time) {
+            auto sec = time.sec; 
+            auto nanosec = time.nanosec;
+            constexpr double NANOSECONDS_IN_SECOND = 1000000000.0;
+            return static_cast<double>(sec) + static_cast<double>(nanosec) / NANOSECONDS_IN_SECOND;
+        };
+
+        std::vector<util::key_time> key_list;
+        for(const auto& [key, image] : image_cache)
+        {
+            const auto img_time = convertTimestampToDouble(image.header.stamp);
+            const auto now_time = convertTimestampToDouble(get_clock()->now());
+            const auto dt = std::abs(now_time - img_time);
+            if(dt > 1.0){
+                key_list.push_back(key);
+            }
+        }
+
+        for(const auto& key : key_list)
+        {
+            image_cache.erase(key);
+        }
     }
 
     void DepthMergerNode::cam_info_subscriber_callback(const sensor_msgs::msg::CameraInfo::SharedPtr msg)
@@ -50,82 +74,57 @@ namespace depth_merge_node
 
     void DepthMergerNode::bbox_subscriber_callback(const bboxes_ex_msgs::msg::BoundingBoxes msg)
     {
-        if(image_cache == nullptr){
-            return;
-        }
+        if(image_cache.size() == 0){ return; }
 
-        const auto cv_image = cv_bridge::toCvShare(image_cache, image_cache->encoding);
+        if(!rw_common_util::contains(image_cache, util::get_key(msg.image_header))){ return; }
 
-        auto marker_array = visualization_msgs::msg::MarkerArray();
-        marker_array.markers.clear();
+        const auto& image = image_cache[util::get_key(msg.image_header)];
+        auto cv_image = cv_bridge::toCvShare(sensor_msgs::msg::Image::ConstSharedPtr(new sensor_msgs::msg::Image(image)), image.encoding);
 
-        for(const auto& bbox : msg.bounding_boxes){
+        auto poses_rosmsg = rw_common_msgs::msg::TransformArray();
+
+        for (const auto& bbox : msg.bounding_boxes) {
             uint64_t depth_sum = 0;
             uint32_t count = 0; 
             uint32_t err_count = 0;
 
-            for(uint16_t y = bbox.ymin; y <= bbox.ymax; y++){
-                for(uint16_t x = bbox.xmin; x <= bbox.xmax; x++){
+            for (uint16_t y = bbox.ymin; y <= bbox.ymax; ++y) {
+                for (uint16_t x = bbox.xmin; x <= bbox.xmax; ++x) {
                     const auto depth_mm = cv_image->image.at<uint16_t>(y, x);
-                    if(depth_mm > 520 && depth_mm < 4000){
+                    if (depth_mm > 520 && depth_mm < 4000) {
                         depth_sum += depth_mm;
-                        count++;
-                    }else{
-                        err_count++;
+                        ++count;
+                    } else {
+                        ++err_count;
                     }
                 }
             }
 
-            if(count == 0){continue;}
-            if((float)err_count / (float)(count + err_count) > 0.3){continue;}
+            if (count == 0 || static_cast<double>(err_count) / (count + err_count) > 0.3) {
+                continue;
+            }
 
-            float depth_avg_m = (float)(depth_sum / count) / 1000.0f;
+            const auto depth_avg_m = static_cast<double>(depth_sum) / count / 1000.0f;
+            const auto bbox_size_x = bbox.xmax - bbox.xmin;
+            const auto bbox_size_y = bbox.ymax - bbox.ymin;
+            const auto position_x = ((bbox.xmin + bbox_size_x / 2) - cx) * depth_avg_m / fx;
+            const auto position_y = ((bbox.ymin + bbox_size_y / 2) - cy) * depth_avg_m / fy;
+            const auto position_z = depth_avg_m;
 
-            float bbox_size_x = bbox.xmax - bbox.xmin;
-            float bbox_size_y = bbox.ymax - bbox.ymin;
-            float position_x = bbox.xmin + bbox_size_x / 2;
-            float position_y = bbox.ymin + bbox_size_y / 2;
-            
-
-            auto transform = geometry_msgs::msg::TransformStamped();
-            transform.header = image_cache->header;
-            transform.header.frame_id = "realsense_link";
-            transform.child_frame_id = bbox.class_id;
-            transform.transform.translation.x = depth_avg_m;
-            transform.transform.translation.y = -(position_x - cx) * depth_avg_m / fx;
-            transform.transform.translation.z = -(position_y - cy) * depth_avg_m / fy;
-            transform.transform.rotation.x = 0.0;
-            transform.transform.rotation.y = 0.0;
-            transform.transform.rotation.z = 0.0;
-            transform.transform.rotation.w = 1.0;
-
+            geometry_msgs::msg::TransformStamped transform;
+            transform.header = image.header;
+            transform.child_frame_id = bbox.class_id + "(" + std::to_string(bbox.id) + ")";
+            transform.transform.translation.x = position_x;
+            transform.transform.translation.y = position_y;
+            transform.transform.translation.z = position_z;
             tf_broadcaster_->sendTransform(transform);
 
-            auto marker = visualization_msgs::msg::Marker();
-            marker.header = image_cache->header;
-            marker.header.frame_id = "realsense_link";
-            marker.ns = "bbox3d";
-            marker.id = bbox.id;
-            marker.type = visualization_msgs::msg::Marker::CUBE;
-            marker.action = visualization_msgs::msg::Marker::ADD;
-            marker.scale.y = bbox_size_x * depth_avg_m / fy;
-            marker.scale.x = marker.scale.y;
-            marker.scale.z = bbox_size_y * depth_avg_m / fy;
-            marker.pose.position.x = transform.transform.translation.x;
-            marker.pose.position.y = transform.transform.translation.y;
-            marker.pose.position.z = transform.transform.translation.z;
-            marker.pose.orientation.x = 0;
-            marker.pose.orientation.y = 0;
-            marker.pose.orientation.z = 0;
-            marker.pose.orientation.w = 1;
-            marker.color.r = 0.0;
-            marker.color.g = 0.0;
-            marker.color.b = 1.0;
-            marker.color.a = 0.5;
-            marker_array.markers.push_back(marker);
+            poses_rosmsg.transforms.push_back(transform);
         }
 
-        pub_debug_marker_->publish(marker_array);
+        pub_poses_->publish(poses_rosmsg);
+
+        image_cache.erase(util::get_key(msg.image_header));
     }
 }
 
