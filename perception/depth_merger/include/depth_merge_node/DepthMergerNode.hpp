@@ -25,8 +25,12 @@
 #include <tf2_ros/transform_broadcaster.h>
 #include <bboxes_ex_msgs/msg/bounding_boxes.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
-
+#include <geometry_msgs/msg/pose_array.hpp>
 #include <cv_bridge/cv_bridge.h>
+#include <rw_common_util/map.hpp>
+#include <rw_common_msgs/msg/transform_array.hpp>
+
+#include "depth_merge_node/util.hpp"
 
 namespace depth_merge_node
 {
@@ -40,15 +44,15 @@ namespace depth_merge_node
         rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr sub_depth_image_;
         rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr sub_cam_info_;
 
-        rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_debug_marker_;
+        rclcpp::Publisher<rw_common_msgs::msg::TransformArray>::SharedPtr pub_poses_;
 
         std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
-        sensor_msgs::msg::Image::SharedPtr image_cache;
+        std::map<util::key_time, sensor_msgs::msg::Image> image_cache;
         double fx, fy, cx, cy;
         std::string camera_frame_id;
 
-        void image_subscriber_callback(const sensor_msgs::msg::Image::SharedPtr msg);
+        void image_subscriber_callback(const sensor_msgs::msg::Image& msg);
         void cam_info_subscriber_callback(const sensor_msgs::msg::CameraInfo::SharedPtr msg);
         void bbox_subscriber_callback(const bboxes_ex_msgs::msg::BoundingBoxes msg);
     };

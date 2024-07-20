@@ -17,6 +17,9 @@
   <depend>cv_bridge</depend>
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
+  <depend>geometry_msgs</depend>
+  <depend>rw_common_util</depend>  
+  <depend>rw_common_msgs</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
