@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>occupancy_grid_map_maker</name>
+  <name>otos_driver</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
   <maintainer email="ttttghghnb554z@outlook.jp">taiga</maintainer>
@@ -11,13 +11,9 @@
 
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
-  <depend>sensor_msgs</depend>
-  <depend>nav_msgs</depend>
-  <depend>pcl_ros</depend>
-  <depend>PCL</depend>
-  <depend>pcl_conversions</depend>
-  <depend>OpenCV</depend>
-  <depend>cv_bridge</depend>
+  <depend>geometry_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>rw_common_util</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
