@@ -27,17 +27,11 @@ namespace path_follower
         sub_task_action_ = create_subscription<rw_planning_msg::msg::TaskAction>(
             "input/task_action", 0, std::bind(&PathFollowerNode::task_action_subscriber_callback, this, std::placeholders::_1));
 
-        pub_twist_ = create_publisher<geometry_msgs::msg::Twist>(
-            "output/cmd_vel", 0);
         pub_action_result = create_publisher<rw_planning_msg::msg::ActionResult>(
             "output/action_result", 0);
         pub_cmd_pose = create_publisher<geometry_msgs::msg::Pose>(
             "output/cmd_pose", 0);
 
-        pub_debug_current_angle = create_publisher<geometry_msgs::msg::Vector3>(
-            "debug/current_angle_rpy", 0);
-        pub_debug_control_angle = create_publisher<geometry_msgs::msg::Vector3>(
-            "debug/control_angle_rpy", 0);
         pub_debug_target_pose = create_publisher<geometry_msgs::msg::PoseStamped>(
             "debug/target_pose", 0);
 
@@ -54,7 +48,6 @@ namespace path_follower
             return;
         }
 
-        auto twist_msg = geometry_msgs::msg::Twist();
         auto& current_pose = point_state_manager.current_pose;
         auto& current_path = point_state_manager.current_path;
 
@@ -95,36 +88,35 @@ namespace path_follower
         double angle = std::atan2(delta_position.y, delta_position.x);
         const double speed = target_position.z + 0.15;
         
-        twist_msg.linear.x = -1.0 * speed * std::cos(angle);
-        twist_msg.linear.y = -1.0 * speed * std::sin(angle);
-        twist_msg.angular.z = 0.0;
+        auto linear_x = -1.0 * speed * std::cos(angle);
+        auto linear_y = -1.0 * speed * std::sin(angle);
 
         const auto is_ok_pos_x = std::abs(delta_position.x) < position_tolerance;
         if(is_ok_pos_x){
-            twist_msg.linear.x = 0.0;
+            linear_x = 0.0;
         }
 
         const auto is_ok_pos_y = std::abs(delta_position.y) < position_tolerance;
         if(is_ok_pos_y){
-            twist_msg.linear.y = 0.0;
+            linear_y = 0.0;
         }
 
-        if (std::signbit(twist_msg.linear.x) != std::signbit(delta_position.x)) {
-            twist_msg.linear.x *= -1.0;
+        if (std::signbit(linear_x) != std::signbit(delta_position.x)) {
+            linear_x *= -1.0;
         }
-        if (std::signbit(twist_msg.linear.y) != std::signbit(delta_position.y)) {
-            twist_msg.linear.y *= -1.0;
+        if (std::signbit(linear_y) != std::signbit(delta_position.y)) {
+            linear_y *= -1.0;
         }
 
         // PurePursuit end.
 
         auto cmd_pose = geometry_msgs::msg::Pose();
-        cmd_pose.position.x = twist_msg.linear.x;
-        cmd_pose.position.y = twist_msg.linear.y;
+        cmd_pose.position.x = linear_x;
+        cmd_pose.position.y = linear_y;
         cmd_pose.orientation = current_path.poses.front().pose.orientation;
         pub_cmd_pose->publish(cmd_pose);
 
-        const auto rqy_current = rw_common_util::geometry::quat_to_euler(current_pose.pose.orientation);
+        const auto current_yaw = rw_common_util::geometry::quat_to_euler(current_pose.pose.orientation).yaw;
 
         double err = point_state_manager.norm2(current_pose.pose.orientation, current_path.poses.front().pose.orientation); 
         const auto is_ok_angle = std::abs(err * 57.295) < angle_tolerance;
@@ -139,22 +131,11 @@ namespace path_follower
 
             std::ofstream log_file;
             log_file.open("/tmp/rw.log", std::ios::app);
-            log_file << "result , " << std::to_string(current_position.x) << "," << std::to_string(current_position.y) << "," << std::to_string(rqy_current.yaw * 57.295779513) << std::endl;
+            log_file << "result , " << std::to_string(current_position.x) << "," << std::to_string(current_position.y) << "," << std::to_string(current_yaw * 57.295779513) << std::endl;
             log_file.close();
             
             point_state_manager.setWait();
         }
-
-        //debug
-        auto vec3_current = geometry_msgs::msg::Vector3();
-        vec3_current.x = rqy_current.roll  * 57.295779513;
-        vec3_current.y = rqy_current.pitch * 57.295779513;
-        vec3_current.z = rqy_current.yaw   * 57.295779513;
-        pub_debug_current_angle->publish(vec3_current);
-
-        auto vec3_control = geometry_msgs::msg::Vector3();
-        vec3_current.z = twist_msg.angular.z;
-        pub_debug_control_angle->publish(vec3_current);
 
         if(!current_path.poses.empty())
         {
