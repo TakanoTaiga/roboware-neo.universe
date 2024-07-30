@@ -17,7 +17,6 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/joy.hpp>
-#include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 #include <rw_common_util/geometry.hpp>
 
@@ -30,7 +29,6 @@ namespace joy_to_twist
         explicit JoyToTwistNode(const rclcpp::NodeOptions & node_options);
 
     private:
-        rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr pub_twist_;
         rclcpp::Publisher<geometry_msgs::msg::Pose>::SharedPtr pub_cmd_pose_;
         rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr sub_joy_;
 
