@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'rt_detr = ultra_object_detection.rt_detr:main'
+            'rt_detr = ultra_object_detection.rt_detr:main',
+            'yolo = ultra_object_detection.yolo:main',
         ],
     },
 )
