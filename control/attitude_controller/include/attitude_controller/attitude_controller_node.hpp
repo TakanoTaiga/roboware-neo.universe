@@ -37,11 +37,14 @@ namespace attitude_controller
         void pose_subscriber_callback(const geometry_msgs::msg::PoseStamped& msg);
         void cmd_pose_subscriber_callback(const geometry_msgs::msg::Pose& msg);
         void timer_callback();
+        void power_saver(geometry_msgs::msg::Twist& cmd_vel);
 
         geometry_msgs::msg::Pose sensor_pose;
         geometry_msgs::msg::Pose cmd_pose;
 
         double angle_p_gain;
+        double max_linear_velocity;
+        double max_angular_velocity;
 
     };
 } // namespace attitude_controller
