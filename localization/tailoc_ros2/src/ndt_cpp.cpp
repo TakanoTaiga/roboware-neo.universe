@@ -283,8 +283,7 @@ namespace ndt_cpp
         const rclcpp::Logger& logger,
         mat3x3& trans_mat, 
         const std::vector<point2>& source_points, 
-        const std::vector<std::pair<ndt_cpp::mat2x2, ndt_cpp::point2>>& targets,
-        std::vector<point2>& map_points
+        const std::vector<std::pair<ndt_cpp::mat2x2, ndt_cpp::point2>>& targets
     ){
         const double max_distance2 = 1.0f * 1.0f;
         
@@ -363,7 +362,6 @@ namespace ndt_cpp
                         " dz: " << atan(trans_mat.d / trans_mat.a) * 57.295779 << "°"
                     );
                 }
-                
                 return;
             }
         }
@@ -377,54 +375,5 @@ namespace ndt_cpp
                 );
             }
         }
-    }
-
-    void modfiyMapFillter(std::vector<point2>& map_points, const std::vector<point2>& sensor_points, const mat3x3 trans_mat){
-        std::vector<point2> transed_sensor_points;
-        std::copy(sensor_points.begin(), sensor_points.end(), std::back_inserter(transed_sensor_points));
-        transformPointsZeroCopy(trans_mat, transed_sensor_points);
-
-        for(const auto& point : transed_sensor_points){
-            auto fillter_max = 0;
-            for(const auto& map_point : map_points){
-                const auto dx = point.x - map_point.x;
-                const auto dy = point.y - map_point.y;
-                const auto distance = dx * dx + dy * dy;
-                // std::cout << distance << std::endl;
-                if(distance < 0.5){
-                    fillter_max++;
-                }
-
-                if(fillter_max > 5){
-                    break;
-                }
-            }
-
-            if(fillter_max < 4){
-                map_points.push_back(point);
-            }
-        }
-
-        // std::vector<point2> fillterd_points;
-
-        // for(const auto& point : map_points){
-        //     auto fillter_max = 0;
-        //     for(const auto& iter_point : map_points){
-        //         const auto dx = point.x - iter_point.x;
-        //         const auto dy = point.y - iter_point.y;
-        //         const auto distance = dx * dx + dy * dy;
-        //         if(distance < 0.5){
-        //             fillter_max++;
-        //         }
-        //         if(fillter_max > 10){
-        //             fillterd_points.push_back(point);
-        //             break;
-        //         }
-        //     }
-        // }
-        // std::copy(fillterd_points.begin(), fillterd_points.end(), std::back_inserter(map_points));
-
-        std::cout << map_points.size() << std::endl;
-
     }
 }

@@ -28,8 +28,8 @@ namespace tailoc_ros2
         pub_current_pose_ = create_publisher<geometry_msgs::msg::PoseStamped>(
             "output/current_pose", 0);
 
-        pub_path_ = create_publisher<nav_msgs::msg::Path>(
-            "output/path", 0);
+        // pub_path_ = create_publisher<nav_msgs::msg::Path>(
+        //     "output/path", 0);
 
         tf_broadcaster_ =
             std::make_unique<tf2_ros::TransformBroadcaster>(*this);
@@ -50,15 +50,12 @@ namespace tailoc_ros2
         std::vector<ndt_cpp::point2> sensor_points;
         tailoc_util::laserscan_to_ndtcpp_point2(msg, sensor_points);
         
-        if(map_points.size() < 10){
+        if(map_points.empty()){
             std::copy(sensor_points.begin(), sensor_points.end(), std::back_inserter(map_points));
             return;
         }
 
         auto delta_trans_mat = ndt_cpp::makeTransformationMatrix(0.0, 0.0, 0.0);
-        auto odom_trans_mat = ndt_cpp::makeTransformationMatrix(odom.x, odom.y, odom.z);
-
-        ndt_cpp::transformPointsZeroCopy(odom_trans_mat, sensor_points);
 
         const auto computed_results = ndt_cpp::compute_ndt_points(ndt_param, map_points);
 
@@ -71,25 +68,9 @@ namespace tailoc_ros2
             map_points
         );
 
-        odom.x = delta_trans_mat.c + odom_trans_mat.c;
-        odom.y = delta_trans_mat.f + odom_trans_mat.f;
-        odom.z = atan((delta_trans_mat.d + odom_trans_mat.d) / (delta_trans_mat.a + odom_trans_mat.a));
-
-
-        odom_trans_mat = ndt_cpp::makeTransformationMatrix(odom.x, odom.y, odom.z);
-        ndt_cpp::modfiyMapFillter(map_points, sensor_points, odom_trans_mat);
-
-        if(ndt_param.enable_debug){
-            RCLCPP_INFO_STREAM(get_logger(), 
-                " X: " << odom.x << 
-                " Y: " << odom.y << 
-                " Z: " << odom.z * 57.295779 << "°"
-            );
-
-            RCLCPP_INFO_STREAM(get_logger(), 
-                "map size: " << map_points.size()
-            );
-        }
+        odom.x = delta_trans_mat.c;
+        odom.y = delta_trans_mat.f;
+        odom.z = std::atan(delta_trans_mat.d / delta_trans_mat.a);
 
         const auto stamp = get_clock()->now();
 
@@ -97,14 +78,6 @@ namespace tailoc_ros2
   
         const auto pose = tailoc_util::point3_to_pose_stamp(odom, stamp);
         pub_current_pose_->publish(pose);
-
-        path.header.stamp = stamp;
-        path.header.frame_id = "map";
-        path.poses.push_back(pose);
-        if(path.poses.size() > 100){
-            path.poses.erase(path.poses.begin());
-        }
-        pub_path_->publish(path);
 
         auto end_time = std::chrono::high_resolution_clock::now(); 
         double latency_ms = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count() / 1e6;

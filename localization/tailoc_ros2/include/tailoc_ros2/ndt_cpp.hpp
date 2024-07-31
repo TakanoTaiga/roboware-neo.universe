@@ -65,12 +65,10 @@ namespace ndt_cpp
         const rclcpp::Logger& logger,
         mat3x3& trans_mat, 
         const std::vector<point2>& source_points, 
-        const std::vector<std::pair<ndt_cpp::mat2x2, ndt_cpp::point2>>& targets,
-        std::vector<point2>& map_points
+        const std::vector<std::pair<ndt_cpp::mat2x2, ndt_cpp::point2>>& targets
     );
 
     mat3x3 makeTransformationMatrix(const double& tx, const double& ty, const double& rad);
-    void modfiyMapFillter(std::vector<point2>& map_points, const std::vector<point2>& sensor_points, const mat3x3 trans_mat);
     void transformPointsZeroCopy(const mat3x3& mat, std::vector<point2>& points);
 }
 
