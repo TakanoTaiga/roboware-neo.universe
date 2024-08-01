@@ -46,6 +46,7 @@ namespace path_planning
         const geometry_msgs::msg::PoseStamped& pose_goal,
         const boost_type::polygon_2d_lf& map,
         const boost_type::polygon_2d_lf& robot,
+        const double& v_max,
         nav_msgs::msg::Path& result_path,
         rclcpp::Logger logger
     );
@@ -59,6 +60,7 @@ namespace path_planning
     void init_path_generator(
         const geometry_msgs::msg::PoseStamped& pose_current,
         const geometry_msgs::msg::PoseStamped& pose_goal,
+        const double& v_max,
         nav_msgs::msg::Path& result_path
     );
 

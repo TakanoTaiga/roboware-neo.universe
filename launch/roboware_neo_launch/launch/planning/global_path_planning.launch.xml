@@ -13,5 +13,6 @@
 
         <param name="map.plypath" value="$(var map_polygon_path)"/>
         <param name="robot.plypath" value="$(var robot_polygon_path)"/>
+        <param name="max_speed" value="1.0"/>
     </node>
 </launch>

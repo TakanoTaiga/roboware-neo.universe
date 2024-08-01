@@ -57,6 +57,8 @@ namespace wp2wp_planner
         boost_type::polygon_2d_lf ply2d_map;
         boost_type::polygon_2d_lf ply2d_robot;
 
+        double param_max_speed;
+
         void current_pose_subscriber_callback(const geometry_msgs::msg::PoseStamped& msg);
         void goal_pose_subscriber_callback(const geometry_msgs::msg::PoseStamped& msg);
         void task_action_subscriber_callback(const rw_planning_msg::msg::TaskAction& action_msg);

@@ -23,6 +23,7 @@ namespace path_planning
         const geometry_msgs::msg::PoseStamped& pose_goal,
         const boost_type::polygon_2d_lf& map,
         const boost_type::polygon_2d_lf& robot,
+        const double& v_max,
         nav_msgs::msg::Path& result_path,
         rclcpp::Logger logger
     ){
@@ -47,6 +48,7 @@ namespace path_planning
         init_path_generator(
             pose_current,
             pose_goal,
+            v_max,
             result_path
         );
 
@@ -89,6 +91,7 @@ namespace path_planning
     void init_path_generator(
         const geometry_msgs::msg::PoseStamped& pose_current,
         const geometry_msgs::msg::PoseStamped& pose_goal,
+        const double& v_max,
         nav_msgs::msg::Path& result_path
     ) {
         const double ab_x = pose_goal.pose.position.x - pose_current.pose.position.x;
@@ -120,7 +123,6 @@ namespace path_planning
             const double interp_yaw = current_rpy.yaw + yaw_diff * smooth_progress;
 
             double interp_velocity;
-            const auto v_max = 0.8;
             const auto acc_length = 0.1 * length;
 
             if (progress < 0.1) {
