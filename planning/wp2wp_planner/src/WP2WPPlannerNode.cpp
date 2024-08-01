@@ -45,6 +45,8 @@ namespace wp2wp_planner
             declare_parameter<std::string>("robot.plypath" , "kill")
         );
 
+        param_max_speed = declare_parameter<double>("max_speed" , 1.0);
+
         map_pub_timer_  = 
             create_wall_timer(std::chrono::milliseconds(1000), std::bind(&WP2WPPlannerNode::map_pub_timer_callback, this));
 
@@ -77,6 +79,7 @@ namespace wp2wp_planner
             msg,
             ply2d_map,
             ply2d_robot,
+            param_max_speed,
             nav_path,
             get_logger()
         );
