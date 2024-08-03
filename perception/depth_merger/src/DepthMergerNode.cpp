@@ -17,10 +17,10 @@
 namespace depth_merge_node
 {
     DepthMergerNode::DepthMergerNode(const rclcpp::NodeOptions &node_option)
-        : rclcpp::Node("depth_merger_node", node_option)
-    {   
-        camera_frame_id = declare_parameter<std::string>("frame_id" , "base_link");
-
+        : rclcpp::Node("depth_merger_node", node_option), 
+        tf_buffer_(this->get_clock()),
+        tf_listener_(tf_buffer_) 
+    {
         sub_2d_bbox_ = create_subscription<bboxes_ex_msgs::msg::BoundingBoxes>(
             "input/bbox", 0, std::bind(&DepthMergerNode::bbox_subscriber_callback, this, std::placeholders::_1));
         sub_depth_image_ = create_subscription<sensor_msgs::msg::Image>(
@@ -33,13 +33,11 @@ namespace depth_merge_node
 
         tf_broadcaster_ =
             std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+        param_base_frame = declare_parameter<std::string>("base_frame" , "base_link");
     }
 
     void DepthMergerNode::image_subscriber_callback(const sensor_msgs::msg::Image& msg)
     {
-
-        image_cache[util::get_key(msg.header)] = msg;
-
         auto convertTimestampToDouble = [](builtin_interfaces::msg::Time time) {
             auto sec = time.sec; 
             auto nanosec = time.nanosec;
@@ -47,12 +45,14 @@ namespace depth_merge_node
             return static_cast<double>(sec) + static_cast<double>(nanosec) / NANOSECONDS_IN_SECOND;
         };
 
+        image_cache[util::get_key(msg.header)] = std::make_pair(convertTimestampToDouble(get_clock()->now()), msg);
+
         std::vector<util::key_time> key_list;
-        for(const auto& [key, image] : image_cache)
+        for(const auto& [key, image_and_time] : image_cache)
         {
-            const auto img_time = convertTimestampToDouble(image.header.stamp);
+            const auto& [add_time, image] = image_and_time;
             const auto now_time = convertTimestampToDouble(get_clock()->now());
-            const auto dt = std::abs(now_time - img_time);
+            const auto dt = std::abs(now_time - add_time);
             if(dt > 1.0){
                 key_list.push_back(key);
             }
@@ -78,11 +78,10 @@ namespace depth_merge_node
 
         if(!rw_common_util::contains(image_cache, util::get_key(msg.image_header))){ return; }
 
-        const auto& image = image_cache[util::get_key(msg.image_header)];
+        const auto& [_, image] = image_cache[util::get_key(msg.image_header)];
         auto cv_image = cv_bridge::toCvShare(sensor_msgs::msg::Image::ConstSharedPtr(new sensor_msgs::msg::Image(image)), image.encoding);
 
         auto poses_rosmsg = rw_common_msgs::msg::TransformArray();
-
         for (const auto& bbox : msg.bounding_boxes) {
             uint64_t depth_sum = 0;
             uint32_t count = 0; 
@@ -91,20 +90,16 @@ namespace depth_merge_node
             for (uint16_t y = bbox.ymin; y <= bbox.ymax; ++y) {
                 for (uint16_t x = bbox.xmin; x <= bbox.xmax; ++x) {
                     const auto depth_mm = cv_image->image.at<uint16_t>(y, x);
-                    if (depth_mm > 520 && depth_mm < 4000) {
-                        depth_sum += depth_mm;
-                        ++count;
-                    } else {
-                        ++err_count;
-                    }
+                    depth_sum += depth_mm;
+                    ++count;
                 }
             }
 
-            if (count == 0 || static_cast<double>(err_count) / (count + err_count) > 0.3) {
+            if (count == 0) {
                 continue;
             }
 
-            const auto depth_avg_m = static_cast<double>(depth_sum) / count / 1000.0f;
+            const auto depth_avg_m = static_cast<double>(depth_sum) / static_cast<double>(count) / 1000.0f;
             const auto bbox_size_x = bbox.xmax - bbox.xmin;
             const auto bbox_size_y = bbox.ymax - bbox.ymin;
             const auto position_x = ((bbox.xmin + bbox_size_x / 2) - cx) * depth_avg_m / fx;
@@ -117,9 +112,16 @@ namespace depth_merge_node
             transform.transform.translation.x = position_x;
             transform.transform.translation.y = position_y;
             transform.transform.translation.z = position_z;
-            tf_broadcaster_->sendTransform(transform);
 
-            poses_rosmsg.transforms.push_back(transform);
+            try {
+                auto map_transform = tf_buffer_.lookupTransform(param_base_frame, transform.header.frame_id, transform.header.stamp, rclcpp::Duration::from_seconds(0.1)); //tiemr
+                tf2::doTransform(transform, transform, map_transform);
+                tf_broadcaster_->sendTransform(transform);
+                poses_rosmsg.transforms.push_back(transform);
+            } catch (tf2::TransformException &ex) {
+                RCLCPP_WARN(this->get_logger(), "Transform failed: %s", ex.what());
+                continue;
+            }
         }
 
         pub_poses_->publish(poses_rosmsg);
