@@ -23,6 +23,9 @@
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
 #include <tf2_ros/transform_broadcaster.h>
+#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/buffer.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <bboxes_ex_msgs/msg/bounding_boxes.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 #include <geometry_msgs/msg/pose_array.hpp>
@@ -47,10 +50,12 @@ namespace depth_merge_node
         rclcpp::Publisher<rw_common_msgs::msg::TransformArray>::SharedPtr pub_poses_;
 
         std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
-
-        std::map<util::key_time, sensor_msgs::msg::Image> image_cache;
+        tf2_ros::Buffer tf_buffer_;
+        tf2_ros::TransformListener tf_listener_;
+        std::map<util::key_time, std::pair<double, sensor_msgs::msg::Image>> image_cache;
+        geometry_msgs::msg::TransformStamped frame_transform;
+        std::string param_base_frame;
         double fx, fy, cx, cy;
-        std::string camera_frame_id;
 
         void image_subscriber_callback(const sensor_msgs::msg::Image& msg);
         void cam_info_subscriber_callback(const sensor_msgs::msg::CameraInfo::SharedPtr msg);
