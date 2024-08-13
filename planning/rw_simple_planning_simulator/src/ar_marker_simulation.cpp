@@ -17,10 +17,10 @@
 namespace rw_simple_planning_simulator
 {
     visualization_msgs::msg::Marker polygon_to_ros(
-        std::string frame_id,
-        builtin_interfaces::msg::Time stamp,
-        polygon_2d& poly,
-        int32_t id
+        const std::string& frame_id,
+        const builtin_interfaces::msg::Time& stamp,
+        const polygon_2d& poly,
+        const int32_t& id
     ){
         auto marker_msg = visualization_msgs::msg::Marker();
         marker_msg.header.stamp = stamp;
@@ -174,5 +174,10 @@ namespace rw_simple_planning_simulator
         polygon_2d result;
         boost::geometry::transform(detection_area, result, t_tf(pose.position.x, pose.position.y));
         detection_area = result;
+    }
+
+    const polygon_2d& ar_marker_simulation::get_detection_area()
+    {
+        return detection_area;
     }
 }

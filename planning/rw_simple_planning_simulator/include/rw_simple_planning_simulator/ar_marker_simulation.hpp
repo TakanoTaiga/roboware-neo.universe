@@ -40,10 +40,10 @@ namespace rw_simple_planning_simulator
     using t_tf = boost::geometry::strategy::transform::translate_transformer<double, 2, 2>;
 
     visualization_msgs::msg::Marker polygon_to_ros(
-        std::string frame_id,
-        builtin_interfaces::msg::Time stamp,
-        polygon_2d& poly,
-        int32_t id
+        const std::string& frame_id,
+        const builtin_interfaces::msg::Time& stamp,
+        const polygon_2d& poly,
+        const int32_t& id
     );
 
     class ar_marker_simulation
@@ -61,11 +61,12 @@ namespace rw_simple_planning_simulator
             const builtin_interfaces::msg::Time& time
         );
         void set_param(const std::string& path, const int& id);
+        const polygon_2d& get_detection_area();
 
-        polygon_2d detection_area; //public debug only
     private:
         polygon_2d base_detection_area;
         polygon_2d ar_maker_model;
+        polygon_2d detection_area;
         std::chrono::system_clock::time_point start_time;
         std::map<int, std::vector<std::pair<double, std::tuple<double, double, double>>>> param_data;
     };
