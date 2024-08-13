@@ -99,7 +99,7 @@ namespace rw_simple_planning_simulator
         armkr_sim.set_current_pose(pose_msg.pose);
 
         auto viz_msg = armkr_sim.pub_pose(tf_broadcaster_, pub_marker_realtime_, now());
-        viz_msg.markers.push_back(polygon_to_ros("map", now(), armkr_sim.detection_area, 1));
+        viz_msg.markers.push_back(polygon_to_ros("map", now(), armkr_sim.get_detection_area(), 1));
         pub_debug_->publish(viz_msg);
     }
 
