@@ -55,6 +55,8 @@ namespace rw_common_util
             T roll, pitch, yaw;
         };
 
+        double normalize_angle(const double& input);
+
         template <typename T>
         rw_quat<T> euler_to_quat(const T& roll, const T& pitch, const T& yaw);
         template <typename T>
@@ -72,13 +74,8 @@ namespace rw_common_util
         rw_euler<T> quat_to_euler(const rw_quat<T>& input);
 
         rw_euler<double> quat_to_euler(const geometry_msgs::msg::Quaternion& input);
-    }
-}
 
-namespace rw_common_util
-{
-    namespace geometry
-    {
+
         template <typename T, typename = void>
         struct HasMemberW : std::false_type {};
 
@@ -117,13 +114,6 @@ namespace rw_common_util
         {
         };
 
-    }  // namespace geometry
-}  // namespace rw_common_util
-
-namespace rw_common_util
-{
-  namespace geometry
-  {
     template <
       typename T, typename U,
       std::enable_if_t<std::conjunction_v<IsLikeVector3<T>, IsLikeVector3<U>>, std::nullptr_t> =
