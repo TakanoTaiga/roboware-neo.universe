@@ -21,6 +21,8 @@ namespace attitude_controller
     {   
         pub_twist_ = create_publisher<geometry_msgs::msg::Twist>(
             "output/twist", 0);
+        pub_debug_pid_ = create_publisher<rw_common_msgs::msg::PIDDebug>(
+            "debug/pid_debug", 0);
         sub_pose_ = create_subscription<geometry_msgs::msg::PoseStamped>(
             "input/sensor_pose", 0, std::bind(&attitude_controller_node::pose_subscriber_callback, this, std::placeholders::_1));
         sub_cmd_pose_ = create_subscription<geometry_msgs::msg::Pose>(
@@ -29,8 +31,13 @@ namespace attitude_controller
             std::chrono::milliseconds(50), std::bind(&attitude_controller_node::timer_callback, this));
         
         angle_p_gain = declare_parameter<double>("p_gain" , 1.0);
+        angle_d_gain = declare_parameter<double>("d_gain" , 0.1);
         max_linear_velocity = declare_parameter<double>("max_velocity_m/s" , 3.0);
         max_angular_velocity = declare_parameter<double>("max_angular_m/s" , 1.0);
+
+        previous_time = this->now();
+        previous_sensor_z = 0.0;
+        
     }
 
     void attitude_controller_node::pose_subscriber_callback(const geometry_msgs::msg::PoseStamped& msg)
@@ -48,21 +55,32 @@ namespace attitude_controller
         const auto sensor_z = rw_common_util::geometry::quat_to_euler(sensor_pose.orientation).yaw;
         const auto cmd_z = rw_common_util::geometry::quat_to_euler(cmd_pose.orientation).yaw;
 
-        auto normalize_angle = [](double angle){
-            while (angle > M_PI)
-                angle -= 2.0 * M_PI;
-            while (angle < -M_PI)
-                angle += 2.0 * M_PI;
-            return angle;
-        };
+        const auto normalized_sense_z = rw_common_util::geometry::normalize_angle(sensor_z);
+        const auto normalized_cmd_z = rw_common_util::geometry::normalize_angle(cmd_z);
 
-        const auto normalized_sense_z = normalize_angle(sensor_z);
-        const auto normalized_cmd_z = normalize_angle(cmd_z);
+        // Angle PD Cotnrol 
+        const auto error = rw_common_util::geometry::normalize_angle(normalized_sense_z - normalized_cmd_z);
+        const auto p_term = angle_p_gain * error;
+
+        const auto current_time = this->now();
+        const auto dt = (current_time - previous_time).seconds();
+        previous_time = current_time;
+        const auto sensor_z_dot = (normalized_sense_z - previous_sensor_z) / dt;
+        previous_sensor_z = normalized_sense_z;
+        const auto d_term = angle_d_gain * sensor_z_dot;
 
         auto twist = geometry_msgs::msg::Twist();
         twist.linear.x =  cmd_pose.position.x * cos(normalized_sense_z) + cmd_pose.position.y * sin(normalized_sense_z);
         twist.linear.y = -cmd_pose.position.x * sin(normalized_sense_z) + cmd_pose.position.y * cos(normalized_sense_z);
-        twist.angular.z = angle_p_gain * (normalize_angle(normalized_sense_z - normalized_cmd_z));
+        twist.angular.z = p_term - d_term;
+
+        auto pid_debug_msg = rw_common_msgs::msg::PIDDebug();
+        pid_debug_msg.order = normalized_cmd_z;
+        pid_debug_msg.sensor = normalized_sense_z;
+        pid_debug_msg.control = twist.angular.z;
+        pid_debug_msg.p = p_term;
+        pid_debug_msg.d = d_term;
+        pub_debug_pid_->publish(pid_debug_msg);
 
         power_saver(twist);
         pub_twist_->publish(twist);

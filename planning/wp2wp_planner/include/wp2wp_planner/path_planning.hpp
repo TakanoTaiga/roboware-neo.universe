@@ -61,7 +61,8 @@ namespace path_planning
         const geometry_msgs::msg::PoseStamped& pose_current,
         const geometry_msgs::msg::PoseStamped& pose_goal,
         const double& v_max,
-        nav_msgs::msg::Path& result_path
+        nav_msgs::msg::Path& result_path,
+        bool use_sigmoid_angle_planner = false
     );
 
     status check_path_in_map(

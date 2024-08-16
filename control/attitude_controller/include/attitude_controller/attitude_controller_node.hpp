@@ -19,6 +19,7 @@
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <rw_common_util/geometry.hpp>
+#include <rw_common_msgs/msg/pid_debug.hpp>
 
 namespace attitude_controller
 {
@@ -32,6 +33,7 @@ namespace attitude_controller
         rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr sub_pose_;
         rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr sub_cmd_pose_;
         rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr pub_twist_;
+        rclcpp::Publisher<rw_common_msgs::msg::PIDDebug>::SharedPtr pub_debug_pid_;
         rclcpp::TimerBase::SharedPtr control_timer_;
 
         void pose_subscriber_callback(const geometry_msgs::msg::PoseStamped& msg);
@@ -43,8 +45,12 @@ namespace attitude_controller
         geometry_msgs::msg::Pose cmd_pose;
 
         double angle_p_gain;
+        double angle_d_gain;
         double max_linear_velocity;
         double max_angular_velocity;
+
+        rclcpp::Time previous_time;
+        double previous_sensor_z;
 
     };
 } // namespace attitude_controller

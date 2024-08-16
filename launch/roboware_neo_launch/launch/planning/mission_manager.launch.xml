@@ -1,6 +1,6 @@
 <launch>  
-    <!-- <arg name="graph_path" default="$(find-pkg-share roboware_neo_launch)/state_graph/s-graph.md"/> -->
-    <arg name="graph_path" default="$(find-pkg-share roboware_neo_launch)/state_graph/c-graph.md"/>
+    <arg name="graph_path" default="$(find-pkg-share roboware_neo_launch)/state_graph/s-graph.md"/>
+    <!-- <arg name="graph_path" default="$(find-pkg-share roboware_neo_launch)/state_graph/c-graph.md"/> -->
 
     <!-- <arg name="graph_path" default="$(find-pkg-share roboware_neo_launch)/state_graph/scenario_simulation/rotation.md"/> -->
     <!-- <arg name="graph_path" default="$(find-pkg-share roboware_neo_launch)/state_graph/scenario_simulation/loop.md"/> -->

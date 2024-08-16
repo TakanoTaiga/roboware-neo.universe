@@ -30,8 +30,6 @@ namespace wp2wp_planner
 
         pub_global_plan_path_ = create_publisher<nav_msgs::msg::Path>(
             "output/global_plan_path", 0);
-        pub_action_result = create_publisher<rw_planning_msg::msg::ActionResult>(
-            "output/action_result", 0);
 
         pub_debug_area_ = create_publisher<visualization_msgs::msg::Marker>(
             "debug/area",0);

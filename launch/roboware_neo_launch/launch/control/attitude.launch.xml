@@ -3,6 +3,8 @@
         <remap from="output/twist" to="/control/cmd_vel"/>
         <remap from="input/sensor_pose" to="/localization/current_pose"/>
         <remap from="input/cmd_pose" to="/control/cmd_pose"/>
-        <param name="p_gain" value="2.0"/>
+        <remap from="debug/pid_debug" to="control/attitude_controller/debug/pid"/>
+        <param name="p_gain" value="1.0"/>
+        <param name="d_gain" value="0.1"/>
     </node>
 </launch>

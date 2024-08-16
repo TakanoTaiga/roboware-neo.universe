@@ -45,7 +45,6 @@ namespace wp2wp_planner
         rclcpp::Subscription<rw_planning_msg::msg::TaskAction>::SharedPtr sub_task_action_;
 
         rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr pub_global_plan_path_;
-        rclcpp::Publisher<rw_planning_msg::msg::ActionResult>::SharedPtr pub_action_result;
 
         rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr pub_debug_area_;
         rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr pub_debug_robot_;

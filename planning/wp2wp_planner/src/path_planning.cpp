@@ -92,7 +92,8 @@ namespace path_planning
         const geometry_msgs::msg::PoseStamped& pose_current,
         const geometry_msgs::msg::PoseStamped& pose_goal,
         const double& v_max,
-        nav_msgs::msg::Path& result_path
+        nav_msgs::msg::Path& result_path,
+        bool use_sigmoid_angle_planner
     ) {
         const double ab_x = pose_goal.pose.position.x - pose_current.pose.position.x;
         const double ab_y = pose_goal.pose.position.y - pose_current.pose.position.y;
@@ -120,7 +121,7 @@ namespace path_planning
 
             double progress = l / length;
             double smooth_progress = sigmoid(8.0 * (progress - 0.5));
-            const double interp_yaw = current_rpy.yaw + yaw_diff * smooth_progress;
+            const double interp_yaw = use_sigmoid_angle_planner ? current_rpy.yaw + yaw_diff * smooth_progress : current_rpy.yaw + yaw_diff * (l / length);
 
             double interp_velocity;
             const auto acc_length = 0.1 * length;

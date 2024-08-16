@@ -28,20 +28,12 @@ namespace localization_debug
 
     void quat_to_euler_node::callback_sub_euler(const geometry_msgs::msg::PoseStamped& pose)
     {
-        auto normalize_angle = [](double angle){
-            while (angle > M_PI)
-                angle -= 2.0 * M_PI;
-            while (angle < -M_PI)
-                angle += 2.0 * M_PI;
-            return angle;
-        };
-
         const auto euler_pose = rw_common_util::geometry::quat_to_euler(pose.pose.orientation);
         auto pub_msg = geometry_msgs::msg::Vector3Stamped();
         pub_msg.header = pose.header;
-        pub_msg.vector.x = normalize_angle(euler_pose.pitch) * 57.295779513;
-        pub_msg.vector.y = normalize_angle(euler_pose.roll)  * 57.295779513;
-        pub_msg.vector.z = normalize_angle(euler_pose.yaw)   * 57.295779513;
+        pub_msg.vector.x = rw_common_util::geometry::normalize_angle(euler_pose.pitch) * 57.295779513;
+        pub_msg.vector.y = rw_common_util::geometry::normalize_angle(euler_pose.roll)  * 57.295779513;
+        pub_msg.vector.z = rw_common_util::geometry::normalize_angle(euler_pose.yaw)   * 57.295779513;
         pub_euler_->publish(pub_msg);
     }
 

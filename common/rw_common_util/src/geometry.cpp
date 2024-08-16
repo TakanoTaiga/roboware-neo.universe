@@ -18,6 +18,16 @@ namespace rw_common_util
 {
     namespace geometry
     {
+        double normalize_angle(const double& input)
+        {
+            auto angle = input;
+            while (angle > M_PI)
+                angle -= 2.0 * M_PI;
+            while (angle < -M_PI)
+                angle += 2.0 * M_PI;
+            return angle;
+        }
+
         template <typename T>
         rw_quat<T> euler_to_quat(const T& roll, const T& pitch, const T& yaw)
         {

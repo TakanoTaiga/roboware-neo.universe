@@ -13,6 +13,7 @@
   <depend>rclcpp_components</depend>
   <depend>geometry_msgs</depend>
   <depend>rw_common_util</depend>
+  <depend>rw_common_msgs</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
