@@ -1,0 +1,4 @@
+nav:
+    - mission_manager.md
+    - wp2wp_planner.md
+    - path_follower.md

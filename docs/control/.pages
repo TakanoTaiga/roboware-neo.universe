@@ -1,2 +1,4 @@
 nav:
     - joy_to_twist.md
+    - attitude_controller.md
+    - mcu_ros_driver.md

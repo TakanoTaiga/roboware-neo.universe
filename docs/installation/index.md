@@ -19,7 +19,7 @@ sudo apt install git curl python3-pip
 
 1. Install CUDA and cuDNN (Optional)
 
-    Please access the NVIDIA website and install CUDA 11.8 along with the corresponding cuDNN. Once you can execute `nvcc --version` the installation is complete.
+    Please access the NVIDIA website and install CUDA 12.x along with the corresponding cuDNN. Once you can execute `nvcc --version` the installation is complete.
 
 2. Install ROS 2
 
@@ -37,25 +37,23 @@ sudo apt install git curl python3-pip
     rosdep update
     ```
 
-4. Install PyTorch
+4. Install PyTorch and Ultralytics
 
     ```bash
-    python3 -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+    python3 -m pip install torch torchvision torchaudio ultralytics
     ```
 
 5. Workspace setup
 
     ```bash
-    mkdir -p ~/ros_ws/src
-    cd ~/ros_ws/src
     git clone https://github.com/hakoroboken/roboware-neo.universe.git
-    cd ~/ros_ws
-    rosdep install -y --from-paths src --ignore-src --skip-keys=OpenCV --skip-keys=PCL --rosdistro humble
+    cd roboware-neo.universe
+    rosdep install -y --from-paths ./ --ignore-src --skip-keys=OpenCV --skip-keys=PCL --rosdistro humble
     ```
 6. Compile
 
     ```bash
-    colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
+    ./compile.sh
     ```
 
 ## Additional Component Setup
