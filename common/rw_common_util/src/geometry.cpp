@@ -28,6 +28,44 @@ namespace rw_common_util
             return angle;
         }
 
+        double hypot(const geometry_msgs::msg::Vector3& vec)
+        {
+            return std::hypot(vec.x, vec.y, vec.z);
+        }
+
+        double hypot(const geometry_msgs::msg::Point& point)
+        {
+            return std::hypot(point.x, point.y, point.z);
+        }
+
+        geometry_msgs::msg::Vector3 make_vec3(const double& x, const double& y, const double& z)
+        {
+            geometry_msgs::msg::Vector3 v;
+            v.x = x;
+            v.y = y;
+            v.z = z;
+            return v;
+        }
+
+        geometry_msgs::msg::Vector3 make_vec3(const geometry_msgs::msg::Point& point)
+        {
+            return make_vec3(point.x, point.y, point.z);
+        }
+
+        geometry_msgs::msg::Point make_point(const double& x, const double& y, const double& z)
+        {
+            geometry_msgs::msg::Point v;
+            v.x = x;
+            v.y = y;
+            v.z = z;
+            return v;
+        }
+
+        geometry_msgs::msg::Point make_point(const geometry_msgs::msg::Vector3& vec)
+        {
+            return make_point(vec.x, vec.y, vec.z);
+        }
+
         template <typename T>
         rw_quat<T> euler_to_quat(const T& roll, const T& pitch, const T& yaw)
         {
