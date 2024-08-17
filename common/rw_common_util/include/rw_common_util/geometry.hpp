@@ -40,6 +40,14 @@
 #include <geometry_msgs/msg/pose.hpp>
 #include <geometry_msgs/msg/transform.hpp>
 
+#define RWCOMMON_UTIL_GEOMETRY_OPERATOR_ALL_IMPORT \
+  using rw_common_util::geometry::operator+; \
+  using rw_common_util::geometry::operator-; \
+  using rw_common_util::geometry::operator*; \
+  using rw_common_util::geometry::operator/; \
+  using rw_common_util::geometry::operator*=; \
+  using rw_common_util::geometry::operator/=
+
 namespace rw_common_util
 {
     namespace geometry
@@ -75,6 +83,13 @@ namespace rw_common_util
 
         rw_euler<double> quat_to_euler(const geometry_msgs::msg::Quaternion& input);
 
+        double hypot(const geometry_msgs::msg::Vector3& vec);
+        double hypot(const geometry_msgs::msg::Point& point);
+
+        geometry_msgs::msg::Vector3 make_vec3(const double& x, const double& y, const double& z);
+        geometry_msgs::msg::Vector3 make_vec3(const geometry_msgs::msg::Point& point);
+        geometry_msgs::msg::Point make_point(const double& x, const double& y, const double& z);
+        geometry_msgs::msg::Point make_point(const geometry_msgs::msg::Vector3& vec);
 
         template <typename T, typename = void>
         struct HasMemberW : std::false_type {};
